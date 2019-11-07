@@ -30,7 +30,7 @@
  *		        - Adapted file to work on both, ARUIX and PSoC\n
  *		        - Added RC_t enums: RC_ERROR_BAD_PARAM, RC_ERROR_BAD_DATA, RC_ERROR_CANCELED, RC_ERROR_INVALID_STATE, RC_UNKNOWN\n\n
  *
- * \copyright Copyright ©2016
+ * \copyright Copyright ï¿½2016
  * Department of electrical engineering and information technology, Hochschule Darmstadt - University of applied sciences (h_da). All Rights Reserved.
  * Permission to use, copy, modify, and distribute this software and its documentation for educational, and research purposes in the context of non-commercial
  * (unless permitted by h_da) and official h_da projects, is hereby granted for enrolled students of h_da, provided that the above copyright notice,
@@ -124,5 +124,9 @@ typedef enum{
     service_UNAVAILABLE,                            /**< \brief Service is unavailable.*/
 }service_state_t;
 };
+
+#define NVIDIA		1
+#define RSP			2
+#define PC 			3
 
 #endif /* GLOBAL_H_ */
