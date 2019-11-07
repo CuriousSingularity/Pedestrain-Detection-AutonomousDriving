@@ -69,7 +69,7 @@ RC_t CUart::configure()
 
 	memset(&tty, 0, sizeof(tty));
 
-	if (tcgetattr(this->m_fd, &tty) != 0)
+	if (tcgetattr(this->m_fd_w, &tty) != 0)
 	{
 		cout << "ERROR\t: " << errno << " from tcgetattr\n";
 		return RC_ERROR_BAD_DATA;
@@ -100,7 +100,7 @@ RC_t CUart::configure()
 	tty.c_cflag &= ~CSTOPB;
 	tty.c_cflag &= ~CRTSCTS;
 
-	if (tcsetattr (this->m_fd, TCSANOW, &tty) != 0)
+	if (tcsetattr (this->m_fd_w, TCSANOW, &tty) != 0)
 	{
 		cout << "ERROR\t: " << errno << " from tcsetattr\n";
 		return RC_ERROR_BAD_PARAM;

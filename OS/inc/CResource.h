@@ -38,16 +38,6 @@ private:
 	mode_t m_mode;
 
 	/**
-	 * @brief : Mutex to read protect the resource
-	 */
-	CMutex m_mutex_r;
-
-	/**
-	 * @brief : Mutex to write protect the resource
-	 */
-	CMutex m_mutex_w;
-
-	/**
 	 * @brief : Open the device for reading or writing
 	 *
 	 * @return RC_t : status of open
@@ -64,9 +54,24 @@ private:
 protected:
 
 	/**
+	 * @brief : Mutex to read protect the resource
+	 */
+	CMutex m_mutex_r;
+
+	/**
+	 * @brief : Mutex to write protect the resource
+	 */
+	CMutex m_mutex_w;
+
+	/**
 	 * @brief : File Descriptor of the resource
 	 */
-	int m_fd;
+	int m_fd_w;
+
+	/**
+	 * @brief : File Descriptor of the resource 
+	 */
+	int m_fd_r;
 
 	/**
 	 * @brief : Status of the Resource
@@ -82,7 +87,7 @@ public:
 	 * @param oflag		: access mode flags
 	 * @param mode		: permissio mode
 	 */
-	CResource(std::string devPath, int flag, mode_t mode);
+	CResource(std::string devPath = "", int flag = 0, mode_t mode = 0);
 
 	/**
 	 * @brief : Destructor

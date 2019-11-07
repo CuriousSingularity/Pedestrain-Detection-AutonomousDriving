@@ -75,6 +75,8 @@ void CDetection::run()
 	// The Threads runs here
 	cout << "INFO\t: Camera Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
 
+	while (1);
+
 #if 0
 	// Locals declaration:
 	vector<Rect> detections;		// Vector of boxes where a detection was achieved

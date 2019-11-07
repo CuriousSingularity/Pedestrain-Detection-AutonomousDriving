@@ -59,7 +59,8 @@ void CCameraService::run()
 
 	while (1)
 	{
-		cout << "INFO\t: Camera Running Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
+		// cout << "INFO\t: Camera Running Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
+		// sleep(1);
 	}
 }
 

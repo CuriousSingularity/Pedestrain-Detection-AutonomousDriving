@@ -32,7 +32,9 @@ using namespace global;
  */
 CResource::CResource(string devPath, int flag, mode_t mode)
 {
-	this->m_resNodePath 	= devPath;
+	this->m_fd_w		= 0;
+	this->m_fd_r		= 0;
+	this->m_resNodePath = devPath;
 	this->m_flags		= flag;
 	this->m_mode		= mode;
 	this->m_status		= service_UNDEFINED;
@@ -47,6 +49,10 @@ CResource::CResource(string devPath, int flag, mode_t mode)
 		this->m_status	= service_READY;
 		cout << "INFO\t: Device " << this->m_resNodePath << " opened for operation" << endl;
 	}
+
+	// the hardware has read and write discriptor to be same.
+	// but for software resource, this is configurable.
+	this->m_fd_r		= this->m_fd_w;
 }
 
 
@@ -86,20 +92,16 @@ RC_t CResource::open()
 		return RC_ERROR_BUSY;
 	}
 
-	if (this->m_resNodePath.empty())
+	if (!this->m_resNodePath.empty())
 	{
-		cout << "ERROR\t: Invalid Device node " << this->m_resNodePath << endl;
+		this->m_fd_w = ::open(this->m_resNodePath.c_str(), this->m_flags, this->m_mode);
 
-		return RC_ERROR_INVALID;
-	}
-
-	this->m_fd = ::open(this->m_resNodePath.c_str(), this->m_flags, this->m_mode);
-
-	if (this->m_fd == -1)
-	{
-		cout << "ERROR\t: Resource open failed for Device " << this->m_resNodePath << endl;
-		
-		ret = RC_ERROR_OPEN;
+		if (this->m_fd_w == -1)
+		{
+			cout << "ERROR\t: Resource open failed for Device " << this->m_resNodePath << endl;
+			
+			ret = RC_ERROR_OPEN;
+		}
 	}
 
 	if (this->m_mutex_w.unlock() != RC_SUCCESS)
@@ -118,7 +120,7 @@ RC_t CResource::open()
  */
 RC_t CResource::close()
 {
-	RC_t ret = RC_ERROR_CLOSE;
+	RC_t ret = RC_SUCCESS;
 
 	if (this->m_status != service_READY)
 		return RC_ERROR_INVALID_STATE;
@@ -129,10 +131,13 @@ RC_t CResource::close()
 		return RC_ERROR_BUSY;
 	}
 
-	if(::close(this->m_fd) == 0)
-	{
-		ret = RC_SUCCESS;
-	}
+	this->m_status	= service_UNDEFINED;
+	
+	::close(this->m_fd_w);
+	::close(this->m_fd_r);
+
+	this->m_fd_r = 0;
+	this->m_fd_w = 0;
 
 	if (this->m_mutex_w.unlock() != RC_SUCCESS)
 	{
@@ -167,7 +172,7 @@ RC_t CResource::read(void *buffer, const size_t nByte, ssize_t &rByte)
 			return RC_ERROR_BUSY;
 		}
 
-		if ((rByte = ::read(this->m_fd, buffer, nByte)) == -1)
+		if ((rByte = ::read(this->m_fd_r, buffer, nByte)) == -1)
 		{
 			cout << "ERROR\t: Read failed for Device " << this->m_resNodePath << endl;
 
@@ -215,7 +220,7 @@ RC_t CResource::write(const void *buffer, const size_t nByte, ssize_t &rByte)
 			return RC_ERROR_BUSY;
 		}
 
-		if ((rByte = ::write(this->m_fd, buffer, nByte)) == -1)
+		if ((rByte = ::write(this->m_fd_w, buffer, nByte)) == -1)
 		{
 			cout << "ERROR\t: Write failed for Device " << this->m_resNodePath << endl;
 

@@ -14,17 +14,23 @@
 //System Include Files
 
 //Own Include Files
-#include "CDetection.h"
-#include "CComTxService.h"
-#include "CCameraService.h"
+#include "./App/inc/CDetection.h"
+#include "./App/inc/CComTxService.h"
+#include "./App/inc/CComRxService.h"
+#include "./App/inc/CCameraService.h"
 
 class CApplication {
 private:
 
 	/**
-	 * @brief : Communication Service thread
+	 * @brief : Communication Tx Service thread
 	 */
 	CComTxService m_thread_com_tx_service;
+
+	/**
+	 * @brief : Communication Rx Service thread
+	 */
+	CComRxService m_thread_com_rx_service;
 
 	/**
 	 * @brief : Camera Service thread

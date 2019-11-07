@@ -1,7 +1,7 @@
 /***************************************************************************
  *============= Copyright by Darmstadt University of Applied Sciences =======
  ****************************************************************************
- * Filename        : CComTxService.h
+ * Filename        : CComRxService.h
  * Author          : Bharath Ramachandraiah (stbhrama@stud.h-da.de)
  * Description     : Serial Data Processing thread - packet reception and processing
  * 			it with Service-ID, Local-ID; predefined protocol.
@@ -16,7 +16,7 @@
 #include <fcntl.h>
 
 //Own Include Files
-#include "./App/inc/CComTxService.h"
+#include "./App/inc/CComRxService.h"
 #include "./App/inc/CSerialProtocol.h"
 
 //Namespace
@@ -32,9 +32,8 @@ using namespace global;
  * @param entry		: Entry function for the thread
  * @param arg		: Arguments to the thread
  */
-CComTxService::CComTxService(int threadIndex, CThread::start_routine_t entry, void *arg) : 
-		CThread(threadIndex, entry, arg), 
-		m_uart_0("/dev/tty0"	, O_RDWR | O_NOCTTY | O_SYNC, S_IRWXU)
+CComRxService::CComRxService(int threadIndex, CThread::start_routine_t entry, void *arg) : 
+		CThread(threadIndex, entry, arg)
 {
 	// nothing
 }
@@ -43,7 +42,7 @@ CComTxService::CComTxService(int threadIndex, CThread::start_routine_t entry, vo
 /**
  * @brief : Destructor
  */
-CComTxService::~CComTxService()
+CComRxService::~CComRxService()
 {
 	// nothing
 }
@@ -54,14 +53,14 @@ CComTxService::~CComTxService()
  *
  * @return - to join the thread
  */
-void CComTxService::run()
+void CComRxService::run()
 {
 	// The Threads runs here
 	cout << "INFO\t: Serial Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
 
 	while (1)
 	{
-		//cout << "INFO\t: Serial Running Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
+		// /cout << "INFO\t: Serial Running Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
 	}
 }
 
@@ -74,11 +73,11 @@ void CComTxService::run()
  *
  * @return 
  */
-void *friend_com_tx_service(void *arg)
+void *friend_com_rx_service(void *arg)
 {
 	cout << "INFO\t: Thread " << __func__ << endl;
 
-	CComTxService *ptr = static_cast<CComTxService *>(arg);
+	CComRxService *ptr = static_cast<CComRxService *>(arg);
 
 	if (ptr)
 	{
