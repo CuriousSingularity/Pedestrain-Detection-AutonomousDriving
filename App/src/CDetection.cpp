@@ -33,10 +33,10 @@ using namespace cv;
 
 
 static const CDetection::hog_config_t hog_config_param {
-		.hitThreshold	= 55,	// Range : 0-100
-		.winStride		= 8,	// Range : 1-32
+		.hitThreshold	= 95,	// Range : 0-100
+		.winStride		= 16,	// Range : 1-32
 		.padding 		= 8,	// Range : 0-64
-		.scale 			= 1.08,	// Range : > 1.0
+		.scale 			= 1.26,	// Range : > 1.0
 		.finalThreshold = 0,	// Range : 0-100
 		.nmsThreshold 	= 0,	// Range : 0-100
 		.nmsNeighbors 	= 0,	// Range : 0-99
@@ -77,10 +77,12 @@ void CDetection::run()
 	cout << "INFO\t: Detection Algorithm Service " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
 
 	// Hog detection
-	Mat eachFrame;
+	Mat eachFrame, cannyMat, greyMat;
 	HOGDescriptor hog;
 	vector<Rect> detections;		// Vector of boxes where a detection was achieved
 	vector<double> detection_weights;
+	vector<Vec2f> lines; 			// will hold the results of the detection
+	vector<uint8_t> nmsFiltered;
 
 	// nms 
 	vector<Rect> nmsDetections;
@@ -147,12 +149,31 @@ void CDetection::run()
 					);
 
 			nms(detections, nmsDetections, (float) hog_config_param.nmsThreshold / 100, hog_config_param.nmsNeighbors);
+			nmsFiltered.resize(nmsDetections.size(), 0);
+
+			for (unsigned int i = 0 ; i < nmsDetections.size() ; i ++)
+			{
+				lines.clear();
+
+				cvtColor(eachFrame(nmsDetections[i]), greyMat, COLOR_BGR2GRAY);
+				Canny(greyMat, cannyMat, 50, 200, 3);
+				HoughLines(cannyMat, lines, 1, CV_PI/180, 150, 0, 0 ); // runs the actual detection
+
+				if (lines.size() > 4)
+				{
+					nmsFiltered[i] = 0;
+				}
+				else
+				{
+					nmsFiltered[i] = 1;
+				}
+			}
 		}
 
 		p_resultCollection = new CSerialProtocol::object_detection_frame_t();
 
 		if (p_resultCollection)
-			this->filter_algorithm(nmsDetections, p_resultCollection, bigIndex);
+			this->filter_algorithm(nmsDetections, p_resultCollection, bigIndex, nmsFiltered);
 
 #ifdef ALGO_TIME_MEASUREMENT
 			cout << endl << "Time elapsed: " << (getTickCount() - t_start) / getTickFrequency() << endl;
@@ -186,20 +207,23 @@ void CDetection::run()
 	}
 }
 
-void CDetection::filter_algorithm(vector<Rect> &nmsDetections, CSerialProtocol::object_detection_frame_t *p_resultCollection, int &bigIndex)
+void CDetection::filter_algorithm(vector<Rect> &nmsDetections, CSerialProtocol::object_detection_frame_t *p_resultCollection, int &bigIndex, const vector<uint8_t>& lineDetect)
 {
 
-#define THRESHOLD_AREA 		(0.2 * RESOLUTION_RESIZED_WIDTH * 0.4 * RESOLUTION_RESIZED_HEIGTH)
+#define THRESHOLD_AREA 		(0.1 * RESOLUTION_RESIZED_WIDTH * 0.26 * RESOLUTION_RESIZED_HEIGTH)
 	uint32_t bigArea = THRESHOLD_AREA, area = 0;
 
 	for (uint32_t index = 0; index < nmsDetections.size(); index++)
 	{
 		area = nmsDetections[index].width * nmsDetections[index].height;
 
-		if (area > bigArea)
+		if (lineDetect[index] == 1)
 		{
-			bigIndex = index;
-			bigArea = area;
+			if (area > bigArea)
+			{
+				bigIndex = index;
+				bigArea = area;
+			}
 		}
 	}
 
