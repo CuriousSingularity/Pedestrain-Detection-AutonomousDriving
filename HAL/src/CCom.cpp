@@ -31,6 +31,14 @@ using namespace std;
  */
 CCom::CCom() : CResource("/dev/tty0", O_RDWR | O_NOCTTY | O_SYNC, S_IRWXU) 
 {
+	if (this->configure() != RC_SUCCESS)
+	{
+		cout << "ERROR\t: Failed to configure the camera " << this->getDeviceNode() << endl;
+	}
+	else
+	{
+		cout << "INFO\t: Configured the camera " << this->getDeviceNode() << endl;
+	}
 }
 
 
@@ -39,6 +47,7 @@ CCom::CCom() : CResource("/dev/tty0", O_RDWR | O_NOCTTY | O_SYNC, S_IRWXU)
  */
 CCom::~CCom()
 {
+	//nothing
 }
 
 
@@ -51,9 +60,8 @@ CCom::~CCom()
  */
 RC_t CCom::configure()
 {
-	RC_t ret = RC_SUCCESS;
-
 	struct termios tty;
+
 	memset(&tty, 0, sizeof(tty));
 
 	if (tcgetattr(this->m_fd, &tty) != 0)
@@ -93,5 +101,5 @@ RC_t CCom::configure()
 		return RC_ERROR_BAD_PARAM;
 	}
 
-	return ret;
+	return RC_SUCCESS;
 }
