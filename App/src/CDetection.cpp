@@ -210,7 +210,7 @@ void CDetection::filter_algorithm(vector<Rect> &nmsDetections, CSerialProtocol::
 		blk.theta = (ZERO_PIXEL_ANGLE + ANGELE_RESOLUTION * nmsDetections[bigIndex].x) * ANGLE_PRECISION_FACTOR;
 		blk.delta_theta = (ANGELE_RESOLUTION * nmsDetections[bigIndex].width) * ANGLE_PRECISION_FACTOR;
 
-		cout << "db:\t\t" << blk.theta << "\t\t" << blk.delta_theta << endl << endl;
+		cout << "db:\t\t" << (int)blk.theta << "\t\t" << (int)blk.delta_theta << endl << endl;
 		
 		p_resultCollection->blks.push_back(blk);
 	}
