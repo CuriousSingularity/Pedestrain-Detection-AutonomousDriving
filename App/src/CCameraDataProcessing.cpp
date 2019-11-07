@@ -41,7 +41,7 @@ typedef enum{
 static HOGDescriptor hog;
 
 /* HOG parameters - Trackbar */
-static parameter_t hitThreshold = {0, 100};			// Percentage
+static parameter_t hitThreshold = {55, 100};			// Percentage
 static parameter_t winStride = {8, 32};			// Number of pixels
 static parameter_t padding = {8, 64};				// Number of pixels
 static parameter_t scale = {8, 99};				// This has to be handled as the value after the decimal point, i.e: 5 -> 1.05
@@ -96,6 +96,8 @@ void CCameraDataProcessing::run()
 	uint8_t counter = 0;
 #endif
 
+	double t_start = 0;
+
 	while (1)
 	{
 		cout << "INFO\t: Running Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
@@ -112,7 +114,7 @@ void CCameraDataProcessing::run()
 				hog.setSVMDetector(HOGDescriptor::getDefaultPeopleDetector());
 			}
 
-			//	double t_start = getTickCount();
+			t_start = getTickCount();
 			hog.detectMultiScale(	image,									/* Source image */
 					detections,					/* foundLocations, vector of Rect objects with the boxes where a person was detected */
 					detection_weights,				/* Weights of each detection. Vector of same dimension as previous parameter */
@@ -122,7 +124,6 @@ void CCameraDataProcessing::run()
 					1 + (float) scale.value / 100,			/* Scale: Scale stride for the image pyramid */
 					(float) finalThreshold.value / 100		/* FinalThreshold: PENDING */
 					);
-			//	cout << endl << "Time elapsed: " << (getTickCount() - t_start) / getTickFrequency() << endl;
 			//	cout << "Found " << detections.size() << " matches";
 
 
@@ -135,6 +136,8 @@ void CCameraDataProcessing::run()
 				rectangle(image, Point(nmsDetections[i].x, nmsDetections[i].y), Point(nmsDetections[i].x + nmsDetections[i].width, nmsDetections[i].y + nmsDetections[i].height), Scalar(0, 0, 255), 5, LINE_8);
 			}
 
+			cout << endl << "Time elapsed: " << (getTickCount() - t_start) / getTickFrequency() << endl;
+
 			//			rectangle(image, Point(0, 0), Point(20, 20), Scalar(0, 0, 0), -1);
 			//			putText(image, to_string((int) counter), Point(0,0), FONT_HERSHEY_PLAIN, 4,  Scalar(255,255,255), 2 , LINE_AA , false);
 
@@ -143,8 +146,6 @@ void CCameraDataProcessing::run()
 			waitKey(1);
 #endif
 		}
-
-		sleep(1);
 	}
 }
 
