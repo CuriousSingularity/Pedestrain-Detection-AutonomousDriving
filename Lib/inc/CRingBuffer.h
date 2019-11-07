@@ -9,18 +9,6 @@
 *
 * \note <notes>
 * \todo <todos>
-* \warning  Assumption of use: a protocol is read out before the next full protocol is added. Otherwise the eopFlag is cleared in a wrong manner
-*
-*  Changelog:\n
-*  - 1.3; 17.12.18 Leon
-*  			- Removed protocol handling, changed type of template size to uint16_t and made methods virtual to extend class
-*  - 1.2; 27.02.17 Barth
-*  			- Added Constructor without EOP
-*  - 1.1; 16.8.16; Fromm
-*            - Corrected length parameter in readProtocol
-*  - 1.0; 2.5.16; Guna
-*            - Initial release
-*
 * \copyright Copyright ©2016
 * Department of electrical engineering and information technology, Hochschule Darmstadt - University of applied sciences (h_da). All Rights Reserved.
 * Permission to use, copy, modify, and distribute this software and its documentation for educational, and research purposes in the context of non-commercial
@@ -48,8 +36,7 @@ class CRingBuffer
 protected:
 	DATA					m_pBuffer[SIZE];
 	uint16_t				m_writeindex;
-	volatile	uint16_t	m_readindex;
-	volatile 	uint16_t	m_fillLevel;		/*\Brief Fill level of the buffer. Number of positions holding content at any given point in time. Volatile because one write operation can be interrupted by a read operation (for example in the uart, the read operation is performed in an ISR) and that could lead to inconsistency in the fillLevel */
+	uint16_t				m_readindex;
 
 public:
 
@@ -79,22 +66,6 @@ public:
 	 */
 	global::RC_t 		writeData(DATA const& data, fp_customCopy_t customFunction = NULL);
 
-
-	/********************************************[ Helper Functions ]***************************************/
-
-	/**
-	 * Return the number of filled elements.
-	 * Indicates the number of elements than can be read.
-	 * Intended to be used when reading elements.
-	 */
-	uint16_t 	getFilledCount();
-
-	/**
-	 * Return the number of available empty elements.
-	 * Intended to use when writing to the buffer.
-	 */
-	uint16_t 	getEmptyCount();
-
 };
 
 
@@ -105,7 +76,6 @@ CRingBuffer<DATA, SIZE>::CRingBuffer()
 {
 	m_readindex = 0;
 	m_writeindex = 0;
-	m_fillLevel = 0;
 }
 
 template<typename DATA, uint16_t SIZE>
@@ -113,7 +83,6 @@ void CRingBuffer<DATA, SIZE>::init()
 {
 	m_readindex = 0;
 	m_writeindex = 0;
-	m_fillLevel = 0;
 }
 
 
@@ -122,68 +91,47 @@ void CRingBuffer<DATA, SIZE>::init()
 template <typename DATA, uint16_t SIZE>
 global::RC_t CRingBuffer<DATA, SIZE>::readData(DATA* const data, fp_customCopy_t customFunction)
 {
-	if(getFilledCount() > 0)
-	{
-		if (data == NULL){
-			return global::RC_ERROR_NULL;
-		}
-
-		if (customFunction)
-		{
-			customFunction(*data, m_pBuffer[m_writeindex]);
-		}
-		else
-		{
-			*data = m_pBuffer[m_readindex];
-		}
-
-		m_readindex = (m_readindex+1) % SIZE;
-		m_fillLevel--;
-		return global::RC_SUCCESS;
+	// First check if buffer is empty:
+	if (this->m_readindex == this->m_writeindex){
+		return global::RC_ERROR_BUFFER_EMTPY;
 	}
-	return global::RC_ERROR_BUFFER_EMTPY;
+
+	// Check if the provided pointer is NULL:
+	if (NULL == data){
+		return global::RC_ERROR_NULL;
+	}
+
+	// If everything os correct, then write data:
+	if (customFunction)
+	{
+		customFunction(*data, this->m_pBuffer[this->m_readindex]);
+	}
+	else
+	{
+		*data = this->m_pBuffer[this->m_readindex];
+	}
+	
+	return global::RC_SUCCESS;
 }
 
 template <typename DATA, uint16_t SIZE>
 global::RC_t CRingBuffer<DATA, SIZE>::writeData(DATA const& data, fp_customCopy_t customFunction)
 {
-	if(getEmptyCount() > 0)
+	// Write the new data in the next position
+	if (customFunction)
 	{
-		if (customFunction)
-		{
-			customFunction(m_pBuffer[m_writeindex], data);
-		}
-		else
-		{
-			(m_pBuffer[m_writeindex]) = data;
-		}
-
-		m_writeindex = (m_writeindex+1) % SIZE;
-		m_fillLevel++;
-		return global::RC_SUCCESS;
+		customFunction(this->m_pBuffer[this->m_writeindex], data);
 	}
+	else
+	{
+		this->m_pBuffer[this->m_writeindex] = data;
+	}
+	
+	this->m_readindex = this->m_writeindex;					// Move read index to old write position
+	this->m_writeindex = (this->m_writeindex+1) % SIZE;		// Move write index to next buffer's position
 
-	return global::RC_ERROR_BUFFER_FULL;
+	return global::RC_SUCCESS;
 }
-
-
-
-/********************************************[ Helper Functions ]*****************************************/
-
-
-template <typename DATA, uint16_t SIZE>
-uint16_t CRingBuffer<DATA, SIZE>::getFilledCount()
-{
-	return m_fillLevel;
-}
-
-template <typename DATA, uint16_t SIZE>
-uint16_t CRingBuffer<DATA, SIZE>::getEmptyCount()
-{
-	return (SIZE-m_fillLevel);
-}
-
-
 
 
 #endif /* _CRingBuffer_H_ */
