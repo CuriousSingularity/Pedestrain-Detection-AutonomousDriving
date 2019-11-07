@@ -17,9 +17,15 @@
 //Own Include Files
 #include "./OS/inc/CThread.h"
 #include "./OS/inc/CSemaphore.h"
+#include "./App/inc/CSerialProtocol.h"
 
 class CSerialDataProcessing : public CThread {
 private:
+
+	/**
+	 * @brief : Protocol parser object
+	 */
+	CSerialProtocol		m_Protocol;
 
 	/**
 	 * @brief : Main routine for the thread

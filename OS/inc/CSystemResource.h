@@ -46,16 +46,16 @@ public:
 	/**
 	 * @brief : Get the reference to the UART device
 	 *
-	 * @return - reference to the device
+	 * @return - pointer reference to the device
 	 */
-	CCom& getSerialResourceReference();
+	CCom *getSerialResourceReference();
 
 	/**
 	 * @brief : Get the reference to the Camera device
 	 *
-	 * @return - reference to the device
+	 * @return - pointer reference to the device
 	 */
-	CCamera& getCameraResourceReference();
+	CCamera *getCameraResourceReference();
 
 };
 /********************

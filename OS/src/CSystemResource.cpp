@@ -47,21 +47,21 @@ CSystemResource::~CSystemResource()
 /**
  * @brief : Get the reference to the UART device
  *
- * @return - reference to the device
+ * @return - pointer reference to the device
  */
-CCom& CSystemResource::getSerialResourceReference()
+CCom *CSystemResource::getSerialResourceReference()
 {
-	return (this->m_serial);
+	return (&(this->m_serial));
 }
 
 
 /**
  * @brief : Get the reference to the Camera device
  *
- * @return - reference to the device
+ * @return - pointer reference to the device
  */
-CCamera& CSystemResource::getCameraResourceReference()
+CCamera *CSystemResource::getCameraResourceReference()
 {
-	return (this->m_camera);
+	return (&(this->m_camera));
 }
 

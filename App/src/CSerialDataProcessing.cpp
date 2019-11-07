@@ -14,6 +14,7 @@
 
 //Own Include Files
 #include "./App/inc/CSerialDataProcessing.h"
+#include "./App/inc/CSerialProtocol.h"
 
 //Namespace
 using namespace std;
@@ -53,10 +54,11 @@ void CSerialDataProcessing::run()
 	// The Threads runs here
 	cout << "INFO\t: Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
 
+	CCom *pComResource = this->m_pSysRes->getSerialResourceReference();
+
 	while (1)
 	{
 		cout << "INFO\t: Running Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
-		sleep(1);
 	}
 }
 

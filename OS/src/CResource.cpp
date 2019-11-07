@@ -161,7 +161,7 @@ RC_t CResource::read(void *buffer, const size_t nByte, ssize_t &rByte)
 
 	if (buffer)
 	{
-		if (this->m_mutex_r.trylock() != RC_SUCCESS)
+		if (this->m_mutex_r.lock() != RC_SUCCESS)
 		{
 			cout << "ERROR\t: Resource lock failed for Device " << this->m_resNodePath << " during read" << endl;
 			return RC_ERROR_BUSY;
@@ -209,7 +209,7 @@ RC_t CResource::write(const void *buffer, const size_t nByte, ssize_t &rByte)
 
 	if (buffer)
 	{
-		if (this->m_mutex_w.trylock() != RC_SUCCESS)
+		if (this->m_mutex_w.lock() != RC_SUCCESS)
 		{
 			cout << "ERROR\t: Resource lock failed for Device " << this->m_resNodePath << " during write" << endl;
 			return RC_ERROR_BUSY;

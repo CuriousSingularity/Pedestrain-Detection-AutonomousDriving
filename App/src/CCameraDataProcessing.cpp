@@ -105,7 +105,8 @@ void CCameraDataProcessing::run()
 
 		// Hog run:
 		// TODO NOL: Acquire frame from camera
-		if (RC_SUCCESS == this->m_pSysRes->getCameraResourceReference().read(&image, 0, rBytes)){
+		if (RC_SUCCESS == this->m_pSysRes->getCameraResourceReference()->read(&image, 0, rBytes))
+		{
 			if (detector == DET_DAIMLER){
 				hog.winSize = Size(48, 96);
 				hog.setSVMDetector(HOGDescriptor::getDaimlerPeopleDetector());
