@@ -52,6 +52,13 @@ public:
 	int32_t getThreadIndex();
 
 	/**
+	 * @brief : Get the Thread ID
+	 *
+	 * @return - Thread ID
+	 */
+	pthread_t getThreadID();
+
+	/**
 	 * @brief : Pure virtual entry function for each thread
 	 *
 	 * @param arg			: POSIX specific
@@ -86,7 +93,11 @@ private:
 	 */
 	int32_t m_threadIndex;
 
+	/**
+	 * @brief : Arguments for the thread
+	 */
 	void *m_pArg;
+
 	/**
 	 * @brief : entry function for a thread
 	 */

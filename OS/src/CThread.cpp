@@ -70,6 +70,17 @@ int32_t CThread::getThreadIndex()
 
 
 /**
+ * @brief : Get the Thread ID
+ *
+ * @return - Thread ID
+ */
+pthread_t CThread::getThreadID()
+{
+	return this->m_threadId;
+}
+
+
+/**
  * @brief : Function which creates a thread based on the entry function provided
  *
  * @param pAttr			: Thread attributes
