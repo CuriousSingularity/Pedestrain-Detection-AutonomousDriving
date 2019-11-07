@@ -98,6 +98,9 @@ RC_t CComTxService::processDataForTx(CMailBox::mail_box_data_t &data)
 	}
 
 	char __tx_buf[PROTOCOL_BUF_MAX_SIZE];
+
+	memset (__tx_buf, 0, sizeof(__tx_buf));
+
 	uint8_t __blk_cnt = 0;
 	uint16_t __tx_length = 0;
 

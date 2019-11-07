@@ -149,7 +149,7 @@ void CDetection::run()
 			nms(detections, nmsDetections, (float) hog_config_param.nmsThreshold / 100, hog_config_param.nmsNeighbors);
 		}
 
-		p_resultCollection = new CSerialProtocol::object_detection_frame_t;
+		p_resultCollection = new CSerialProtocol::object_detection_frame_t();
 
 		if (p_resultCollection)
 			this->filter_algorithm(nmsDetections, p_resultCollection, bigIndex);
