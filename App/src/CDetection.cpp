@@ -73,7 +73,7 @@ CDetection::~CDetection()
 void CDetection::run()
 {
 	// The Threads runs here
-	cout << "INFO\t: Camera Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
+	cout << "INFO\t: Detection Algorithm Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
 
 	while (1)
 	{

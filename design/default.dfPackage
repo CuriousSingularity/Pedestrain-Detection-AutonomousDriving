@@ -6,16 +6,125 @@ package id5v4wejw2atsoyjw2attj5;
 @__modelType diagram 
 */
 class diagram {
+/**
+@__ref <oiref:cpp#Class#CSemaphore:oiref><oihard>
+@__modelType reference 
+*/
+class reference {
+}
+/**
+@__ref <oiref:cpp#Class#CResource:oiref><oihard>
+@__modelType reference 
+*/
+class reference1 {
+}
+/**
+@__ref <oiref:cpp#Class#CCamera:oiref><oihard>
+@__modelType reference 
+*/
+class reference2 {
+}
+/**
+@__ref <oiref:cpp#Class#global::eRC:oiref><oihard>
+@__modelType reference 
+*/
+class reference3 {
+}
+/**
+@__ref <oiref:cpp#Class#CComTxService:oiref><oihard>
+@__modelType reference 
+*/
+class reference5 {
+}
+/**
+@__ref <oiref:cpp#Class#CThread:oiref><oihard>
+@__modelType reference 
+*/
+class reference8 {
+}
+/**
+@__ref <oiref:cpp#Class#CMutex:oiref><oihard>
+@__modelType reference 
+*/
+class reference10 {
+}
+/**
+@__ref <oiref:cpp#Class#CDetection:oiref><oihard>
+@__modelType reference 
+*/
+class reference11 {
+}
+/**
+@__ref <oiref:cpp#Class#CSerialProtocol:oiref><oihard>
+@__modelType reference 
+*/
+class reference12 {
+}
+/**
+@__ref <oiref:cpp#Class#CCameraService:oiref><oihard>
+@__modelType reference 
+*/
+class reference4 {
+}
+/**
+@__ref <oiref:cpp#Class#CApplication:oiref><oihard>
+@__modelType reference 
+*/
+class reference13 {
+}
+/**
+@__ref <oiref:cpp#Class#CUart:oiref><oihard>
+@__modelType reference 
+*/
+class reference14 {
+}
 }/**
 @__tags
 @shapeType ClassDiagram 
 @changelog rO0ABXNyABFqYXZhLnV0aWwuSGFzaE1hcAUH2sHDFmDRAwACRgAKbG9hZEZhY3RvckkACXRocmVz
-aG9sZHhwP0AAAAAAAAx3CAAAABAAAAABc3IADmphdmEubGFuZy5Mb25nO4vkkMyPI98CAAFKAAV2
-YWx1ZXhyABBqYXZhLmxhbmcuTnVtYmVyhqyVHQuU4IsCAAB4cAAAAWrnIyAAc3IAE2phdmEudXRp
+aG9sZHhwP0AAAAAAAAx3CAAAABAAAAAFc3IADmphdmEubGFuZy5Mb25nO4vkkMyPI98CAAFKAAV2
+YWx1ZXhyABBqYXZhLmxhbmcuTnVtYmVyhqyVHQuU4IsCAAB4cAAAAWr2ljQAc3IAE2phdmEudXRp
 bC5BcnJheUxpc3R4gdIdmcdhnQMAAUkABHNpemV4cAAAAAF3BAAAAApzcgAlZGUubW5sLmRvY2Jv
 b2s0VEEuaW1wbC5DaGFuZ2VMb2dFbnRyeQeNjrX5qiSfAgADTAAIaG9zdG5hbWV0ABJMamF2YS9s
-YW5nL1N0cmluZztMAARuYW1lcQB+AAhMAAR1c2VycQB+AAh4cHQAD0RFU0tUT1AtTU5MNDdGMnQA
-CTxkZWZhdWx0PnQABXJiaGFyeHg=
+YW5nL1N0cmluZztMAARuYW1lcQB+AAhMAAR1c2VycQB+AAh4cHQAFFdpbmRvd3MtRGVza3RvcC1E
+ZWxsdAAJPGRlZmF1bHQ+dAAFcmJoYXJ4c3EAfgACAAABaucjIABzcQB+AAUAAAABdwQAAAAKc3EA
+fgAHdAAPREVTS1RPUC1NTkw0N0YydAAJPGRlZmF1bHQ+dAAFcmJoYXJ4c3EAfgACAAABayTvcABz
+cQB+AAUAAAABdwQAAAAKc3EAfgAHdAAUV2luZG93cy1EZXNrdG9wLURlbGx0AAk8ZGVmYXVsdD50
+AAVyYmhhcnhzcQB+AAIAAAFrCy+kAHNxAH4ABQAAAAF3BAAAAApzcQB+AAd0ABRXaW5kb3dzLURl
+c2t0b3AtRGVsbHQACTxkZWZhdWx0PnQABXJiaGFyeHNxAH4AAgAAAWsA4uwAc3EAfgAFAAAAAXcE
+AAAACnNxAH4AB3QAFFdpbmRvd3MtRGVza3RvcC1EZWxsdAAJPGRlZmF1bHQ+dAAFcmJoYXJ4eA==
+@elementChangelogs rO0ABXNyABFqYXZhLnV0aWwuSGFzaE1hcAUH2sHDFmDRAwACRgAKbG9hZEZhY3RvckkACXRocmVz
+aG9sZHhwP0AAAAAAABh3CAAAACAAAAANdAAnPG9pcmVmOmNwcCNDbGFzcyNDU2VyaWFsUHJvdG9j
+b2w6b2lyZWY+c3EAfgAAP0AAAAAAAAx3CAAAABAAAAACc3IADmphdmEubGFuZy5Mb25nO4vkkMyP
+I98CAAFKAAV2YWx1ZXhyABBqYXZhLmxhbmcuTnVtYmVyhqyVHQuU4IsCAAB4cAAAAWsk73AAc3IA
+E2phdmEudXRpbC5BcnJheUxpc3R4gdIdmcdhnQMAAUkABHNpemV4cAAAAAF3BAAAAApzcgAlZGUu
+bW5sLmRvY2Jvb2s0VEEuaW1wbC5DaGFuZ2VMb2dFbnRyeQeNjrX5qiSfAgADTAAIaG9zdG5hbWV0
+ABJMamF2YS9sYW5nL1N0cmluZztMAARuYW1lcQB+AApMAAR1c2VycQB+AAp4cHQAFFdpbmRvd3Mt
+RGVza3RvcC1EZWxsdAAPQ1NlcmlhbFByb3RvY29sdAAFcmJoYXJ4c3EAfgAEAAABawDi7ABzcQB+
+AAcAAAABdwQAAAAKc3EAfgAJdAAUV2luZG93cy1EZXNrdG9wLURlbGx0AA9DU2VyaWFsUHJvdG9j
+b2x0AAVyYmhhcnh4dAAjPG9pcmVmOmNwcCNDbGFzcyNnbG9iYWw6OmVSQzpvaXJlZj5wdAAdPG9p
+cmVmOmNwcCNDbGFzcyNDVWFydDpvaXJlZj5zcQB+AAA/QAAAAAAADHcIAAAAEAAAAAFzcQB+AAQA
+AAFrJO9wAHNxAH4ABwAAAAF3BAAAAApzcQB+AAlxAH4ADHQABUNVYXJ0cQB+AA54eHQAIjxvaXJl
+ZjpjcHAjQ2xhc3MjQ1NlbWFwaG9yZTpvaXJlZj5wdAAcPG9pcmVmOmNwcCNDbGFzcyNDQ29tOm9p
+cmVmPnB0ACU8b2lyZWY6Y3BwI0NsYXNzI0NDb21UeFNlcnZpY2U6b2lyZWY+c3EAfgAAP0AAAAAA
+AAx3CAAAABAAAAABc3EAfgAEAAABayTvcABzcQB+AAcAAAABdwQAAAAKc3EAfgAJcQB+AAx0AA1D
+Q29tVHhTZXJ2aWNlcQB+AA54eHQAJDxvaXJlZjpjcHAjQ2xhc3MjQ0FwcGxpY2F0aW9uOm9pcmVm
+PnNxAH4AAD9AAAAAAAAMdwgAAAAQAAAAAXNxAH4ABAAAAWsk73AAc3EAfgAHAAAAAXcEAAAACnNx
+AH4ACXEAfgAMdAAMQ0FwcGxpY2F0aW9ucQB+AA54eHQAJjxvaXJlZjpjcHAjQ2xhc3MjQ0NhbWVy
+YVNlcnZpY2U6b2lyZWY+c3EAfgAAP0AAAAAAAAx3CAAAABAAAAABc3EAfgAEAAABayTvcABzcQB+
+AAcAAAABdwQAAAAKc3EAfgAJcQB+AAx0AA5DQ2FtZXJhU2VydmljZXEAfgAOeHh0ACw8b2lyZWY6
+Y3BwI0NsYXNzI0NQZWRlc3RyaWFuRGV0ZWN0aW9uOm9pcmVmPnB0AB88b2lyZWY6Y3BwI0NsYXNz
+I0NDYW1lcmE6b2lyZWY+c3EAfgAAP0AAAAAAAAx3CAAAABAAAAAEc3EAfgAEAAABavaWNABzcQB+
+AAcAAAABdwQAAAAKc3EAfgAJdAAUV2luZG93cy1EZXNrdG9wLURlbGx0AAdDQ2FtZXJhdAAFcmJo
+YXJ4c3EAfgAEAAABaucjIABzcQB+AAcAAAABdwQAAAAKc3EAfgAJdAAPREVTS1RPUC1NTkw0N0Yy
+dAAHQ0NhbWVyYXQABXJiaGFyeHNxAH4ABAAAAWsk73AAc3EAfgAHAAAAAXcEAAAACnNxAH4ACXEA
+fgAMdAAHQ0NhbWVyYXEAfgAOeHNxAH4ABAAAAWsA4uwAc3EAfgAHAAAAAXcEAAAACnNxAH4ACXEA
+fgASdAAHQ0NhbWVyYXEAfgAUeHh0AB48b2lyZWY6Y3BwI0NsYXNzI0NNdXRleDpvaXJlZj5wdAAf
+PG9pcmVmOmNwcCNDbGFzcyNDVGhyZWFkOm9pcmVmPnNxAH4AAD9AAAAAAAAMdwgAAAAQAAAAAXNx
+AH4ABAAAAWsk73AAc3EAfgAHAAAAAXcEAAAACnNxAH4ACXEAfgAMdAAHQ1RocmVhZHEAfgAOeHh0
+ACI8b2lyZWY6Y3BwI0NsYXNzI0NEZXRlY3Rpb246b2lyZWY+c3EAfgAAP0AAAAAAAAx3CAAAABAA
+AAABc3EAfgAEAAABayTvcABzcQB+AAcAAAABdwQAAAAKc3EAfgAJcQB+AAx0AApDRGV0ZWN0aW9u
+cQB+AA54eHg=
 */
 class __tags {
 }/**
@@ -23,32 +132,44 @@ class __tags {
 */
 class __options {
 }/**
-@__positions <oigroup:<oiref:cpp#Class#parameter_t:oiref>=409,612,83,123,1:oigroup>
-<oigroup:MemberLink#<oiref:cpp#Member#CSystemResource#m_serial:oiref>=650,312,615,312:oigroup>
-<oigroup:<oiref:cpp#Class#CSemaphore:oiref>=688,611,145,254,1:oigroup>
-<oigroup:<oiref:cpp#Class#CSystemResource:oiref>=650,253,200,158,1:oigroup>
-<oigroup:<oiref:cpp#Class#CCameraDataProcessing:oiref>=495,98,171,117,1:oigroup>
-<oigroup:<oiref:cpp#Extends#CCameraDataProcessing#CThread:oiref>=666,156,880,156:oigroup>
-<oigroup:MemberLink#<oiref:cpp#Member#CPedestrianDetection#m_thread_comm:oiref>=804,443,804,221:oigroup>
-<oigroup:<oiref:cpp#Extends#CCamera#CResource:oiref>=884,384,673,463:oigroup>
-<oigroup:<oiref:cpp#Class#CMutex:oiref>=908,511,165,206,1:oigroup>
-<oigroup:<oiref:cpp#Extends#CSerialDataProcessing#CThread:oiref>=839,177,880,177:oigroup>
-<oigroup:<oiref:cpp#Class#CPedestrianDetection:oiref>=690,443,200,158,1:oigroup>
-<oigroup:Composite#supplierCardinality#MemberLink#<oiref:cpp#Member#CThread#m_pSysRes:oiref>=837,223,28,16,0:oigroup>
-<oigroup:Autodependency<oiref:cpp#Class#CSerialDataProcessing:oiref><Autodependency><oiref:cpp#Class#CSystemResource:oiref>=760,221,760,253:oigroup>
-<oigroup:<oiref:cpp#Class#global::eRC:oiref>=10,10,200,507,1:oigroup>
-<oigroup:<oiref:cpp#Class#CCamera:oiref>=884,277,153,133,1:oigroup>
-<oigroup:Autodependency<oiref:cpp#Class#CCameraDataProcessing:oiref><Autodependency><oiref:cpp#Class#CSystemResource:oiref>=609,215,705,253:oigroup>
-<oigroup:<oiref:cpp#Class#CResource:oiref>=507,430,166,270,1:oigroup>
-<oigroup:<oiref:cpp#Extends#CCom#CResource:oiref>=561,371,561,430:oigroup>
-<oigroup:MemberLink#<oiref:cpp#Member#CPedestrianDetection#m_sysRes:oiref>=770,443,770,411:oigroup>
-<oigroup:MemberLink#<oiref:cpp#Member#CResource#m_mutex:oiref>=673,605,908,605:oigroup>
-<oigroup:<oiref:cpp#Class#CCom:oiref>=466,229,149,142,1:oigroup>
-<oigroup:MemberLink#<oiref:cpp#Member#CSystemResource#m_camera:oiref>=850,330,884,330:oigroup>
-<oigroup:MemberLink#<oiref:cpp#Member#CPedestrianDetection#m_thread_camera:oiref>=730,443,552,215:oigroup>
-<oigroup:<oiref:cpp#Class#CSerialDataProcessing:oiref>=681,104,158,117,1:oigroup>
+@__positions <oigroup:<oiref:cpp#Class#CComTxService:oiref>=600,30,170,142,1:oigroup>
+<oigroup:Autodependency<oiref:cpp#Class#CSerialProtocol:oiref><Autodependency><oiref:cpp#Class#CUart:oiref>=1260,195,1069,195:oigroup>
+<oigroup:MemberLink#<oiref:cpp#Member#CComTxService#m_Protocol:oiref>=770,124,1260,124:oigroup>
+<oigroup:MemberLink#<oiref:cpp#Member#CComTxService#m_uart_0:oiref>=770,162,920,170:oigroup>
+<oigroup:Autodependency<oiref:cpp#Class#CComTxService:oiref><Autodependency><oiref:cpp#Class#CCom:oiref>=754,136,319,420:oigroup>
+<oigroup:<oiref:cpp#Class#CResource:oiref>=750,560,199,302,1:oigroup>
+<oigroup:<oiref:cpp#Class#CUart:oiref>=920,160,149,142,1:oigroup>
+<oigroup:<oiref:cpp#Extends#CDetection#CThread:oiref>=462,600,643,498:oigroup>
+<oigroup:MemberLink#<oiref:cpp#Member#CResource#m_mutex_w:oiref>=949,758,1060,758:oigroup>
+<oigroup:<oiref:cpp#Extends#CComTxService#CThread:oiref>=674,172,674,260:oigroup>
+<oigroup:<oiref:cpp#Class#parameter_t:oiref>=330,590,83,123,1:oigroup>
+<oigroup:<oiref:cpp#Class#CMutex:oiref>=1060,610,196,222,1:oigroup>
+<oigroup:<oiref:cpp#Class#CPedestrianDetection:oiref>=260,170,200,142,1:oigroup>
+<oigroup:MemberLink#<oiref:cpp#Member#CApplication#m_thread_com_tx_service:oiref>=443,280,656,172:oigroup>
+<oigroup:<oiref:cpp#Extends#CCameraService#CThread:oiref>=397,156,612,260:oigroup>
+<oigroup:<oiref:cpp#Extends#CCamera#CResource:oiref>=1020,527,949,599:oigroup>
+<oigroup:<oiref:cpp#Class#CThread:oiref>=550,260,186,238,1:oigroup>
+<oigroup:<oiref:cpp#Class#CCameraService:oiref>=300,30,149,126,1:oigroup>
+<oigroup:<oiref:cpp#Class#CDetection:oiref>=410,600,89,149,1:oigroup>
 <oigroup:MemberLink#<oiref:cpp#Member#CThread#m_pSysRes:oiref>=880,221,850,284:oigroup>
-<oigroup:<oiref:cpp#Class#CThread:oiref>=880,23,200,238,1:oigroup>
+<oigroup:MemberLink#<oiref:cpp#Member#CResource#m_mutex:oiref>=673,605,908,605:oigroup>
+<oigroup:<oiref:cpp#Class#CSemaphore:oiref>=1390,320,145,254,1:oigroup>
+<oigroup:<oiref:cpp#Class#CCamera:oiref>=1020,360,150,197,1:oigroup>
+<oigroup:MemberLink#<oiref:cpp#Member#CPedestrianDetection#m_thread_camera:oiref>=310,170,467,137:oigroup>
+<oigroup:MemberLink#<oiref:cpp#Member#CPedestrianDetection#m_thread_comm:oiref>=360,170,712,136:oigroup>
+<oigroup:<oiref:cpp#Class#CCom:oiref>=270,420,149,142,1:oigroup>
+<oigroup:<oiref:cpp#Class#CApplication:oiref>=260,280,200,158,1:oigroup>
+<oigroup:Autodependency<oiref:cpp#Class#CComTxService:oiref><Autodependency><oiref:cpp#Class#CSystemResource:oiref>=:oigroup>
+<oigroup:MemberLink#<oiref:cpp#Member#CCameraService#m_camera_0:oiref>=423,156,1095,360:oigroup>
+<oigroup:Autodependency<oiref:cpp#Class#CSerialProtocol:oiref><Autodependency><oiref:cpp#Class#CCom:oiref>=1360,230,369,420:oigroup>
+<oigroup:<oiref:cpp#Class#CSerialProtocol:oiref>=1260,100,200,130,0:oigroup>
+<oigroup:Autodependency<oiref:cpp#Class#CDetection:oiref><Autodependency><oiref:cpp#Class#CSystemResource:oiref>=:oigroup>
+<oigroup:MemberLink#<oiref:cpp#Member#CResource#m_mutex_r:oiref>=949,684,1060,684:oigroup>
+<oigroup:<oiref:cpp#Extends#CCom#CResource:oiref>=419,531,620,531:oigroup>
+<oigroup:<oiref:cpp#Class#global::eRC:oiref>=10,10,200,507,1:oigroup>
+<oigroup:<oiref:cpp#Extends#CUart#CResource:oiref>=994,302,789,560:oigroup>
+<oigroup:MemberLink#<oiref:cpp#Member#CApplication#m_thread_detection:oiref>=426,438,426,600:oigroup>
+<oigroup:MemberLink#<oiref:cpp#Member#CApplication#m_thread_camera_service:oiref>=371,280,371,156:oigroup>
 */
 class __positions {
 }

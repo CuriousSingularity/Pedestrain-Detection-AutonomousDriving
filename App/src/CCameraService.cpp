@@ -77,41 +77,21 @@ void CCameraService::run()
 	// The Threads runs here
 	cout << "INFO\t: Camera Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
 
-	// signals configuration
-	sigset_t sigMask;
-	sigemptyset(&sigMask);
-	sigaddset(&sigMask, SIGALRM);
-	signal(SIGALRM, __camera_cyclic__signal_handler);
-
 	cv::Mat image;
 	ssize_t wBytes;
 
-	ualarm(100000,100000);
 	while (1)
 	{
-		// block the thread until the data is available
-		sigsuspend(&sigMask);
-		
-		cout << "************hre************" << endl;
-		switch(this->signal_type)
-		{
-			case SIGALRM:
+		// background thread
+		cout << "INFO\t: Running x started with ID : " << pthread_self() << endl;
 
-				cout << "INFO\t: Camera received signal" << endl;
+		usleep(100000);
+		// read new image to ring buffer
+		if (this->m_camera_0.read(&image, 0, wBytes) != RC_SUCCESS)
+			continue;
 
-				// read new image to ring buffer
-				if (this->m_camera_0.read(&image, 0, wBytes) != RC_SUCCESS)
-					continue;
-
-				// store the frame to ringbuffer for consumers
-				g_framesBuffer.writeData(image, cloneMat);
-
-			break;
-
-			default:
-			cout << "*****************************" << endl;
-			break;
-		}
+		// store the frame to ringbuffer for consumers
+		g_framesBuffer.writeData(image, cloneMat);
 	}
 }
 

@@ -102,7 +102,7 @@ void CApplication::run()
 	while (1)
 	{
 		// background thread
-		cout << "INFO\t: Running Thread 0 started with ID : " << pthread_self() << endl;
+		cout << "INFO\t: Running Background Thread 0 started with ID : " << pthread_self() << endl;
 		sleep(1);
 	}
 }
