@@ -8,29 +8,60 @@
  *
  ****************************************************************************/
 
-
-
-//System Include Files
+// System includes
+#include <vector>
+#include <opencv2/opencv.hpp>
 #include <iostream>
 
 //Own Include Files
 #include "./App/inc/CCameraDataProcessing.h"
+#include "./Lib/inc/nms.h"
+
 
 //Namespace
 using namespace std;
 using namespace global;
+using namespace cv;
+
+
+// TODO NOL Cheack what to do with all this:
+#define __SHOW_RESULT
+// local types
+typedef struct{
+	int value;
+	int max;
+} parameter_t;
+
+typedef enum{
+	DET_DAIMLER,
+	DET_DEFAULT
+} detector_t;
+
+// local constants
+static HOGDescriptor hog;
+
+/* HOG parameters - Trackbar */
+static parameter_t hitThreshold = {0, 100};			// Percentage
+static parameter_t winStride = {8, 32};			// Number of pixels
+static parameter_t padding = {8, 64};				// Number of pixels
+static parameter_t scale = {8, 99};				// This has to be handled as the value after the decimal point, i.e: 5 -> 1.05
+static parameter_t finalThreshold = {0, 100};			// Percentage
+static parameter_t nmsThreshold = {0, 100};			// Percentage
+static parameter_t nmsNeighbors = {0, 20};			// Count
+
+/* HOG detector used */
+detector_t detector = DET_DEFAULT;
 
 //Method Implementations
 /**
  * @brief : Constructor
  *
- * @param sysResource : System resource 
+ * @param sysResource : System resource
  */
 CCameraDataProcessing::CCameraDataProcessing(int threadIndex, const CSystemResource *sysResource, CThread::start_routine_t entry, void *arg) : CThread(threadIndex, sysResource, entry, arg)
 {
 	//nothing
 }
-
 
 /**
  * @brief : Destructor
@@ -53,20 +84,76 @@ void CCameraDataProcessing::run()
 	// The Threads runs here
 	cout << "INFO\t: Thread " << this->getThreadIndex() << " started with ID : " << this->getThreadIndex() << endl;
 
+	// Locals declaration:
+	vector<Rect> detections;		// Vector of boxes where a detection was achieved
+	vector<double> detection_weights;
+	Mat image;
+	vector<Rect> nmsDetections;
+
+#ifdef __SHOW_RESULT
+	namedWindow("Detected Image", cv::WINDOW_AUTOSIZE);
+	uint8_t counter = 0;
+#endif
+
 	while (1)
 	{
 		cout << "INFO\t: Running Thread " << this->getThreadIndex() << " started with ID : " << this->getThreadIndex() << endl;
+
+		// Hog run:
+		// TODO NOL: Acquire frame from camera
+		if (RC_SUCCESS == this->m_pSysRes->getCameraResourceReference().getCapture(&image)){
+			if (detector == DET_DAIMLER){
+				hog.winSize = Size(48, 96);
+				hog.setSVMDetector(HOGDescriptor::getDaimlerPeopleDetector());
+			}
+			else{
+				hog.winSize = Size(64, 128);
+				hog.setSVMDetector(HOGDescriptor::getDefaultPeopleDetector());
+			}
+
+		//	double t_start = getTickCount();
+			hog.detectMultiScale(	image,									/* Source image */
+									detections,					/* foundLocations, vector of Rect objects with the boxes where a person was detected */
+									detection_weights,				/* Weights of each detection. Vector of same dimension as previous parameter */
+									(float) hitThreshold.value / 100,		/* hitThreshold: SVM threshold to filter final results */
+									Size(winStride.value, winStride.value),		/* Windows stride: Horizontal and vertical step in pixels for the template matching process */
+									Size(padding.value, padding.value),		/* Padding: PENDING */
+									1 + (float) scale.value / 100,			/* Scale: Scale stride for the image pyramid */
+									(float) finalThreshold.value / 100		/* FinalThreshold: PENDING */
+									);
+		//	cout << endl << "Time elapsed: " << (getTickCount() - t_start) / getTickFrequency() << endl;
+		//	cout << "Found " << detections.size() << " matches";
+
+
+			nms(detections, nmsDetections, (float) nmsThreshold.value / 100, nmsNeighbors.value);
+
+		//	cout << " - After NMS: " << nmsDetections.size() << " matches" << endl;
+	#ifdef __SHOW_RESULT
+			for (unsigned int i= 0; i < nmsDetections.size() ; i++)
+			{
+				rectangle(image, Point(nmsDetections[i].x, nmsDetections[i].y), Point(nmsDetections[i].x + nmsDetections[i].width, nmsDetections[i].y + nmsDetections[i].height), Scalar(0, 0, 255), 5, LINE_8);
+			}
+
+//			rectangle(image, Point(0, 0), Point(20, 20), Scalar(0, 0, 0), -1);
+//			putText(image, to_string((int) counter), Point(0,0), FONT_HERSHEY_PLAIN, 4,  Scalar(255,255,255), 2 , LINE_AA , false);
+
+			counter = (counter + 1) % 100;
+			imshow( "Detected Image", image );
+			waitKey(1);
+	#endif
+		}
+
 		sleep(1);
 	}
 }
 
 
 /**
- * @brief : 
+ * @brief :
  *
  * @param arg
  *
- * @return 
+ * @return
  */
 void *friend_run_camera(void *arg)
 {
