@@ -12,8 +12,9 @@
 // User-defined Header Files
 #include "CPedestrianDetection.h"
 
+#define NVIDIA		1
+#define RSP		2
 #define VERSION		("0.1")
-
 
 using namespace std;
 
@@ -24,8 +25,6 @@ int main(int argc, char **argv)
 	cout << "NVidia Platform" << endl;
 #elif (TARGET_PLATFORM == RSP)
 	cout << "Raspberry Pi Platform" << endl;
-#elif (TARGET_PLATFORM == PC)
-	cout << "PC Platform" << endl;
 #else
 	cout << "Invalid Platform" << endl;
 	while(1);

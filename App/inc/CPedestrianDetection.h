@@ -1,37 +1,58 @@
 /***************************************************************************
-*============= Copyright by Darmstadt University of Applied Sciences =======
-****************************************************************************
-* Filename        : CPEDESTRIANDETECTION.H
-* Author          :
-* Description     :
-*
-*
-****************************************************************************/
+ *============= Copyright by Darmstadt University of Applied Sciences =======
+ ****************************************************************************
+ * Filename        : CPedestrianDetection.h
+ * Author          : Bharath Ramachandraiah (stbhrama@stud.h-da.de)
+ * Description     : Pedestrian Detection Application
+ *
+ ****************************************************************************/
+
 
 #ifndef CPEDESTRIANDETECTION_H
 #define CPEDESTRIANDETECTION_H
-#include "CCom.h"
-#include "CCamera.h"
+
+//System Include Files
+
+//Own Include Files
 #include "CSystemResource.h"
-#include "CThread.h"
 #include "CCameraDataProcessing.h"
 #include "CSerialDataProcessing.h"
-#include "CSemaphore.h"
 
 class CPedestrianDetection {
 private:
-    CSystemResource m_sysRes;
-    CCameraDataProcessing m_thread_camera;
-    CSerialDataProcessing m_thread_comm;
+
+	/**
+	 * @brief : Global System Resource
+	 */
+	CSystemResource m_sysRes;
+
+	/**
+	 * @brief : Camera Algorithm thread
+	 */
+	CCameraDataProcessing m_thread_camera;
+
+	/**
+	 * @brief : Serial Communication thread
+	 */
+	CSerialDataProcessing m_thread_comm;
 public:
 
-    CPedestrianDetection();
+	/**
+	 * @brief : Constructor
+	 */
+	CPedestrianDetection();
 
-    void run();
+	/**
+	 * @brief : Destructor
+	 */
+	~CPedestrianDetection();
 
-    ~CPedestrianDetection();
+	/**
+	 * @brief : Run function for the Pedestrain Detection Aapplication
+	 */
+	void run();
 };
 /********************
-**  CLASS END
-*********************/
+ **  CLASS END
+ *********************/
 #endif /* CPEDESTRIANDETECTION_H */

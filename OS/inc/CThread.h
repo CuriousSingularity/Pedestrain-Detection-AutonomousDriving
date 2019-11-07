@@ -35,8 +35,9 @@ public:
 	 * @param threadIndex		: Index for a thread
 	 * @param pAttr			: Attributes
 	 * @param pSysRes		: Reference to the system resource which can be used by the threads
+	 * @param entry			: Entry Function for the thread
 	 */
-	CThread(int32_t threadIndex, pthread_attr_t *pAttr, start_routine_t thread_entry, CSystemResource *pSysRes = NULL);
+	CThread(int32_t threadIndex, const CSystemResource *pSysRes = NULL, CThread::start_routine_t entry = NULL, void *arg = NULL);
 
 	/**
 	 * @brief : Destructor
@@ -57,21 +58,16 @@ public:
 	 *
 	 * @return 			: POSIX specific (check man page for more information :D )
 	 */
-	virtual void *run(void * arg) =0;
+	virtual void run() =0;
 
 	/**
 	 * @brief : Function which creates a thread based on the entry function provided
 	 *
-	 * @return : status of the thread creation
-	 */
-	global::RC_t create();
-
-	/**
-	 * @brief : Get Pointer to the start routine for the thread
+	 * @param pAttr			: Thread attributes
 	 *
-	 * @return : Pointer to start routine
+	 * @return 			: status of setup
 	 */
-	virtual CThread::start_routine_t getPointerToStartRoutine();
+	global::RC_t create(pthread_attr_t *pAttr);
 
 private:
 
@@ -80,21 +76,21 @@ private:
 	 */
 	pthread_t m_threadId;
 
-
 	/**
 	 * @brief : Thread attributes such as priority, detachable, stack, etc
 	 */
-	pthread_attr_t *m_pAttr;
-
-	/**
-	 * @brief : entry function for a thread
-	 */
-	start_routine_t m_thread_entry;
+	pthread_attr_t m_attr;
 
 	/**
 	 * @brief : Thread index to monitor the threads
 	 */
 	int32_t m_threadIndex;
+
+	void *m_pArg;
+	/**
+	 * @brief : entry function for a thread
+	 */
+	start_routine_t m_thread_entry;
 
 	/**
 	 * @brief : Pointer reference for the System resource

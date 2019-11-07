@@ -10,6 +10,7 @@
 
 //System Include Files
 #include <iostream>
+#include <cstring>
 
 //Own Include Files
 #include "./OS/inc/CThread.h"
@@ -23,20 +24,19 @@ using namespace global;
  * @brief : Constructor
  *
  * @param threadIndex		: Index for a thread
- * @param pAttr			: Attributes
  * @param pSysRes		: Reference to the system resource which can be used by the threads
+ * @param entry			: Entry Function for the thread
  */
-CThread::CThread(int32_t threadIndex, pthread_attr_t *pAttr, start_routine_t thread_entry, CSystemResource *pSysRes)
+CThread::CThread(int32_t threadIndex, const CSystemResource *pSysRes, start_routine_t entry, void *arg)
 {
 	// if this is NULL, then the thread is create with default configuration
 	// TODO: May explore the attributes to utilize CPU and optimizate for a better 
 	// performance. Refer man pages in linux for more information :D
-	// this->m_pAttr			= pAttr;
-	this->m_pAttr			= 0;
-	this->m_threadIndex		= threadIndex;
 	this->m_threadId		= 0;
-	this->m_pSysRes			= pSysRes;
-	this->m_thread_entry		= thread_entry;
+	this->m_thread_entry		= entry;
+	this->m_pArg			= arg;
+	this->m_threadIndex		= threadIndex;
+	this->m_pSysRes			= (CSystemResource *)pSysRes;
 }
 
 
@@ -47,17 +47,14 @@ CThread::~CThread()
 {
 	// Disconnect from the global resource
 	this->m_pSysRes = 0;
-}
 
+	if (pthread_attr_destroy(&this->m_attr) != 0)
+	{
+		cout << "ERROR\t: Thread " << this->m_threadIndex << " setup failed due to bad attribute" << endl;
+	}
 
-/**
- * @brief : Get Pointer to the start routine for the thread
- *
- * @return : Pointer to start routine
- */
-CThread::start_routine_t CThread::getPointerToStartRoutine()
-{
-	return this->m_thread_entry;
+	// pthread_exit - Thread exit can be done here, but we are not going to terminate our application, hence
+	// not implemented here. If needed, this is the place to implement.
 }
 
 
@@ -75,22 +72,43 @@ int32_t CThread::getThreadIndex()
 /**
  * @brief : Function which creates a thread based on the entry function provided
  *
- * @return : status of the thread creation
+ * @param pAttr			: Thread attributes
+ *
+ * @return 			: status of setup
  */
-RC_t CThread::create()
+RC_t CThread::create(pthread_attr_t *pAttr)
 {
-	if (this->m_thread_entry == 0)
+	// check if the thread is already created
+	if (this->m_threadId == 0)
 	{
-		return RC_ERROR_NULL;
-	}
+		if (this->m_thread_entry == 0)
+		{
+			return RC_ERROR_NULL;
+		}
 
-	// Thread parameter arguments is made NULL since it is redandent
-	// TODO: If parameter is needed for each threads independently, explore this API options
-	if (pthread_create(&this->m_threadId, this->m_pAttr, this->m_thread_entry, NULL) != 0)
+		if (pAttr)
+		{
+			memcpy(&this->m_attr, pAttr, sizeof(pthread_attr_t));
+		}
+
+		if (pthread_attr_init(&this->m_attr) != 0)
+		{
+			cout << "ERROR\t: Thread " << this->m_threadIndex << " setup failed due to bad attribute" << endl;
+			return RC_ERROR_BAD_PARAM;
+		}
+
+		// Thread parameter arguments is made NULL since it is redandent
+		// TODO: If parameter is needed for each threads independently, explore this API options
+		if (pthread_create(&this->m_threadId, &this->m_attr, this->m_thread_entry, NULL) != 0)
+		{
+			cout << "ERROR\t: Thread " << this->m_threadIndex << " creation failed with errno " << errno << endl;
+			return RC_ERROR;
+		}
+
+		return RC_SUCCESS;
+	}
+	else
 	{
-		cout << "ERROR\t: Thread " << this->m_threadIndex << " creation failed with errno " << errno << endl;
+		return RC_ERROR_BUSY;
 	}
-
-	return RC_SUCCESS;
 }
-
