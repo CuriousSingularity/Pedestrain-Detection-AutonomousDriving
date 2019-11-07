@@ -38,6 +38,8 @@ private:
 
 	static void __camera_cyclic__signal_handler(int sig);
 
+	void wait_for_newFrame();
+
 public:
 
 	/**

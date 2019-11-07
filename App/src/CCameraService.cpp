@@ -67,6 +67,16 @@ void CCameraService::__camera_cyclic__signal_handler(int sig)
 	CCameraService::signal_type = sig;
 }
 
+void CCameraService::wait_for_newFrame()
+{
+	struct timespec delta = 
+	{
+		.tv_sec 	= 0,// seconds
+		.tv_nsec	= (999999999 / FRAMERATE),// nano seconds
+	};
+
+	while (nanosleep(&delta, &delta));
+}
 /**
  * @brief : Main routine for the thread
  *
@@ -83,9 +93,10 @@ void CCameraService::run()
 	while (1)
 	{
 		// background thread
-		cout << "INFO\t: Running x started with ID : " << pthread_self() << endl;
+		cout << "INFO\t: Running Camera Service " << this->getThreadIndex() " : " << pthread_self() << endl;
 
-		usleep(100000);
+		this->wait_for_newFrame();
+
 		// read new image to ring buffer
 		if (this->m_camera_0.read(&image, 0, wBytes) != RC_SUCCESS)
 			continue;
