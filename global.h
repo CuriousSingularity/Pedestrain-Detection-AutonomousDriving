@@ -201,7 +201,8 @@ enum eRC
 	RC_ERROR_BAD_DATA       = -21,                  /**< \brief Invalid global data which is required by the function.              */
 	RC_ERROR_CANCELED       = -22,                  /**< \brief operation was canceled.                                             */
 	RC_ERROR_INVALID_STATE  = -23,                  /**< \brief The operation can not be performed because of a FSM-state           */
-    RC_ERROR_UNKNOWN        = -24,                  /**< \brief Unknown error.                                                      */
+	RC_ERROR_CLOSE  	= -24,                  /**< \brief The device could not be closed           */
+    RC_ERROR_UNKNOWN        = -25,                  /**< \brief Unknown error.                                                      */
 };
 typedef enum eRC RC_t;
 

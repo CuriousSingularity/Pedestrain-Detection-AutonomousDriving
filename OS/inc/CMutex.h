@@ -1,39 +1,83 @@
 /***************************************************************************
-*============= Copyright by Darmstadt University of Applied Sciences =======
-****************************************************************************
-* Filename        : CMUTEX.H
-* Author          :
-* Description     :
-*
-*
-****************************************************************************/
+ *============= Copyright by Darmstadt University of Applied Sciences =======
+ ****************************************************************************
+ * Filename        : CMutex.h
+ * Author          : Bharath Ramachandraiah (stbhrama@stud.h-da.de)
+ * Description     : Mutex file for protecting the resource.
+ *
+ ****************************************************************************/
 
 #ifndef CMUTEX_H
 #define CMUTEX_H
 
-#include "./global.h"
+//System Include Files
 #include <pthread.h>
+
+//Own Include Files
+#include "./global.h"
 
 class CMutex {
 private:
-    int destroy();
-    int init();
-    pthread_mutex_t m_key;
-    pthread_mutexattr_t m_attr;
+
+	/**
+	 * @brief : Mutex key 
+	 */
+	pthread_mutex_t m_key;
+
+
+	/**
+	 * @brief : Mutex attributes
+	 */
+	pthread_mutexattr_t m_attr;
+
+	/**
+	 * @brief : Mutex initialisation
+	 *
+	 * @return RC_t : status
+	 */
+	global::RC_t init();
+
+	/**
+	 * @brief : Mutex destroy
+	 *
+	 * @return RC_t : status
+	 */
+	global::RC_t destroy();
 public:
 
-    CMutex();
+	/**
+	 * @brief : Constructor
+	 */
+	CMutex();
 
-    virtual ~CMutex();
+	/**
+	 * @brief : Destructor 
+	 */
+	virtual ~CMutex();
 
-    int lock();
+	/**
+	 * @brief : acquire blocking mutex lock
+	 *
+	 * @return RC_t : status
+	 */
+	global::RC_t lock();
 
-    int trylock();
+	/**
+	 * @brief : acquire non-blocking mutex lock
+	 *
+	 * @return RC_t : status
+	 */
+	global::RC_t trylock();
 
-    void unlock();
+	/**
+	 * @brief : release the mutex lock
+	 *
+	 * @return RC_t : status
+	 */
+	global::RC_t unlock();
 
 };
 /********************
-**  CLASS END
-*********************/
+ **  CLASS END
+ *********************/
 #endif /* CMUTEX_H */

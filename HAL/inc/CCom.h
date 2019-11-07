@@ -1,12 +1,13 @@
 /***************************************************************************
  *============= Copyright by Darmstadt University of Applied Sciences =======
  ****************************************************************************
- * Filename        : CCOM.H
- * Author          :
- * Description     :
- *
+ * Filename        : CCom.h
+ * Author          : Bharath Ramachandraiah (stbhrama@stud.h-da.de)
+ * Description     : Serial Communication such as uart, usart, etc. 
+ * 			Can be extended for SPI, I2C as a base class.
  *
  ****************************************************************************/
+
 
 #ifndef CCOM_H
 #define CCOM_H

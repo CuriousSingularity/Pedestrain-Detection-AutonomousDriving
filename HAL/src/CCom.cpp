@@ -1,12 +1,13 @@
 /***************************************************************************
  *============= Copyright by Darmstadt University of Applied Sciences =======
  ****************************************************************************
- * Filename        : CCOM.CPP
- * Author          :
- * Description     :
- *
+ * Filename        : CCom.cpp
+ * Author          : Bharath Ramachandraiah (stbhrama@stud.h-da.de)
+ * Description     : Serial Communication such as uart, usart, etc. 
+ * 			Can be extended for SPI, I2C as a base class.
  *
  ****************************************************************************/
+
 
 
 //System Include Files
