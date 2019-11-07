@@ -14,11 +14,13 @@
 
 #define NVIDIA		1
 #define RSP		2
+#define VERSION		("0.1")
 
 using namespace std;
 
 int main(int argc, char **argv)
 {
+
 #if (TARGET_PLATFORM == NVIDIA)
 	cout << "NVidia Platform" << endl;
 #elif (TARGET_PLATFORM == RSP)
@@ -27,7 +29,7 @@ int main(int argc, char **argv)
 	cout << "Invalid Platform" << endl;
 	while(1);
 #endif
-	cout << "Program Started..." << endl;
+	cout << VERSION << "v : Program Started..." << endl;
 
 	CPedestrianDetection	pedestrianDetection;
 
