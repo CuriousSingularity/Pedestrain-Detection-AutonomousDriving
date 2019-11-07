@@ -16,6 +16,7 @@
 
 //Own Include Files
 #include "./OS/inc/CThread.h"
+#include "./OS/inc/CMailBox.h"
 #include "./OS/inc/CSemaphore.h"
 #include "./App/inc/CSerialProtocol.h"
 
@@ -23,9 +24,9 @@ class CComTxService : public CThread {
 private:
 
 	/**
-	 * @brief : UART channel 0
+	 * @brief : UART channel 1
 	 */
-	CUart		m_uart_0;
+	CUart		m_uart_1;
 
 	/**
 	 * @brief : Protocol parser object
@@ -38,6 +39,10 @@ private:
 	 * @return - to join the thread
 	 */
 	void run();
+
+	global::RC_t processRecvdMsg(CMailBox::mail_box_data_t &data);
+
+	global::RC_t processDataForTx(CMailBox::mail_box_data_t &data);
 
 public:
 

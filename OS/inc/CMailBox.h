@@ -16,7 +16,8 @@
 #include "./global.h"
 #include "./OS/inc/CResource.h"
 
-class CMailBox : protected CResource{
+
+class CMailBox : protected CResource {
 public:
 
 	typedef struct 
@@ -40,6 +41,8 @@ public:
 	
 	global::RC_t receive(int &senderId, mail_box_data_t &data);
 
+	int getOwner();
+
 private:
 
 	int m_owner;
@@ -50,6 +53,8 @@ private:
 		uint16_t 			dst;	// destination of data
 		mail_box_data_t		data;	// mail box data
 	} mail_box_msg_t;
+
+	global::RC_t configure();
 
 };
 

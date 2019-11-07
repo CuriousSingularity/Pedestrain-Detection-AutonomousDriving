@@ -56,6 +56,7 @@ public:
 	 */
 	~CCameraService();
 
+	static void cloneMat(cv::Mat &lhs, const cv::Mat &rhs);
 	/**
 	 * @brief : Friend function used to create the thread 
 	 *

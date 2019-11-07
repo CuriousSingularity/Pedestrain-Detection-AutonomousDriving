@@ -14,24 +14,6 @@
 //Own Include Files
 #include "./App/inc/CSerialProtocol.h"
 
-//Macros
-#define DELIMITER			(0x7E)
-
-// size
-// change the paylock blocks according to the requirement
-#define PAYLOAD_BLOCKS			10
-#define BLOCK_SIZE			(sizeof(CSerialProtocol::object_detection_lidar_t))
-
-#define DELIMITER_SIZE			1
-#define NO_OF_BLOCKS			1
-#define PAYLOAD_SIZE			(PAYLOAD_BLOCKS * BLOCK_SIZE)
-
-#define DELIMITER_INDEX			0
-#define NO_OF_BLOCKS_INDEX		(DELIMITER_INDEX + DELIMITER_SIZE)
-#define PAYLOAD_INDEX			(NO_OF_BLOCKS_INDEX + NO_OF_BLOCKS)
-
-#define PROTOCOL_BUF_SIZE		(DELIMITER_SIZE + NO_OF_BLOCKS + BLOCK_SIZE)
-
 using namespace std;
 using namespace global;
 
@@ -64,7 +46,7 @@ CSerialProtocol::~CSerialProtocol()
 RC_t CSerialProtocol::readRequest(std::vector<object_detection_lidar_t> &detectedObjects, CUart *pComResource)
 {
 	RC_t		ret = RC_ERROR_NOT_MATCH;
-	uint8_t 	protocolBuf[PROTOCOL_BUF_SIZE];
+	uint8_t 	protocolBuf[PROTOCOL_BUF_MAX_SIZE];
 	uint16_t	nBytes = 0, blocks = 0;
 	ssize_t 	rBytes = 0;
 
@@ -76,7 +58,7 @@ RC_t CSerialProtocol::readRequest(std::vector<object_detection_lidar_t> &detecte
 		if (protocolBuf[DELIMITER_INDEX] == DELIMITER)
 		{
 			// read the number of blocks
-			nBytes = NO_OF_BLOCKS;
+			nBytes = LENGTH_SIZE;
 			if ((ret = pComResource->read(&protocolBuf[NO_OF_BLOCKS_INDEX], nBytes, rBytes)) == RC_SUCCESS && (nBytes == rBytes))
 			{
 				blocks = protocolBuf[NO_OF_BLOCKS_INDEX];

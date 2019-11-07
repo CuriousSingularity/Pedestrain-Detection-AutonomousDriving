@@ -16,6 +16,10 @@
 //Own Include Files
 #include "./App/inc/CDetection.h"
 #include "./Lib/inc/nms.h"
+#include "./Lib/inc/CRingBuffer.h"
+#include "./App/inc/CCameraService.h"
+#include "./OS/inc/CMailBox.h"
+#include "./App/inc/CSerialProtocol.h"
 
 //Namespace
 using namespace std;
@@ -28,18 +32,15 @@ using namespace cv;
 #define DISPLAY_CONNECTED		DISABLE
 
 
-// local constants
-static HOGDescriptor hog;
-
 static const CDetection::hog_config_t hog_config_param {
 	.hitThreshold	= 55,	// Range : 0-100
-	.winStride		= 8,	// Range : 1-32
-	.padding 		= 8,	// Range : 0-64
-	.scale 			= 1.08,	// Range : > 1.0
-	.finalThreshold = 0,	// Range : 0-100
-	.nmsThreshold 	= 0,	// Range : 0-100
-	.nmsNeighbors 	= 0,	// Range : 0-100
-	.detectionModel	= CDetection::HOG_DETECTION_DEFAULT,
+		.winStride		= 8,	// Range : 1-32
+		.padding 		= 8,	// Range : 0-64
+		.scale 			= 1.08,	// Range : > 1.0
+		.finalThreshold = 0,	// Range : 0-100
+		.nmsThreshold 	= 0,	// Range : 0-100
+		.nmsNeighbors 	= 0,	// Range : 0-99
+		.detectionModel	= CDetection::HOG_DETECTION_DEFAULT,
 };
 
 //Method Implementations
@@ -73,66 +74,75 @@ CDetection::~CDetection()
 void CDetection::run()
 {
 	// The Threads runs here
-	cout << "INFO\t: Detection Algorithm Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
+	cout << "INFO\t: Detection Algorithm Service " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
 
-	while (1)
-	{
-		sleep(1);
-		cout << getpid() << endl;
-	}
-
-#if 0
-	// Locals declaration:
+	// Hog detection
+	Mat eachFrame;
+	HOGDescriptor hog;
 	vector<Rect> detections;		// Vector of boxes where a detection was achieved
 	vector<double> detection_weights;
-	Mat image;
+
+	// nms 
 	vector<Rect> nmsDetections;
-	ssize_t rBytes = 0;
 
 #if (defined(DISPLAY_CONNECTED) && (DISPLAY_CONNECTED == ENABLE))
 	namedWindow("Detected Image", cv::WINDOW_AUTOSIZE);
 	uint8_t counter = 0;
 #endif
 
+	// select the algorithm from the configuration
+	switch (hog_config_param.detectionModel)
+	{
+		case CDetection::HOG_DETECTION_DAIMLER:
+			hog.winSize = Size(64, 128);
+			hog.setSVMDetector(HOGDescriptor::getDefaultPeopleDetector());
+			break;
+
+		case CDetection::HOG_DETECTION_DEFAULT:
+			hog.winSize = Size(48, 96);
+			hog.setSVMDetector(HOGDescriptor::getDaimlerPeopleDetector());
+			break;
+
+		default:
+			break;
+	}
+
+#ifdef ALGO_TIME_MEASUREMENT
 	double t_start = 0;
+#endif
+	extern CRingBuffer<cv::Mat, FRAMERATE> g_framesBuffer;
+	extern CMailBox g__Mailboxes[THREAD_TOTAL_COUNT];
 
 	while (1)
 	{
-		cout << "INFO\t: Camera Running Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
+#if 0
+		cout << "INFO\t: Running Detection Algorithm Service " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
 
-		// Hog run:
-		// TODO NOL: Acquire frame from camera
-		if (RC_SUCCESS == this->m_pSysRes->getCameraResourceReference()->read(&image, 0, rBytes))
+		// Detection Algorithm
+		if (g_framesBuffer.readData(&eachFrame, CCameraService::cloneMat) == RC_SUCCESS)
 		{
-			if (detector == DET_DAIMLER){
-				hog.winSize = Size(48, 96);
-				hog.setSVMDetector(HOGDescriptor::getDaimlerPeopleDetector());
-			}
-			else{
-				hog.winSize = Size(64, 128);
-				hog.setSVMDetector(HOGDescriptor::getDefaultPeopleDetector());
-			}
-
+#ifdef ALGO_TIME_MEASUREMENT
+			// debugging the time
 			t_start = getTickCount();
-			hog.detectMultiScale(	image,									/* Source image */
-					detections,					/* foundLocations, vector of Rect objects with the boxes where a person was detected */
-					detection_weights,				/* Weights of each detection. Vector of same dimension as previous parameter */
-					(float) hitThreshold.value / 100,		/* hitThreshold: SVM threshold to filter final results */
-					Size(winStride.value, winStride.value),		/* Windows stride: Horizontal and vertical step in pixels for the template matching process */
-					Size(padding.value, padding.value),		/* Padding: PENDING */
-					1 + (float) scale.value / 100,			/* Scale: Scale stride for the image pyramid */
-					(float) finalThreshold.value / 100		/* FinalThreshold: PENDING */
+#endif
+
+			hog.detectMultiScale(
+					eachFrame,							/* Source image */
+					detections,							/* foundLocations, vector of Rect objects with the boxes where a person was detected */
+					detection_weights,						/* Weights of each detection. Vector of same dimension as previous parameter */
+					(float) hog_config_param.hitThreshold / 100,			/* hitThreshold: SVM threshold to filter final results */
+					Size(hog_config_param.winStride, hog_config_param.winStride),	/* Windows stride: Horizontal and vertical step in pixels for the template matching process */
+					Size(hog_config_param.padding, hog_config_param.padding),	/* Padding: PENDING */
+					hog_config_param.scale,						/* Scale: Scale stride for the image pyramid */
+					(float) hog_config_param.finalThreshold / 100			/* FinalThreshold: PENDING */
 					);
-			//	cout << "Found " << detections.size() << " matches";
 
+			nms(detections, nmsDetections, (float) hog_config_param.nmsThreshold / 100, hog_config_param.nmsNeighbors);
 
-			nms(detections, nmsDetections, (float) nmsThreshold.value / 100, nmsNeighbors.value);
-
-			//	cout << " - After NMS: " << nmsDetections.size() << " matches" << endl;
 #if (defined(DISPLAY_CONNECTED) && (DISPLAY_CONNECTED == ENABLE))
 			for (unsigned int i= 0; i < nmsDetections.size() ; i++)
 			{
-				rectangle(image, Point(nmsDetections[i].x, nmsDetections[i].y), Point(nmsDetections[i].x + nmsDetections[i].width, nmsDetections[i].y + nmsDetections[i].height), Scalar(0, 0, 255), 5, LINE_8);
+				rectangle(eachFrame, Point(nmsDetections[i].x, nmsDetections[i].y), Point(nmsDetections[i].x + nmsDetections[i].width, nmsDetections[i].y + nmsDetections[i].height), Scalar(0, 0, 255), 5, LINE_8);
 			}
 
 
@@ -140,13 +150,35 @@ void CDetection::run()
 			//			putText(image, to_string((int) counter), Point(0,0), FONT_HERSHEY_PLAIN, 4,  Scalar(255,255,255), 2 , LINE_AA , false);
 
 			counter = (counter + 1) % 100;
-			imshow( "Detected Image", image );
+			imshow( "Detected Image", eachFrame );
 			waitKey(1);
 #endif
+
+#ifdef ALGO_TIME_MEASUREMENT
 			cout << endl << "Time elapsed: " << (getTickCount() - t_start) / getTickFrequency() << endl;
+#endif
 		}
+#endif
+
+		CMailBox::mail_box_data_t data = 
+		{
+			.sid = global::SID_TX_DATA,
+			.lid = CUart::UART_CHANNEL_1,
+			.pDynamicData = 0,
+		};
+
+		CSerialProtocol::object_detection_frame_t collection;
+
+		data.pDynamicData = &collection;
+
+
+		if (g__Mailboxes[THREAD_COM_TX_SERVICE].send(this->getThreadIndex(), data) != RC_SUCCESS)
+		{
+			cout << "********************* MSG Over Mailbox Failed ****************" << endl;
+		}
+
+		sleep(1);
 	}
-	#endif
 }
 
 

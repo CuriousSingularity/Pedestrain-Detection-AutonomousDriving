@@ -56,11 +56,11 @@ CComRxService::~CComRxService()
 void CComRxService::run()
 {
 	// The Threads runs here
-	cout << "INFO\t: Serial Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
+	cout << "INFO\t: Communication Rx Service " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
 
 	while (1)
 	{
-		// /cout << "INFO\t: Serial Running Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
+		// /cout << "INFO\t: Running Communication Rx Service " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
 		sleep(1);
 		cout << getpid() << endl;
 	}

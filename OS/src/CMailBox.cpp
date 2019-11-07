@@ -14,7 +14,7 @@
 #include <string.h>
 
 //Own Include Files
-#include "CMailBox.h"
+#include "./OS/inc/CMailBox.h"
 
 //Namespace
 using namespace global;
@@ -30,17 +30,7 @@ CMailBox::CMailBox(int owner)
 	this->m_status 	= service_UNAVAILABLE;
 	this->m_owner	= owner;
 
-	// create a pipe for unidirectional message queue
-	int pipefd[2];
-
-	if (pipe(pipefd) == -1)
-	{
-		cout << "ERROR\t: Message Queue creation failed for the owner " << this->m_owner << " with errno " << errno << endl;
-	}
-
-	this->m_fd_r = pipefd[0];
-	this->m_fd_w = pipefd[1];
-	this->m_status 	= service_READY;
+	this->configure();
 }
 
 
@@ -53,6 +43,30 @@ CMailBox::~CMailBox()
 }
 
 
+int CMailBox::getOwner()
+{
+	return (this->m_owner);
+}
+
+
+RC_t CMailBox::configure()
+{
+	// create a pipe for unidirectional message queue
+	int pipefd[2];
+
+	if (pipe(pipefd) == -1)
+	{
+		cout << "ERROR\t: Message Queue creation failed for the owner " << this->m_owner << " with errno " << errno << endl;
+		return RC_ERROR_MAILBOX_FAIL;
+	}
+
+	this->m_fd_r = pipefd[0];
+	this->m_fd_w = pipefd[1];
+	this->m_status 	= service_READY;
+
+	return RC_SUCCESS;
+}
+
 
 RC_t CMailBox::send(int senderId, const mail_box_data_t &data)
 {
@@ -64,7 +78,7 @@ RC_t CMailBox::send(int senderId, const mail_box_data_t &data)
 	msg.src 	= senderId;
 	msg.dst 	= this->m_owner;
 
-	if(memcpy(&msg.data, &data, MAIL_BOX_DATA_SIZE) == NULL)
+	if (memcpy(&msg.data, &data, MAIL_BOX_DATA_SIZE) == NULL)
 	{
 		cout << "ERROR\t: Message Queue copy failed for the owner " << this->m_owner << " with errno " << errno << endl;
 
@@ -76,6 +90,7 @@ RC_t CMailBox::send(int senderId, const mail_box_data_t &data)
 	if ((this->write(&msg, MAIL_BOX_MSG_SIZE, wBytes) != RC_SUCCESS)
 			|| (wBytes != MAIL_BOX_MSG_SIZE))
 	{
+		cout << "ERROR\t: Mailbox write failed for thread " << this->m_owner << endl;
 		return RC_ERROR_MAILBOX_FAIL;
 	}
 
@@ -95,7 +110,17 @@ RC_t CMailBox::receive(int &senderId, mail_box_data_t &data)
 	if ((this->read(&msg, MAIL_BOX_MSG_SIZE, rBytes) != RC_SUCCESS)
 			|| (rBytes != MAIL_BOX_MSG_SIZE))
 	{
+		cout << "ERROR\t: Mailbox read failed for thread " << this->m_owner << endl;
 		return RC_ERROR_MAILBOX_FAIL;
+	}
+
+	senderId = msg.src;
+
+	if (memcpy(&data, &msg.data, MAIL_BOX_DATA_SIZE) == NULL)
+	{
+		cout << "ERROR\t: Message Queue copy failed for the owner " << this->m_owner << " with errno " << errno << endl;
+
+		return RC_ERROR_MEMORY;
 	}
 
 	return RC_SUCCESS;

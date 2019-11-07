@@ -43,6 +43,13 @@ private:
 
 public:
 
+	typedef enum
+	{
+		UART_CHANNEL_0 = 0,
+		UART_CHANNEL_1,
+		UART_CHANNEL_2,
+	} uart_channel_t;
+
 	/**
 	 * @brief : Constructor
 	 */

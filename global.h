@@ -124,6 +124,33 @@ typedef enum{
     service_BUSY,                                   /**< \brief Service is busy.*/
     service_UNAVAILABLE,                            /**< \brief Service is unavailable.*/
 }service_state_t;
+
+typedef enum {
+	THREAD_BACKGROUND = 0,
+	THREAD_COM_TX_SERVICE,
+	THREAD_COM_RX_SERVICE,
+	THREAD_CAMERA_SERVICE,
+	THREAD_DETECTION_SERVICE,
+	THREAD_TOTAL_COUNT,
+}thread_id_t;
+
+typedef enum
+{
+	// massive future scope to implement these features
+	// SID for Detection 0x00 - 0x0f
+	SID_DETECTION_CONFIG = 0x00,
+
+	// SID for Tx 0x10 -0x1f
+	SID_TX_CONFIG = 0x10,
+	SID_TX_DATA,	
+} mail_box_sid_t;
+
+typedef enum
+{
+	// request from Aurix to change the algorithm default or daimler
+	LID_DETECTION_ALGO = 0x00,
+} mail_box_lid_detection_t;
+
 };
 
 /* Platforms */

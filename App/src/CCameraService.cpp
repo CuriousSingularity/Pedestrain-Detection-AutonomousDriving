@@ -29,7 +29,7 @@ using namespace global;
 //Global variables
 CRingBuffer<cv::Mat, FRAMERATE> g_framesBuffer;
 
-static void cloneMat(cv::Mat &lhs, const cv::Mat &rhs)
+void CCameraService::cloneMat(cv::Mat &lhs, const cv::Mat &rhs)
 {
 	lhs = rhs.clone();
 }
@@ -85,7 +85,7 @@ void CCameraService::wait_for_newFrame()
 void CCameraService::run()
 {
 	// The Threads runs here
-	cout << "INFO\t: Camera Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
+	cout << "INFO\t: Camera Service " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
 
 	cv::Mat image;
 	ssize_t wBytes;
@@ -102,7 +102,10 @@ void CCameraService::run()
 			continue;
 
 		// store the frame to ringbuffer for consumers
-		g_framesBuffer.writeData(image, cloneMat);
+		if (g_framesBuffer.writeData(image, cloneMat) != RC_SUCCESS)
+		{
+			cout << "ERROR\t: Ring Buffer Write error" << endl;
+		}
 	}
 }
 
