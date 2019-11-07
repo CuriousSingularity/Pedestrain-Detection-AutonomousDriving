@@ -13,7 +13,7 @@
 #include "CResource.h"
 class CCamera : public CResource {
 private:
-    int configure();
+    global::RC_t configure();
 
 public:
     CCamera();

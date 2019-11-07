@@ -11,6 +11,7 @@
 #ifndef CMUTEX_H
 #define CMUTEX_H
 
+#include "./global.h"
 #include <pthread.h>
 
 class CMutex {

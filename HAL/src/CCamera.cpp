@@ -18,11 +18,13 @@
 
 //Own Include Files
 
+using namespace global;
+
 //Method Implementations
 
-int CCamera::configure()
+RC_t CCamera::configure()
 {
-	return -1;
+	return RC_ERROR;
 }
 
 CCamera::CCamera() : CResource("/dev/camera", O_RDWR | O_NOCTTY | O_SYNC, S_IRWXU) 

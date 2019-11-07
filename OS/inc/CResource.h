@@ -33,8 +33,12 @@ public:
 
     virtual ssize_t write(void * buffer, size_t nbyte);
 
-    virtual int configure() =0;
+    virtual global::RC_t configure() =0;
 protected:
+
+    /**
+     * @brief - file descriptor of the resource
+     */
     int m_fd;
 };
 /********************
