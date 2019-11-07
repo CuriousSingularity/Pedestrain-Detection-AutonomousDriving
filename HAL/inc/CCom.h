@@ -46,7 +46,7 @@ public:
 	/**
 	 * @brief : Constructor
 	 */
-	CCom();
+	CCom(std::string devPath, int flag, mode_t mode);
 
 	/**
 	 * @brief : Destructor

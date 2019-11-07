@@ -10,6 +10,9 @@
 
 
 //System Include Files
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 //Own Include Files
 #include "CSystemResource.h"
@@ -24,7 +27,9 @@ using namespace global;
 /**
  * @brief : Constructor
  */
-CSystemResource::CSystemResource()
+CSystemResource::CSystemResource() : 
+	m_serial("/dev/tty0"	, O_RDWR | O_NOCTTY | O_SYNC, S_IRWXU),
+	m_camera("/dev/video0"	, O_RDWR | O_NOCTTY | O_SYNC, S_IRWXU)
 {
 	//nothing
 }

@@ -12,9 +12,6 @@
 
 //System Include Files
 #include <iostream>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <string.h>
 
 //Own Include Files
@@ -29,9 +26,19 @@ using namespace std;
 /**
  * @brief : Constructor
  */
-CCom::CCom() : CResource("/dev/tty0", O_RDWR | O_NOCTTY | O_SYNC, S_IRWXU) 
+CCom::CCom(std::string devPath, int flags, mode_t mode) : CResource(devPath, flags, mode) 
 {
-	// nothing
+	// set up the speed of tx and rx
+	this->m_baudrate_tx	= B115200;
+	this->m_baudrate_rx	= B115200;
+
+	if (this->configure() != RC_SUCCESS)
+	{
+		this->m_status	= service_UNAVAILABLE;
+		cout << "ERROR\t: Resource configuration failed for Device " << this->getDeviceNode() << endl;
+	}
+
+	cout << "INFO\t: Com port " << this->getDeviceNode() << " constructed" << endl;
 }
 
 
@@ -40,7 +47,7 @@ CCom::CCom() : CResource("/dev/tty0", O_RDWR | O_NOCTTY | O_SYNC, S_IRWXU)
  */
 CCom::~CCom()
 {
-	//nothing
+	cout << "INFO\t: Com port " << this->getDeviceNode() << " destructed" << endl;
 }
 
 
@@ -53,6 +60,11 @@ CCom::~CCom()
  */
 RC_t CCom::configure()
 {
+	cout << "INFO\t: Com port " << this->getDeviceNode() << " configuration" << endl;
+
+	if (this->m_status != service_READY)
+		return RC_ERROR_INVALID_STATE;
+
 	struct termios tty;
 
 	memset(&tty, 0, sizeof(tty));
@@ -63,7 +75,7 @@ RC_t CCom::configure()
 		return RC_ERROR_BAD_DATA;
 	}
 
-	// set speed to 115,200 bps
+	// set baudrate speed
 	cfsetospeed (&tty, this->m_baudrate_tx);
 	cfsetispeed (&tty, this->m_baudrate_rx);
 

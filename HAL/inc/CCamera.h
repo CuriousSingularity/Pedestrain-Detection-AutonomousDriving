@@ -1,12 +1,12 @@
 /***************************************************************************
-*============= Copyright by Darmstadt University of Applied Sciences =======
-****************************************************************************
-* Filename        : CCAMERA.H
-* Author          :
-* Description     :
-*
-*
-****************************************************************************/
+ *============= Copyright by Darmstadt University of Applied Sciences =======
+ ****************************************************************************
+ * Filename        : CCAMERA.H
+ * Author          :
+ * Description     :
+ *
+ *
+ ****************************************************************************/
 
 #ifndef CCAMERA_H
 #define CCAMERA_H
@@ -16,14 +16,13 @@
 
 //Own Include Files
 #include "./OS/inc/CResource.h"
-#include "./global.h"
 
 class CCamera : public CResource {
 private:
 	#if (TARGET_PLATFORM == NVIDIA)
 		cv::VideoCapture m_cameraStream;
 	#elif (TARGET_PLATFORM == RSP)
-		cout << "CCamera: Implementation pending" << endl;
+		//cout << "CCamera: Implementation pending" << endl;
 	#elif (TARGET_PLATFORM == PC)
 		std::string m_imageName;
 	#endif
@@ -47,16 +46,16 @@ public:
 	/**
 	 * @brief : Constructor
 	 */
-	CCamera();
+	CCamera(std::string devPath, int flag, mode_t mode);
 
 	/**
 	 * @brief : Destructor
 	 */
 	virtual ~CCamera();
 
-    global::RC_t getCapture(cv::Mat * const image);
+	global::RC_t getCapture(cv::Mat * const image);
 };
 /********************
-**  CLASS END
-*********************/
+ **  CLASS END
+ *********************/
 #endif /* CCAMERA_H */
