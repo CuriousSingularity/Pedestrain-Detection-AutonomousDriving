@@ -75,7 +75,7 @@ CResource::~CResource()
  */
 RC_t CResource::open()
 {
-	RC_t ret = RC_ERROR_OPEN;
+	RC_t ret = RC_SUCCESS;
 
 	if (this->m_status != service_UNDEFINED)
 		return RC_ERROR_INVALID_STATE;
