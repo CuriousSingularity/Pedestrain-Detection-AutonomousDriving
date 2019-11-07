@@ -170,14 +170,24 @@ void CDetection::run()
 		CSerialProtocol::object_detection_frame_t collection;
 
 		data.pDynamicData = &collection;
+		CSerialProtocol::object_detection_block_t blk;
 
-
-		if (g__Mailboxes[THREAD_COM_TX_SERVICE].send(this->getThreadIndex(), data) != RC_SUCCESS)
+		for(int index = 0; index < 12; index++)
 		{
-			cout << "********************* MSG Over Mailbox Failed ****************" << endl;
-		}
+			blk.theta = index;
+			blk.delta_theta = index;
+			blk.probability = index;
+			blk.opinion = index;
 
-		sleep(1);
+			collection.blks.push_back(blk);
+
+			if (g__Mailboxes[THREAD_COM_TX_SERVICE].send(this->getThreadIndex(), data) != RC_SUCCESS)
+			{
+				cout << "********************* MSG Over Mailbox Failed ****************" << endl;
+			}
+
+			sleep(1);
+		}
 	}
 }
 
