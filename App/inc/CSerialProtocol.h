@@ -21,22 +21,26 @@
 
 
 //Macros
-#define DELIMITER			(0x7E)
+#define SOP				(0xFA)
+#define EOP				(0xFD)
 
 // size
 // change the paylock blocks according to the requirement
 #define PAYLOAD_BLOCKS			10
 #define BLOCK_SIZE			(sizeof(CSerialProtocol::object_detection_block_t))
 
-#define DELIMITER_SIZE			1
-#define LENGTH_SIZE			1
+#define SOP_SIZE			1
+#define EOP_SIZE			1
+#define DLC_SIZE			1
+#define DLC				4
 #define PAYLOAD_SIZE			(PAYLOAD_BLOCKS * BLOCK_SIZE)
 
-#define DELIMITER_INDEX			0
-#define NO_OF_BLOCKS_INDEX		(DELIMITER_INDEX + DELIMITER_SIZE)
-#define PAYLOAD_INDEX			(NO_OF_BLOCKS_INDEX + LENGTH_SIZE)
+#define SOP_INDEX			0
+#define DLC_INDEX			(SOP_INDEX + SOP_SIZE)
+#define PAYLOAD_INDEX			(DLC_INDEX + DLC_SIZE)
+#define EOP_INDEX			(PAYLOAD_INDEX + DLC)
 
-#define PROTOCOL_BUF_MAX_SIZE		(DELIMITER_SIZE + LENGTH_SIZE + BLOCK_SIZE * PAYLOAD_BLOCKS)
+#define PROTOCOL_BUF_MAX_SIZE		(SOP_SIZE + DLC_SIZE + DLC + EOP_SIZE)
 
 class CSerialProtocol {
 private:

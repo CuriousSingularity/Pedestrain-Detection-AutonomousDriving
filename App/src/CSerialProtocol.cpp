@@ -46,16 +46,17 @@ CSerialProtocol::~CSerialProtocol()
 RC_t CSerialProtocol::readRequest(std::vector<object_detection_lidar_t> &detectedObjects, CUart *pComResource)
 {
 	RC_t		ret = RC_ERROR_NOT_MATCH;
+#if 0
 	uint8_t 	protocolBuf[PROTOCOL_BUF_MAX_SIZE];
 	uint16_t	nBytes = 0, blocks = 0;
 	ssize_t 	rBytes = 0;
 
 	// protocol read
-	nBytes = DELIMITER_SIZE;
-	if ((ret = pComResource->read(&protocolBuf[DELIMITER_INDEX], nBytes, rBytes)) == RC_SUCCESS && (nBytes == rBytes))
+	nBytes = SOP_SIZE;
+	if ((ret = pComResource->read(&protocolBuf[SOP_INDEX], nBytes, rBytes)) == RC_SUCCESS && (nBytes == rBytes))
 	{
 		// check if the 1st byte is delimiter
-		if (protocolBuf[DELIMITER_INDEX] == DELIMITER)
+		if (protocolBuf[SOP_INDEX] == SOP)
 		{
 			// read the number of blocks
 			nBytes = LENGTH_SIZE;
@@ -87,5 +88,6 @@ RC_t CSerialProtocol::readRequest(std::vector<object_detection_lidar_t> &detecte
 		}
 	}
 
+#endif
 	return ret;
 }

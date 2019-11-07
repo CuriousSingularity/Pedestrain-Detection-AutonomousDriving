@@ -103,13 +103,15 @@ RC_t CComTxService::processDataForTx(CMailBox::mail_box_data_t &data)
 
 	__blk_cnt = ptr->blks.size();
 	__blk_cnt			= __blk_cnt > PAYLOAD_BLOCKS ? PAYLOAD_BLOCKS : __blk_cnt;
-	__tx_buf[DELIMITER_INDEX] 	= DELIMITER;
-	__tx_buf[NO_OF_BLOCKS_INDEX]	= __blk_cnt;
+	__tx_buf[SOP_INDEX] 		= SOP;
+	__tx_buf[DLC_INDEX]		= DLC;
 
 	if (__blk_cnt)
 		memcpy(&__tx_buf[PAYLOAD_INDEX], ptr->blks.data(), __blk_cnt * BLOCK_SIZE);
 
-	__tx_length = DELIMITER_SIZE + LENGTH_SIZE + __blk_cnt * BLOCK_SIZE;
+	__tx_buf[EOP_INDEX]		= EOP;
+
+	__tx_length = SOP_SIZE + DLC_SIZE + DLC + EOP_SIZE;
 
 	RC_t ret = RC_ERROR_INVALID;
 	ssize_t wBytes = 0;
