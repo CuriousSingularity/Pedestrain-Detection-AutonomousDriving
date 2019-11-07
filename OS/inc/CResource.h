@@ -38,9 +38,14 @@ private:
 	int m_mode;
 
 	/**
-	 * @brief : Mutex to protect the resource
+	 * @brief : Mutex to read protect the resource
 	 */
-	CMutex m_mutex;
+	CMutex m_mutex_r;
+
+	/**
+	 * @brief : Mutex to write protect the resource
+	 */
+	CMutex m_mutex_w;
 
 	/**
 	 * @brief : Open the device for reading or writing
