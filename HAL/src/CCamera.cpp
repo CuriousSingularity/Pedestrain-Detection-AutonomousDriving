@@ -144,7 +144,7 @@ CCamera::~CCamera()
  *
  * @return - status of capture
  */
-global::RC_t CCamera::getCapture(cv::Mat * const image)
+RC_t CCamera::getCapture(cv::Mat * const image)
 {
 	if (this->m_status != service_READY)
 		return RC_ERROR_INVALID_STATE;
@@ -155,7 +155,7 @@ global::RC_t CCamera::getCapture(cv::Mat * const image)
 
 	if (!this->m_cameraStream.read(capturedImage))
 		return RC_ERROR_READ_FAILS;
-	
+
 	cv::resize(capturedImage, *image, cv::Size(camera_config.resized_width, camera_config.resized_height));
 
 #elif (TARGET_PLATFORM == PC)
@@ -170,4 +170,44 @@ global::RC_t CCamera::getCapture(cv::Mat * const image)
 #endif
 
 	return RC_SUCCESS;
+}
+
+
+/**
+ * @brief : Read a frame from the camera
+ *
+ * @param buffer	: buffer should of type cv::Mat*
+ * @param nByte		: ignore
+ * @param wByte		: bytes read
+ *
+ * @return : status of read
+ */
+RC_t CCamera::read(const void *buffer, const size_t nByte, ssize_t &wByte)
+{
+	RC_t ret = RC_ERROR_READ_FAILS;
+
+	if (!buffer)
+		return RC_ERROR_NULL;
+
+	cv::Mat *image = (cv::Mat *) buffer;
+
+	if ((ret = this->getCapture(image)) == RC_SUCCESS)
+		wByte = image->elemSize();
+
+	return ret;
+}
+
+/**
+ * @brief : write is not used for the camera
+ *
+ * @param buffer	: ignore
+ * @param nByte		: ignore
+ * @param wByte		: ignore
+ *
+ * @return : status will be read only
+ */
+
+RC_t CCamera::write(const void *buffer, const size_t nByte, ssize_t &wByte)
+{
+	return RC_ERROR_READ_ONLY;
 }

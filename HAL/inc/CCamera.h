@@ -48,6 +48,15 @@ private:
 	 */
 	global::RC_t configure();
 
+	/**
+	 * @brief : Captures a frame
+	 *
+	 * @param image : image / frame from the camera
+	 *
+	 * @return - status of capture
+	 */
+	global::RC_t getCapture(cv::Mat * const image);
+
 public:
 	/**
 	 * @brief : Orientation for the camera
@@ -86,13 +95,27 @@ public:
 	virtual ~CCamera();
 
 	/**
-	 * @brief : Captures a frame
+	 * @brief : Read a frame from the camera
 	 *
-	 * @param image : image / frame from the camera
+	 * @param buffer	: buffer should of type cv::Mat*
+	 * @param nByte		: ignore
+	 * @param wByte		: bytes read
 	 *
-	 * @return - status of capture
+	 * @return : status of read
 	 */
-	global::RC_t getCapture(cv::Mat * const image);
+	global::RC_t read(const void *buffer, const size_t nByte, ssize_t &wByte);
+
+	/**
+	 * @brief : write is not used for the camera
+	 *
+	 * @param buffer	: ignore
+	 * @param nByte		: ignore
+	 * @param wByte		: ignore
+	 *
+	 * @return : status will be read only
+	 */
+	global::RC_t write(const void *buffer, const size_t nByte, ssize_t &wByte);
+
 };
 /********************
  **  CLASS END

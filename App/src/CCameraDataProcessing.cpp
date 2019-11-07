@@ -90,6 +90,7 @@ void CCameraDataProcessing::run()
 	vector<double> detection_weights;
 	Mat image;
 	vector<Rect> nmsDetections;
+	ssize_t rBytes = 0;
 
 #ifdef __SHOW_RESULT
 	namedWindow("Detected Image", cv::WINDOW_AUTOSIZE);
@@ -104,7 +105,7 @@ void CCameraDataProcessing::run()
 
 		// Hog run:
 		// TODO NOL: Acquire frame from camera
-		if (RC_SUCCESS == this->m_pSysRes->getCameraResourceReference().getCapture(&image)){
+		if (RC_SUCCESS == this->m_pSysRes->getCameraResourceReference().read(&image, 0, rBytes)){
 			if (detector == DET_DAIMLER){
 				hog.winSize = Size(48, 96);
 				hog.setSVMDetector(HOGDescriptor::getDaimlerPeopleDetector());
