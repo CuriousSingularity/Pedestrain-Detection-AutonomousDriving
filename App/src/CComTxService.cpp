@@ -136,6 +136,10 @@ RC_t CComTxService::processRecvdMsg(CMailBox::mail_box_data_t &data)
 	{
 		case SID_TX_DATA:
 			ret = this->processDataForTx(data);
+
+			//release the resource
+			delete((CSerialProtocol::object_detection_frame_t *)data.pDynamicData);
+
 			break;
 
 		default:

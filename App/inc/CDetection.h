@@ -12,10 +12,12 @@
 #define CDETECTION_H
 
 //System Include Files
+#include <opencv2/opencv.hpp>
 
 //Own Include Files
 #include "./OS/inc/CThread.h"
 #include "./OS/inc/CSemaphore.h"
+#include "./App/inc/CSerialProtocol.h"
 
 class CDetection : public CThread {
 private:
@@ -26,6 +28,8 @@ private:
 	 * @return - to join the thread
 	 */
 	void run();
+
+	void filter_algorithm(std::vector<cv::Rect> &nmsDetections, CSerialProtocol::object_detection_frame_t *p_resultCollection, uint32_t &bigIndex);
 
 public:
 

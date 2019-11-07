@@ -11,7 +11,6 @@
 // System includes
 #include <vector>
 #include <iostream>
-#include <opencv2/opencv.hpp>
 
 //Own Include Files
 #include "./App/inc/CDetection.h"
@@ -110,6 +109,7 @@ void CDetection::run()
 #ifdef ALGO_TIME_MEASUREMENT
 	double t_start = 0;
 #endif
+	uint32_t bigIndex = 0;
 	extern CRingBuffer<cv::Mat, FRAMERATE> g_framesBuffer;
 	extern CMailBox g__Mailboxes[THREAD_TOTAL_COUNT];
 
@@ -120,10 +120,7 @@ void CDetection::run()
 		.pDynamicData = 0,
 	};
 
-	CSerialProtocol::object_detection_frame_t resultCollection;
-	dataToTx.pDynamicData = &resultCollection;
-
-	CSerialProtocol::object_detection_block_t blk;
+	CSerialProtocol::object_detection_frame_t *p_resultCollection = 0;
 
 	cout << "INFO\t: Running Detection Algorithm Service " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
 
@@ -149,11 +146,25 @@ void CDetection::run()
 					);
 
 			nms(detections, nmsDetections, (float) hog_config_param.nmsThreshold / 100, hog_config_param.nmsNeighbors);
+		}
+
+		p_resultCollection = new CSerialProtocol::object_detection_frame_t;
+
+		if (p_resultCollection)
+			this->filter_algorithm(nmsDetections, p_resultCollection, bigIndex);
+
+		// release of data is done at the reception end
+		dataToTx.pDynamicData = p_resultCollection;
+		if (g__Mailboxes[THREAD_COM_TX_SERVICE].send(this->getThreadIndex(), dataToTx) != RC_SUCCESS)
+		{
+			cout << "ERROR\t: Failed to send the detected objects " << endl;
+		}
 
 #if (defined(DISPLAY_CONNECTED) && (DISPLAY_CONNECTED == ENABLE))
 			for (unsigned int i= 0; i < nmsDetections.size() ; i++)
 			{
 				rectangle(eachFrame, Point(nmsDetections[i].x, nmsDetections[i].y), Point(nmsDetections[i].x + nmsDetections[i].width, nmsDetections[i].y + nmsDetections[i].height), Scalar(0, 0, 255), 5, LINE_8);
+				rectangle(eachFrame, Point(nmsDetections[bigIndex].x, nmsDetections[bigIndex].y), Point(nmsDetections[bigIndex].x + nmsDetections[bigIndex].width, nmsDetections[bigIndex].y + nmsDetections[bigIndex].height), Scalar(0, 255, 0), 5, LINE_8);
 			}
 
 
@@ -168,22 +179,34 @@ void CDetection::run()
 #ifdef ALGO_TIME_MEASUREMENT
 			cout << endl << "Time elapsed: " << (getTickCount() - t_start) / getTickFrequency() << endl;
 #endif
-		}
 
-		for (uint32_t index = 0; index < nmsDetections.size(); index++)
+	}
+}
+
+void CDetection::filter_algorithm(vector<Rect> &nmsDetections, CSerialProtocol::object_detection_frame_t *p_resultCollection, uint32_t &bigIndex)
+{
+	
+	uint32_t bigArea = 0, area = 0;
+
+	for (uint32_t index = 0; index < nmsDetections.size(); index++)
+	{
+		area = nmsDetections[index].width * nmsDetections[index].height;
+
+		if (area > bigArea)
 		{
-			blk.theta = (ZERO_PIXEL_ANGLE + ANGELE_RESOLUTION * nmsDetections[index].x) * ANGLE_PRECISION_FACTOR;
-			blk.delta_theta = (ANGELE_RESOLUTION * nmsDetections[index].width) * ANGLE_PRECISION_FACTOR;
-
-			resultCollection.blks.push_back(blk);
+			bigIndex = index;
+			bigArea = area;
 		}
+	}
 
-		if (g__Mailboxes[THREAD_COM_TX_SERVICE].send(this->getThreadIndex(), dataToTx) != RC_SUCCESS)
-		{
-			cout << "ERROR\t: Failed to send the detected objects " << endl;
-		}
+	if (bigArea != 0)
+	{
+		CSerialProtocol::object_detection_block_t blk;
 
-		resultCollection.blks.clear();
+		blk.theta = (ZERO_PIXEL_ANGLE + ANGELE_RESOLUTION * nmsDetections[bigIndex].x) * ANGLE_PRECISION_FACTOR;
+		blk.delta_theta = (ANGELE_RESOLUTION * nmsDetections[bigIndex].width) * ANGLE_PRECISION_FACTOR;
+
+		p_resultCollection->blks.push_back(blk);
 	}
 }
 
