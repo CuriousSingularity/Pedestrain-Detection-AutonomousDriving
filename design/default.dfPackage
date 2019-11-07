@@ -1,0 +1,47 @@
+package id5v4wejw2atsoyjw2attj5;
+
+/**
+@version 2.0
+@physicalPackage
+@__modelType diagram 
+*/
+class diagram {
+}/**
+@__tags
+@shapeType ClassDiagram 
+*/
+class __tags {
+}/**
+@__options 
+*/
+class __options {
+}/**
+@__positions <oigroup:<oiref:cpp#Class#parameter_t:oiref>=409,612,83,123,1:oigroup>
+<oigroup:MemberLink#<oiref:cpp#Member#CSystemResource#m_serial:oiref>=650,312,615,312:oigroup>
+<oigroup:<oiref:cpp#Class#CSemaphore:oiref>=688,611,145,254,1:oigroup>
+<oigroup:<oiref:cpp#Class#CSystemResource:oiref>=650,253,200,158,1:oigroup>
+<oigroup:<oiref:cpp#Class#CCameraDataProcessing:oiref>=495,98,171,117,1:oigroup>
+<oigroup:<oiref:cpp#Extends#CCameraDataProcessing#CThread:oiref>=666,156,880,156:oigroup>
+<oigroup:MemberLink#<oiref:cpp#Member#CPedestrianDetection#m_thread_comm:oiref>=804,443,804,221:oigroup>
+<oigroup:<oiref:cpp#Extends#CCamera#CResource:oiref>=884,384,673,463:oigroup>
+<oigroup:<oiref:cpp#Class#CMutex:oiref>=908,511,165,206,1:oigroup>
+<oigroup:<oiref:cpp#Extends#CSerialDataProcessing#CThread:oiref>=839,177,880,177:oigroup>
+<oigroup:<oiref:cpp#Class#CPedestrianDetection:oiref>=690,443,200,158,1:oigroup>
+<oigroup:Composite#supplierCardinality#MemberLink#<oiref:cpp#Member#CThread#m_pSysRes:oiref>=837,223,28,16,0:oigroup>
+<oigroup:Autodependency<oiref:cpp#Class#CSerialDataProcessing:oiref><Autodependency><oiref:cpp#Class#CSystemResource:oiref>=760,221,760,253:oigroup>
+<oigroup:<oiref:cpp#Class#global::eRC:oiref>=10,10,200,507,1:oigroup>
+<oigroup:<oiref:cpp#Class#CCamera:oiref>=884,277,153,133,1:oigroup>
+<oigroup:Autodependency<oiref:cpp#Class#CCameraDataProcessing:oiref><Autodependency><oiref:cpp#Class#CSystemResource:oiref>=609,215,705,253:oigroup>
+<oigroup:<oiref:cpp#Class#CResource:oiref>=507,430,166,270,1:oigroup>
+<oigroup:<oiref:cpp#Extends#CCom#CResource:oiref>=561,371,561,430:oigroup>
+<oigroup:MemberLink#<oiref:cpp#Member#CPedestrianDetection#m_sysRes:oiref>=770,443,770,411:oigroup>
+<oigroup:MemberLink#<oiref:cpp#Member#CResource#m_mutex:oiref>=673,605,908,605:oigroup>
+<oigroup:<oiref:cpp#Class#CCom:oiref>=466,229,149,142,1:oigroup>
+<oigroup:MemberLink#<oiref:cpp#Member#CSystemResource#m_camera:oiref>=850,330,884,330:oigroup>
+<oigroup:MemberLink#<oiref:cpp#Member#CPedestrianDetection#m_thread_camera:oiref>=730,443,552,215:oigroup>
+<oigroup:<oiref:cpp#Class#CSerialDataProcessing:oiref>=681,104,158,117,1:oigroup>
+<oigroup:MemberLink#<oiref:cpp#Member#CThread#m_pSysRes:oiref>=880,221,850,284:oigroup>
+<oigroup:<oiref:cpp#Class#CThread:oiref>=880,23,200,238,1:oigroup>
+*/
+class __positions {
+}
