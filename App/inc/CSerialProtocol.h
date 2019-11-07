@@ -55,8 +55,8 @@ public:
 
 	typedef struct
 	{
-		int16_t theta;
-		int16_t delta_theta;
+		int8_t theta;
+		int8_t delta_theta;
 		//uint16_t probability;
 		//uint8_t opinion;
 	} object_detection_block_t;

@@ -38,7 +38,7 @@
 #define VERTICAL_FOV				(48.8)
 #define ANGELE_RESOLUTION			((float) HORIZONTAL_FOV / RESOLUTION_RESIZED_WIDTH)
 #define ZERO_PIXEL_ANGLE			((float) -HORIZONTAL_FOV / 2)
-#define ANGLE_PRECISION_FACTOR			(1000)
+#define ANGLE_PRECISION_FACTOR			(1)	// change to 100 or 1000 to get the decimal precision
 #endif
 
 
