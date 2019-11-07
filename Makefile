@@ -19,7 +19,7 @@ GEN_DESIGN_SCRIPT=generate_design.sh
 # Cross-Compiler specific flags
 CC=g++
 CFLAGS=-c -Wall
-LFLAGS=-pthread -lopencv_core -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui -lopencv_calib3d -lopencv_objdetect -lopencv_flann 
+LFLAGS=-pthread -lopencv_core -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui -lopencv_calib3d -lopencv_objdetect -lopencv_flann -lopencv_videoio
 EFLAGS=-o
 DFLAGS=-D
 IFLAGS=-I

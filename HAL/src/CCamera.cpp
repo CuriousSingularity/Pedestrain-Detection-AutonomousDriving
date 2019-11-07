@@ -41,7 +41,7 @@ static int capture_height = 600 ;
 static int display_width = 800 ;
 static int display_height = 600 ;
 static int framerate = 15 ;
-static int flip_method = 0 ;
+static int flip_method = 2 ;
 
 //Local helper functions:
 
