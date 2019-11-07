@@ -60,6 +60,7 @@ void CComTxService::run()
 	// The Threads runs here
 	cout << "INFO\t: Communication Tx Service " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
 
+	cout << "INFO\t: Running Communication Tx Service " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
 	// Mailboxes
 	extern CMailBox g__Mailboxes[THREAD_TOTAL_COUNT];
 
@@ -68,8 +69,6 @@ void CComTxService::run()
 
 	while (1)
 	{
-		cout << "INFO\t: Running Communication Tx Service " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
-
 		if (g__Mailboxes[THREAD_COM_TX_SERVICE].receive(msg_src_id, msg_recv) != RC_SUCCESS)
 			continue;
 
@@ -84,7 +83,6 @@ void CComTxService::run()
 			default:
 				break;
 		}
-
 	}
 }
 

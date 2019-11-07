@@ -125,10 +125,10 @@ void CDetection::run()
 
 	CSerialProtocol::object_detection_block_t blk;
 
+	cout << "INFO\t: Running Detection Algorithm Service " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
+
 	while (1)
 	{
-		cout << "INFO\t: Running Detection Algorithm Service " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
-
 		// Detection Algorithm
 		if (g_framesBuffer.readData(&eachFrame, CCameraService::cloneMat) == RC_SUCCESS)
 		{

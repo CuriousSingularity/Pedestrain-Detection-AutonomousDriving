@@ -16,6 +16,7 @@
 #include <fcntl.h>
 
 //Own Include Files
+#include "./OS/inc/CMailBox.h"
 #include "./App/inc/CComRxService.h"
 #include "./App/inc/CSerialProtocol.h"
 
@@ -58,11 +59,18 @@ void CComRxService::run()
 	// The Threads runs here
 	cout << "INFO\t: Communication Rx Service " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
 
+	cout << "INFO\t: Running Communication Rx Service " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
+
+	// Mailboxes
+	extern CMailBox g__Mailboxes[THREAD_TOTAL_COUNT];
+	int msg_src_id = 0;
+
+	CMailBox::mail_box_data_t msg_recv = {0};
+
 	while (1)
 	{
-		// /cout << "INFO\t: Running Communication Rx Service " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
-		sleep(1);
-		cout << getpid() << endl;
+		if (g__Mailboxes[THREAD_COM_RX_SERVICE].receive(msg_src_id, msg_recv) != RC_SUCCESS)
+			continue;
 	}
 }
 

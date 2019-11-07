@@ -85,10 +85,10 @@ void CApplication::run()
 		cout << "ERROR\t: Failed to set up the Detection Thread " << this->m_thread_detection.getThreadIndex() << endl;
 	}
 
+	cout << "INFO\t: Running Background Thread 0 started with ID : " << pthread_self() << endl;
 	while (1)
 	{
 		// background thread
-		cout << "INFO\t: Running Background Thread 0 started with ID : " << pthread_self() << endl;
 		sleep(1);
 	}
 }
