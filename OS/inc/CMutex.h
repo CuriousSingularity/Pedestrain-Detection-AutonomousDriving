@@ -30,6 +30,12 @@ private:
 	 */
 	pthread_mutexattr_t m_attr;
 
+
+	/**
+	 * @brief : Status of the Mutex
+	 */
+	global::service_state_t m_status;
+
 	/**
 	 * @brief : Mutex initialisation
 	 *
