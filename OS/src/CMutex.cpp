@@ -8,7 +8,8 @@
  ****************************************************************************/
 
 //System Include Files
-
+#include <iostream>
+#include <errno.h>
 
 //Own Include Files
 #include "CMutex.h"
@@ -24,7 +25,10 @@ using namespace std;
  */
 CMutex::CMutex()
 {
-	// Nothing
+	if (this->init() != RC_SUCCESS)
+	{
+		cout << "ERROR\t: Mutex initialisation failed with error code " << errno << endl;
+	}
 }
 
 
@@ -33,7 +37,10 @@ CMutex::CMutex()
  */
 CMutex::~CMutex()
 {
-	// Nothing 
+	if (this->destroy() != RC_SUCCESS)
+	{
+		cout << "ERROR\t: Mutex destroy failed with error code " << errno << endl;
+	}
 }
 
 

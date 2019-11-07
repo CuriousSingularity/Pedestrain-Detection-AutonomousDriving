@@ -1,47 +1,114 @@
 /***************************************************************************
-*============= Copyright by Darmstadt University of Applied Sciences =======
-****************************************************************************
-* Filename        : CRESOURCE.H
-* Author          :
-* Description     :
-*
-*
-****************************************************************************/
+ *============= Copyright by Darmstadt University of Applied Sciences =======
+ ****************************************************************************
+ * Filename        : CResource.h
+ * Author          : Bharath Ramachandraiah (stbhrama@stud.h-da.de)
+ * Description     : Resource class to interact with the system hardware.
+ * 			eg: UART, Camera, FileSystem, MMC, I2C, SPI etc.
+ *
+ ****************************************************************************/
+
 
 #ifndef CRESOURCE_H
 #define CRESOURCE_H
-#include "CSemaphore.h"
-#include "CMutex.h"
+
+//System Include Files
 #include <string>
+
+//Own Include Files
+#include "./OS/inc/CSemaphore.h"
+#include "./OS/inc/CMutex.h"
+
 class CResource {
 private:
-    std::string m_resNodePath;
-    int m_oflag;
-    int m_mode;
-    CMutex m_mutex;
-public:
 
-    CResource(std::string devPath, int oflag, int mode);
+	/**
+	 * @brief : Resource / device node path 
+	 */
+	std::string m_resNodePath;
 
-    ~CResource();
+	/**
+	 * @brief : Device access modes 
+	 */
+	int m_flags;
 
-    int open();
+	/**
+	 * @brief : Device permission modes
+	 */
+	int m_mode;
 
-    int close();
+	/**
+	 * @brief : Mutex to protect the resource
+	 */
+	CMutex m_mutex;
 
-    virtual ssize_t read(void * buffer, size_t nbyte);
+	/**
+	 * @brief : Open the device for reading or writing
+	 *
+	 * @return RC_t : status of open
+	 */
+	global::RC_t open();
 
-    virtual ssize_t write(void * buffer, size_t nbyte);
+	/**
+	 * @brief : Close the device
+	 *
+	 * @return RC_t : status of close
+	 */
+	global::RC_t close();
 
-    virtual global::RC_t configure() =0;
 protected:
 
-    /**
-     * @brief - file descriptor of the resource
-     */
-    int m_fd;
+	/**
+	 * @brief : File Descriptor of the resource
+	 */
+	int m_fd;
+
+public:
+
+	/**
+	 * @brief : Constructor
+	 *
+	 * @param devPath 	: device node path
+	 * @param oflag		: access mode flags
+	 * @param mode		: permissio mode
+	 */
+	CResource(std::string devPath, int flag, int mode);
+
+	/**
+	 * @brief : Destructor
+	 */
+	~CResource();
+
+	/**
+	 * @brief : Read from the device 
+	 *
+	 * @param buffer	: buffer to read the data from
+	 * @param nByte		: number of bytes to be read
+	 * @param rByte		: number of bytes actually read
+	 *
+	 * @return RC_t - status of read
+	 */
+	virtual global::RC_t read(void *buffer, const size_t nByte, ssize_t &rByte);
+
+	/**
+	 * @brief : Write to the device 
+	 *
+	 * @param buffer	: buffer to write the data to
+	 * @param nByte		: number of bytes to be written
+	 * @param rByte		: number of bytes actually written
+	 *
+	 * @return RC_t - status of read
+	 */
+	virtual global::RC_t write(const void *buffer, const size_t nByte, ssize_t &wByte);
+
+	/**
+	 * @brief : Device configuration - A pure virtual function
+	 *
+	 * @return RC_t - status of the device configuration
+	 */
+	virtual global::RC_t configure() = 0;
 };
 /********************
-**  CLASS END
-*********************/
+ **  CLASS END
+ *********************/
 #endif /* CRESOURCE_H */
