@@ -13,13 +13,27 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <signal.h>
+#include <unistd.h>
 
 //Own Include Files
+#include "./Lib/inc/CRingBuffer.h"
 #include "./App/inc/CCameraService.h"
 
 //Namespace
+using namespace cv;
 using namespace std;
 using namespace global;
+
+//Macros
+//Global variables
+CRingBuffer<cv::Mat, FRAMERATE> g_framesBuffer;
+
+static void cloneMat(cv::Mat &lhs, const cv::Mat &rhs)
+{
+	lhs = rhs.clone();
+}
+
 
 //Method Implementations
 /**
@@ -46,6 +60,12 @@ CCameraService::~CCameraService()
 	// nothing
 }
 
+int CCameraService::signal_type = 0;
+
+void CCameraService::__camera_cyclic__signal_handler(int sig)
+{
+	CCameraService::signal_type = sig;
+}
 
 /**
  * @brief : Main routine for the thread
@@ -57,10 +77,41 @@ void CCameraService::run()
 	// The Threads runs here
 	cout << "INFO\t: Camera Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
 
+	// signals configuration
+	sigset_t sigMask;
+	sigemptyset(&sigMask);
+	sigaddset(&sigMask, SIGALRM);
+	signal(SIGALRM, __camera_cyclic__signal_handler);
+
+	cv::Mat image;
+	ssize_t wBytes;
+
+	ualarm(100000,100000);
 	while (1)
 	{
-		// cout << "INFO\t: Camera Running Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
-		// sleep(1);
+		// block the thread until the data is available
+		sigsuspend(&sigMask);
+		
+		cout << "************hre************" << endl;
+		switch(this->signal_type)
+		{
+			case SIGALRM:
+
+				cout << "INFO\t: Camera received signal" << endl;
+
+				// read new image to ring buffer
+				if (this->m_camera_0.read(&image, 0, wBytes) != RC_SUCCESS)
+					continue;
+
+				// store the frame to ringbuffer for consumers
+				g_framesBuffer.writeData(image, cloneMat);
+
+			break;
+
+			default:
+			cout << "*****************************" << endl;
+			break;
+		}
 	}
 }
 

@@ -79,20 +79,24 @@ void CApplication::run()
 		cout << "ERROR\t: Failed to set up the Communication Tx Service Thread " << this->m_thread_com_tx_service.getThreadIndex() << endl;
 	}
 
+	sleep(1);
 	if (this->m_thread_com_rx_service.create(0) != RC_SUCCESS)
 	{
 		cout << "ERROR\t: Failed to set up the Communication Rx Service Thread " << this->m_thread_com_rx_service.getThreadIndex() << endl;
 	}
 
+	sleep(1);
 	if (this->m_thread_camera_service.create(0) != RC_SUCCESS)
 	{
 		cout << "ERROR\t: Failed to set up the Camera Service Thread " << this->m_thread_camera_service.getThreadIndex() << endl;
 	}
 
+	sleep(1);
 	if (this->m_thread_detection.create(0) != RC_SUCCESS)
 	{
 		cout << "ERROR\t: Failed to set up the Detection Thread " << this->m_thread_detection.getThreadIndex() << endl;
 	}
+	sleep(1);
 	#endif
 
 	while (1)

@@ -29,12 +29,6 @@ using namespace std;
 using namespace global;
 
 // Local variables:
-#define RESOLUTION_CAPTURED_WIDTH		(1280)
-#define RESOLUTION_CAPTURED_HEIGTH		(720)
-#define RESOLUTION_RESIZED_WIDTH		(640)
-#define RESOLUTION_RESIZED_HEIGTH		(360)
-#define FRAMERATE				(30)
-
 /*
  * Camera Configuration
  */
@@ -84,19 +78,12 @@ global::RC_t CCamera::configure()
 	if (this->m_status != service_READY)
 		return RC_ERROR_INVALID_STATE;
 
-#if ((TARGET_PLATFORM == NVIDIA) || (TARGET_PLATFORM == RSP))
 	// open will first release the resource in case it was previously open.
 	if (!this->m_cameraStream.open(gstreamer_pipeline(camera_config_param), cv::CAP_GSTREAMER))
 		return RC_ERROR_OPEN;
 
 	if (!this->m_cameraStream.isOpened())
 		return RC_ERROR_INVALID_STATE;
-
-#elif (TARGET_PLATFORM == PC)
-
-	this->m_imageName = "img1.jpeg";
-
-#endif
 
 	return RC_SUCCESS;
 }
@@ -123,17 +110,11 @@ CCamera::~CCamera()
 {
 	cout << "INFO\t: Camera port " << this->getDeviceNode() << " destructed" << endl;
 
-#if ((TARGET_PLATFORM == NVIDIA) || (TARGET_PLATFORM == RSP))
-
 	if (this->m_status != service_READY)
 		return;
 
 	// release the camera resource
 	this->m_cameraStream.release();
-
-#elif (TARGET_PLATFORM == PC)
-
-#endif
 }
 
 
@@ -147,27 +128,20 @@ CCamera::~CCamera()
 RC_t CCamera::getCapture(cv::Mat * const image)
 {
 	if (this->m_status != service_READY)
+	{
+		cout << "ERROR\t: Camera hardware not ready " << this->getDeviceNode() << endl;
 		return RC_ERROR_INVALID_STATE;
-
-#if ((TARGET_PLATFORM == NVIDIA) || (TARGET_PLATFORM == RSP))
+	}
 
 	cv::Mat capturedImage;
 
 	if (!this->m_cameraStream.read(capturedImage))
-		return RC_ERROR_READ_FAILS;
-
-	cv::resize(capturedImage, *image, cv::Size(camera_config_param.resized_width, camera_config_param.resized_height));
-
-#elif (TARGET_PLATFORM == PC)
-
-	*image = cv::imread(this->m_imageName);
-
-	if(! image->data )
 	{
-		cout << "ERROR\t: Failed to open image " << this->m_imageName << endl;
+		cout << "ERROR\t: Camera failed to read " << this->getDeviceNode() << endl;
 		return RC_ERROR_READ_FAILS;
 	}
-#endif
+
+	cv::resize(capturedImage, *image, cv::Size(camera_config_param.resized_width, camera_config_param.resized_height));
 
 	return RC_SUCCESS;
 }

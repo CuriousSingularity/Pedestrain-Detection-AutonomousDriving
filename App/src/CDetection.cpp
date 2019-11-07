@@ -64,7 +64,7 @@ CDetection::~CDetection()
 	// nothing
 }
 
-
+#include <unistd.h>
 /**
  * @brief : Main routine for the thread
  *
@@ -75,7 +75,11 @@ void CDetection::run()
 	// The Threads runs here
 	cout << "INFO\t: Camera Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
 
-	while (1);
+	while (1)
+	{
+		sleep(1);
+		cout << getpid() << endl;
+	}
 
 #if 0
 	// Locals declaration:

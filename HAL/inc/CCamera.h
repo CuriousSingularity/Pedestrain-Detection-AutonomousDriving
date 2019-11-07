@@ -25,13 +25,16 @@
 //Own Include Files
 #include "./OS/inc/CResource.h"
 
+#define RESOLUTION_CAPTURED_WIDTH		(1280)
+#define RESOLUTION_CAPTURED_HEIGTH		(720)
+#define RESOLUTION_RESIZED_WIDTH		(640)
+#define RESOLUTION_RESIZED_HEIGTH		(360)
+#define FRAMERATE						(30)
+
 class CCamera : public CResource {
 private:
-	#if ((TARGET_PLATFORM == NVIDIA) || (TARGET_PLATFORM == RSP))
-		cv::VideoCapture m_cameraStream;
-	#elif (TARGET_PLATFORM == PC)
-		std::string m_imageName;
-	#endif
+
+	cv::VideoCapture m_cameraStream;
 
 	/**
 	 * @brief : Configure the Camera interface

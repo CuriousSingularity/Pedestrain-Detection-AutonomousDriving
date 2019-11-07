@@ -62,6 +62,8 @@ void CComTxService::run()
 	while (1)
 	{
 		//cout << "INFO\t: Serial Running Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
+		sleep(1);
+		cout << getpid() << endl;
 	}
 }
 

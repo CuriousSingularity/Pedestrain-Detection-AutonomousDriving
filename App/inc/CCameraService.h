@@ -34,6 +34,10 @@ private:
 	 */
 	void run();
 
+	static int signal_type;
+
+	static void __camera_cyclic__signal_handler(int sig);
+
 public:
 
 	/**
