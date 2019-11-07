@@ -59,11 +59,16 @@ void CComTxService::run()
 	// The Threads runs here
 	cout << "INFO\t: Serial Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
 
+	ssize_t wBytes = 0;
+
 	while (1)
 	{
-		//cout << "INFO\t: Serial Running Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
+		cout << "INFO\t: Serial Running Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
+
+		for (uint8_t counter = 0; counter < 10; counter++)
+			this->m_uart_0.write(&counter, counter, wBytes);
+
 		sleep(1);
-		cout << getpid() << endl;
 	}
 }
 
