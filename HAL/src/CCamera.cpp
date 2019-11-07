@@ -2,7 +2,8 @@
  *============= Copyright by Darmstadt University of Applied Sciences =======
  ****************************************************************************
  * Filename        : CCamera.cpp
- * Author          : Bharath Ramachandraiah (stbhrama@stud.h-da.de)
+ * Author          : 	Bharath Ramachandraiah (stbhrama@stud.h-da.de)
+ * 			Nicolas Ojeda Leon (stniojed@stud.h-da.de)
  * Description     : Camera class to capture frame or stream the video
  *
  * ----- Changelog -----
@@ -28,36 +29,39 @@ using namespace std;
 using namespace global;
 
 // Local variables:
-#if (TARGET_PLATFORM != PC)
-/*
- *		Camera parameters
- *	(to check where to place - could be an enum with valid configuration to be set)
- *   Could even be attributes of the class to make it reconfigurable.
- *   Could be part of a config file
- */
-// TODO: Check what to do with this camera parameters
-static int capture_width = 800 ;
-static int capture_height = 600 ;
-static int display_width = 800 ;
-static int display_height = 600 ;
-static int framerate = 15 ;
-static int flip_method = 2 ;
+#define RESOLUTION_CAPTURED_WIDTH		(1280)
+#define RESOLUTION_CAPTURED_HEIGTH		(720)
+#define RESOLUTION_RESIZED_WIDTH		(640)
+#define RESOLUTION_RESIZED_HEIGTH		(360)
+#define FRAMERATE				(30)
 
-//Local helper functions:
+/*
+ * Camera Configuration
+ */
+static const CCamera::configuation_t camera_config
+{
+	.capture_width	= RESOLUTION_CAPTURED_WIDTH,
+	.capture_height	= RESOLUTION_CAPTURED_HEIGTH,
+	.resized_width	= RESOLUTION_RESIZED_WIDTH,
+	.resized_height	= RESOLUTION_RESIZED_HEIGTH,
+	.framerate	= FRAMERATE,
+	.orientation	= CCamera::ORIENT_DEG_180,
+	.colour_format	= "BGR",
+};
 
 
 /**
  * gstreamer configuration to be used by OpenCV methods.
  * Local function intended to get the string for configuration of the camera stream
  */
-static std::string gstreamer_pipeline ()
+static std::string gstreamer_pipeline (const CCamera::configuation_t &config)
 {
-	return "nvarguscamerasrc ! video/x-raw(memory:NVMM), width=(int)" + std::to_string(capture_width) + ", height=(int)" +
-		std::to_string(capture_height) + ", format=(string)NV12, framerate=(fraction)" + std::to_string(framerate) +
-		"/1 ! nvvidconv flip-method=" + std::to_string(flip_method) + " ! video/x-raw, width=(int)" + std::to_string(display_width) + ", height=(int)" +
-		std::to_string(display_height) + ", format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink";
+	return "nvarguscamerasrc ! video/x-raw(memory:NVMM), width=(int)" + std::to_string(config.capture_width) + ", height=(int)" +
+		std::to_string(config.capture_height) + ", format=(string)NV12, framerate=(fraction)" + std::to_string(config.framerate) +
+		"/1 ! nvvidconv flip-method=" + std::to_string(config.orientation) + " ! video/x-raw, width=(int)" + std::to_string(config.capture_width) + ", height=(int)" +
+		std::to_string(config.capture_height) + ", format=(string)" + config.colour_format + "x ! videoconvert ! video/x-raw, format=(string)" + config.colour_format + " ! appsink";
 }
-#endif
+
 
 //Method Implementations
 /**
@@ -80,13 +84,18 @@ global::RC_t CCamera::configure()
 	if (this->m_status != service_READY)
 		return RC_ERROR_INVALID_STATE;
 
-#if (TARGET_PLATFORM == NVIDIA)
-	if (! this->m_cameraStream.open(gstreamer_pipeline(), cv::CAP_GSTREAMER))		// open will first release the resource in case it was previously open.
-		return RC_ERROR;		// Error if not possible to open the camera stream.
-#elif (TARGET_PLATFORM == RSP)
-	cout << "CCamera::configure: Implementation pending" << endl;
+#if ((TARGET_PLATFORM == NVIDIA) || (TARGET_PLATFORM == RSP))
+	// open will first release the resource in case it was previously open.
+	if (!this->m_cameraStream.open(gstreamer_pipeline(camera_config), cv::CAP_GSTREAMER))
+		return RC_ERROR_OPEN;
+
+	if (!this->m_cameraStream.isOpened())
+		return RC_ERROR_INVALID_STATE;
+
 #elif (TARGET_PLATFORM == PC)
+
 	this->m_imageName = "img1.jpeg";
+
 #endif
 
 	return RC_SUCCESS;
@@ -112,26 +121,45 @@ CCamera::CCamera(string devPath, int flags, mode_t mode) : CResource(devPath, fl
  */
 CCamera::~CCamera()
 {
-#if (TARGET_PLATFORM == NVIDIA)
+	cout << "INFO\t: Camera port " << this->getDeviceNode() << " destructed" << endl;
+
+#if ((TARGET_PLATFORM == NVIDIA) || (TARGET_PLATFORM == RSP))
+
+	if (this->m_status != service_READY)
+		return;
+
+	// release the camera resource
 	this->m_cameraStream.release();
-#elif (TARGET_PLATFORM == RSP)
-	cout << "CCamera::configure: Implementation pending" << endl;
+
 #elif (TARGET_PLATFORM == PC)
 
 #endif
-
 }
 
-global::RC_t CCamera::getCapture(cv::Mat * const image){
-#if (TARGET_PLATFORM == NVIDIA)
-	if (!this->m_cameraStream.isOpened())
+
+/**
+ * @brief : Captures a frame
+ *
+ * @param image : image / frame from the camera
+ *
+ * @return - status of capture
+ */
+global::RC_t CCamera::getCapture(cv::Mat * const image)
+{
+	if (this->m_status != service_READY)
 		return RC_ERROR_INVALID_STATE;
 
-	if (!this->m_cameraStream.read(*image))
+#if ((TARGET_PLATFORM == NVIDIA) || (TARGET_PLATFORM == RSP))
+
+	cv::Mat capturedImage;
+
+	if (!this->m_cameraStream.read(capturedImage))
 		return RC_ERROR_READ_FAILS;
-#elif (TARGET_PLATFORM == RSP)
-	cout << "CCamera::configure: Implementation pending" << endl;
+	
+	cv::resize(capturedImage, *image, cv::Size(camera_config.resized_width, camera_config.resized_height));
+
 #elif (TARGET_PLATFORM == PC)
+
 	*image = cv::imread(this->m_imageName);
 
 	if(! image->data )

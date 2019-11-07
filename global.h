@@ -125,7 +125,8 @@ typedef enum{
 }service_state_t;
 };
 
-#define NVIDIA		1
+/* Platforms */
+#define NVIDIA			1
 #define RSP			2
 #define PC 			3
 

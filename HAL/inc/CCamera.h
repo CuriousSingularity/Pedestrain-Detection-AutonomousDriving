@@ -1,11 +1,19 @@
 /***************************************************************************
  *============= Copyright by Darmstadt University of Applied Sciences =======
  ****************************************************************************
- * Filename        : CCAMERA.H
- * Author          :
- * Description     :
+ * Filename        : CCamera.h
+ * Author          : Bharath Ramachandraiah (stbhrama@stud.h-da.de)
+ * Description     : Camera class to capture frame or stream the video
  *
+ * ----- Changelog -----
  *
+ * Start of user code changelog
+ *
+ *  - 1.0 ; 22-May-2019; Leon
+ *            -  Implementation of the class' functionality.
+ *            		Added specific code for camera frame acquisition
+ *
+ * End of user code
  ****************************************************************************/
 
 #ifndef CCAMERA_H
@@ -19,10 +27,8 @@
 
 class CCamera : public CResource {
 private:
-	#if (TARGET_PLATFORM == NVIDIA)
+	#if ((TARGET_PLATFORM == NVIDIA) || (TARGET_PLATFORM == RSP))
 		cv::VideoCapture m_cameraStream;
-	#elif (TARGET_PLATFORM == RSP)
-		//cout << "CCamera: Implementation pending" << endl;
 	#elif (TARGET_PLATFORM == PC)
 		std::string m_imageName;
 	#endif
@@ -44,6 +50,32 @@ private:
 
 public:
 	/**
+	 * @brief : Orientation for the camera
+	 */
+	typedef enum 
+	{
+		// do not change the order
+		ORIENT_DEG_0 	= 0,
+		ORIENT_DEG_90	= 1,
+		ORIENT_DEG_180	= 2,
+		ORIENT_DEG_270	= 3,
+	} orientation_e;
+
+	/**
+	 * @brief : Configuration parameter for the camera
+	 */
+	typedef struct 
+	{
+		unsigned int 	capture_width;
+		unsigned int 	capture_height;
+		unsigned int 	resized_width;
+		unsigned int 	resized_height;
+		unsigned int 	framerate;
+		orientation_e 	orientation;
+		std::string	colour_format;
+	} configuation_t;
+
+	/**
 	 * @brief : Constructor
 	 */
 	CCamera(std::string devPath, int flag, mode_t mode);
@@ -53,6 +85,13 @@ public:
 	 */
 	virtual ~CCamera();
 
+	/**
+	 * @brief : Captures a frame
+	 *
+	 * @param image : image / frame from the camera
+	 *
+	 * @return - status of capture
+	 */
 	global::RC_t getCapture(cv::Mat * const image);
 };
 /********************
