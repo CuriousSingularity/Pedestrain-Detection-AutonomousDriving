@@ -34,7 +34,7 @@ using namespace global;
  */
 CComTxService::CComTxService(int threadIndex, CThread::start_routine_t entry, void *arg) : 
 		CThread(threadIndex, entry, arg), 
-		m_uart_0("/dev/tty0"	, O_RDWR | O_NOCTTY | O_SYNC, S_IRWXU)
+		m_uart_0("/dev/ttyTHS1"	, O_RDWR | O_NOCTTY | O_SYNC, S_IRWXU)
 {
 	// nothing
 }
