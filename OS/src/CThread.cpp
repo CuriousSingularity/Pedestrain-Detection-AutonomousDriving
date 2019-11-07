@@ -99,7 +99,7 @@ RC_t CThread::create(pthread_attr_t *pAttr)
 
 		// Thread parameter arguments is made NULL since it is redandent
 		// TODO: If parameter is needed for each threads independently, explore this API options
-		if (pthread_create(&this->m_threadId, &this->m_attr, this->m_thread_entry, NULL) != 0)
+		if (pthread_create(&this->m_threadId, &this->m_attr, this->m_thread_entry, this->m_pArg) != 0)
 		{
 			cout << "ERROR\t: Thread " << this->m_threadIndex << " creation failed with errno " << errno << endl;
 			return RC_ERROR;

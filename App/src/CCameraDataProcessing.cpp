@@ -70,6 +70,9 @@ void CCameraDataProcessing::run()
  */
 void *friend_run_camera(void *arg)
 {
+	if (arg)
+		cout << "INFO\t: Thread " << __func__ << endl;
+
 	CCameraDataProcessing *ptr = static_cast<CCameraDataProcessing *>(arg);
 
 	if (ptr)

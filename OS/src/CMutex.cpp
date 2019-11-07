@@ -25,6 +25,8 @@ using namespace std;
  */
 CMutex::CMutex()
 {
+	this->m_key = PTHREAD_MUTEX_INITIALIZER;
+
 	if (this->init() != RC_SUCCESS)
 	{
 		cout << "ERROR\t: Mutex initialisation failed with error code " << errno << endl;
@@ -51,7 +53,7 @@ CMutex::~CMutex()
  */
 RC_t CMutex::init()
 {
-	if (pthread_mutex_init(&this->m_key, &this->m_attr) == 0)
+	if (pthread_mutex_init(&this->m_key, NULL) == 0)
 		return RC_SUCCESS;
 	else
 		return RC_ERROR_OPEN;

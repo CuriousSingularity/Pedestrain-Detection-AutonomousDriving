@@ -63,6 +63,8 @@ void CSerialDataProcessing::run()
 
 void *friend_run_comm(void *arg)
 {
+	cout << "INFO\t: Thread " << __func__ << endl;
+
 	CSerialDataProcessing *ptr = static_cast<CSerialDataProcessing *>(arg);
 
 	if (ptr)

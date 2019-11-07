@@ -66,7 +66,7 @@ RC_t CCom::configure()
 
 	if (tcgetattr(this->m_fd, &tty) != 0)
 	{
-		cout << "ERROR: " << errno << " from tcgetattr\n";
+		cout << "ERROR\t: " << errno << " from tcgetattr\n";
 		return RC_ERROR_BAD_DATA;
 	}
 
@@ -97,7 +97,7 @@ RC_t CCom::configure()
 
 	if (tcsetattr (this->m_fd, TCSANOW, &tty) != 0)
 	{
-		cout << "ERROR: " << errno << " from tcsetattr\n";
+		cout << "ERROR\t: " << errno << " from tcsetattr\n";
 		return RC_ERROR_BAD_PARAM;
 	}
 

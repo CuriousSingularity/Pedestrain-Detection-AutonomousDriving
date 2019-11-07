@@ -27,7 +27,7 @@ extern void *friend_run_camera(void *);
  */
 CPedestrianDetection::CPedestrianDetection() :	
 	m_thread_camera	(0, &this->m_sysRes, friend_run_camera, &this->m_thread_camera),
-	m_thread_comm	(1, &this->m_sysRes, friend_run_comm, &this->m_thread_comm)
+	m_thread_comm	(1, &this->m_sysRes, friend_run_comm,   &this->m_thread_comm)
 {
 	//nothing
 }
