@@ -161,3 +161,16 @@ RC_t CResource::write(const void *buffer, const size_t nByte, ssize_t &rByte)
 
 	return ret;
 }
+
+
+/**
+ * @brief : Get the device node path
+ *
+ * @return string
+ */
+string CResource::getDeviceNode()
+{
+	return (this->m_resNodePath);
+}
+
+

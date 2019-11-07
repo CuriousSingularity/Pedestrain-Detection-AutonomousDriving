@@ -80,6 +80,13 @@ public:
 	~CResource();
 
 	/**
+	 * @brief : Get the device node path
+	 *
+	 * @return string
+	 */
+	std::string getDeviceNode();
+
+	/**
 	 * @brief : Read from the device 
 	 *
 	 * @param buffer	: buffer to read the data from
