@@ -35,7 +35,7 @@ private:
 	/**
 	 * @brief : Device permission modes
 	 */
-	int m_mode;
+	mode_t m_mode;
 
 	/**
 	 * @brief : Mutex to read protect the resource
@@ -68,6 +68,11 @@ protected:
 	 */
 	int m_fd;
 
+	/**
+	 * @brief : Status of the Resource
+	 */
+	global::service_state_t m_status;
+
 public:
 
 	/**
@@ -77,7 +82,7 @@ public:
 	 * @param oflag		: access mode flags
 	 * @param mode		: permissio mode
 	 */
-	CResource(std::string devPath, int flag, int mode);
+	CResource(std::string devPath, int flag, mode_t mode);
 
 	/**
 	 * @brief : Destructor

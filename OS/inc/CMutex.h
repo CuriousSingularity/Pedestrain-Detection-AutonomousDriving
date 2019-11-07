@@ -24,12 +24,10 @@ private:
 	 */
 	pthread_mutex_t m_key;
 
-
 	/**
 	 * @brief : Mutex attributes
 	 */
 	pthread_mutexattr_t m_attr;
-
 
 	/**
 	 * @brief : Status of the Mutex
