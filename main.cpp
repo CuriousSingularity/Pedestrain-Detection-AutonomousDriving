@@ -2,7 +2,7 @@
  * main.cpp
  *
  *  Created on: 15-Apr-2019
- *      Author: rbhar
+ *      Author: Bharath Ramachandraiah (stbhrama@stud.h-da.de)
  */
 
 // Header Files
