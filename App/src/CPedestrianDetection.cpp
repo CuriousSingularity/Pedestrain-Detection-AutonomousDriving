@@ -10,6 +10,7 @@
 
 //System Include Files
 #include <iostream>
+#include <pthread.h>
 
 //Own Include Files
 #include "./App/inc/CPedestrianDetection.h"
@@ -26,8 +27,8 @@ extern void *friend_run_camera(void *);
  * @brief : Constructor
  */
 CPedestrianDetection::CPedestrianDetection() :	
-	m_thread_camera	(0, &this->m_sysRes, friend_run_camera, &this->m_thread_camera),
-	m_thread_comm	(1, &this->m_sysRes, friend_run_comm,   &this->m_thread_comm)
+	m_thread_camera	(1, &this->m_sysRes, friend_run_camera, &this->m_thread_camera),
+	m_thread_comm	(2, &this->m_sysRes, friend_run_comm,   &this->m_thread_comm)
 {
 	//nothing
 }
@@ -56,5 +57,12 @@ void CPedestrianDetection::run()
 	if (this->m_thread_camera.create(0) != RC_SUCCESS)
 	{
 		cout << "ERROR\t: Failed to set up the Camera Algorithm Thread " << this->m_thread_camera.getThreadIndex() << endl;
+	}
+
+	while (1)
+	{
+		// background thread
+		cout << "INFO\t: Running Thread 0 started with ID : " << pthread_self() << endl;
+		sleep(1);
 	}
 }

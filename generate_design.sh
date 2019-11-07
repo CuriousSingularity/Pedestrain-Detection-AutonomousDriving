@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Design files
-DESIGN_PATH=./design
+DESIGN_PATH=./Design
 
 # create a directory for design 
 mkdir -p $DESIGN_PATH

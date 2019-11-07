@@ -56,7 +56,10 @@ detector_t detector = DET_DEFAULT;
 /**
  * @brief : Constructor
  *
- * @param sysResource : System resource
+ * @param threadIndex 	: Thread Index
+ * @param sysResource	: Global resource pointer
+ * @param entry		: Entry function for the thread
+ * @param arg		: Arguments to the thread
  */
 CCameraDataProcessing::CCameraDataProcessing(int threadIndex, const CSystemResource *sysResource, CThread::start_routine_t entry, void *arg) : CThread(threadIndex, sysResource, entry, arg)
 {
@@ -75,14 +78,12 @@ CCameraDataProcessing::~CCameraDataProcessing()
 /**
  * @brief : Main routine for the thread
  *
- * @param arg : Arguments for the routine
- *
  * @return - to join the thread
  */
 void CCameraDataProcessing::run()
 {
 	// The Threads runs here
-	cout << "INFO\t: Thread " << this->getThreadIndex() << " started with ID : " << this->getThreadIndex() << endl;
+	cout << "INFO\t: Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
 
 	// Locals declaration:
 	vector<Rect> detections;		// Vector of boxes where a detection was achieved
@@ -97,7 +98,7 @@ void CCameraDataProcessing::run()
 
 	while (1)
 	{
-		cout << "INFO\t: Running Thread " << this->getThreadIndex() << " started with ID : " << this->getThreadIndex() << endl;
+		cout << "INFO\t: Running Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
 
 		// Hog run:
 		// TODO NOL: Acquire frame from camera
@@ -111,36 +112,36 @@ void CCameraDataProcessing::run()
 				hog.setSVMDetector(HOGDescriptor::getDefaultPeopleDetector());
 			}
 
-		//	double t_start = getTickCount();
+			//	double t_start = getTickCount();
 			hog.detectMultiScale(	image,									/* Source image */
-									detections,					/* foundLocations, vector of Rect objects with the boxes where a person was detected */
-									detection_weights,				/* Weights of each detection. Vector of same dimension as previous parameter */
-									(float) hitThreshold.value / 100,		/* hitThreshold: SVM threshold to filter final results */
-									Size(winStride.value, winStride.value),		/* Windows stride: Horizontal and vertical step in pixels for the template matching process */
-									Size(padding.value, padding.value),		/* Padding: PENDING */
-									1 + (float) scale.value / 100,			/* Scale: Scale stride for the image pyramid */
-									(float) finalThreshold.value / 100		/* FinalThreshold: PENDING */
-									);
-		//	cout << endl << "Time elapsed: " << (getTickCount() - t_start) / getTickFrequency() << endl;
-		//	cout << "Found " << detections.size() << " matches";
+					detections,					/* foundLocations, vector of Rect objects with the boxes where a person was detected */
+					detection_weights,				/* Weights of each detection. Vector of same dimension as previous parameter */
+					(float) hitThreshold.value / 100,		/* hitThreshold: SVM threshold to filter final results */
+					Size(winStride.value, winStride.value),		/* Windows stride: Horizontal and vertical step in pixels for the template matching process */
+					Size(padding.value, padding.value),		/* Padding: PENDING */
+					1 + (float) scale.value / 100,			/* Scale: Scale stride for the image pyramid */
+					(float) finalThreshold.value / 100		/* FinalThreshold: PENDING */
+					);
+			//	cout << endl << "Time elapsed: " << (getTickCount() - t_start) / getTickFrequency() << endl;
+			//	cout << "Found " << detections.size() << " matches";
 
 
 			nms(detections, nmsDetections, (float) nmsThreshold.value / 100, nmsNeighbors.value);
 
-		//	cout << " - After NMS: " << nmsDetections.size() << " matches" << endl;
-	#ifdef __SHOW_RESULT
+			//	cout << " - After NMS: " << nmsDetections.size() << " matches" << endl;
+#ifdef __SHOW_RESULT
 			for (unsigned int i= 0; i < nmsDetections.size() ; i++)
 			{
 				rectangle(image, Point(nmsDetections[i].x, nmsDetections[i].y), Point(nmsDetections[i].x + nmsDetections[i].width, nmsDetections[i].y + nmsDetections[i].height), Scalar(0, 0, 255), 5, LINE_8);
 			}
 
-//			rectangle(image, Point(0, 0), Point(20, 20), Scalar(0, 0, 0), -1);
-//			putText(image, to_string((int) counter), Point(0,0), FONT_HERSHEY_PLAIN, 4,  Scalar(255,255,255), 2 , LINE_AA , false);
+			//			rectangle(image, Point(0, 0), Point(20, 20), Scalar(0, 0, 0), -1);
+			//			putText(image, to_string((int) counter), Point(0,0), FONT_HERSHEY_PLAIN, 4,  Scalar(255,255,255), 2 , LINE_AA , false);
 
 			counter = (counter + 1) % 100;
 			imshow( "Detected Image", image );
 			waitKey(1);
-	#endif
+#endif
 		}
 
 		sleep(1);
@@ -149,11 +150,11 @@ void CCameraDataProcessing::run()
 
 
 /**
- * @brief :
+ * @brief : Friend function used to create the thread 
  *
- * @param arg
+ * @param arg : arguments to the thread
  *
- * @return
+ * @return 
  */
 void *friend_run_camera(void *arg)
 {

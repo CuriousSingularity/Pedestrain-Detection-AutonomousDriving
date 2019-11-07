@@ -7,6 +7,7 @@
 
 // Header Files
 #include <iostream>
+#include <sys/types.h>
 #include <unistd.h>
 
 // User-defined Header Files
@@ -30,7 +31,7 @@ int main(int argc, char **argv)
 	cout << "Invalid Platform" << endl;
 	while(1);
 #endif
-	cout << VERSION << "v : Program Started..." << endl;
+	cout << VERSION << "v : Program Started with PPID : " << getppid() << "; PID : " << getpid() << endl;
 
 	CPedestrianDetection	pedestrianDetection;
 

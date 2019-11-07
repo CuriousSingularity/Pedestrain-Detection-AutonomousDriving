@@ -24,8 +24,6 @@ private:
 	/**
 	 * @brief : Main routine for the thread
 	 *
-	 * @param arg : Arguments for the routine
-	 *
 	 * @return - to join the thread
 	 */
 	void run();
@@ -35,7 +33,10 @@ public:
 	/**
 	 * @brief : Constructor
 	 *
-	 * @param sysResource : System resource 
+	 * @param threadIndex 	: Thread Index
+	 * @param sysResource	: Global resource pointer
+	 * @param entry		: Entry function for the thread
+	 * @param arg		: Arguments to the thread
 	 */
 	CSerialDataProcessing(int threadIndex, const CSystemResource *sysResource = NULL, CThread::start_routine_t entry = NULL, void *arg = NULL);
 
@@ -45,9 +46,9 @@ public:
 	~CSerialDataProcessing();
 
 	/**
-	 * @brief : 
+	 * @brief : Friend function used to create the thread 
 	 *
-	 * @param arg
+	 * @param arg : arguments to the thread
 	 *
 	 * @return 
 	 */

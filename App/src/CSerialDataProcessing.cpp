@@ -23,7 +23,10 @@ using namespace global;
 /**
  * @brief : Constructor
  *
- * @param sysResource : System resource 
+ * @param threadIndex 	: Thread Index
+ * @param sysResource	: Global resource pointer
+ * @param entry		: Entry function for the thread
+ * @param arg		: Arguments to the thread
  */
 CSerialDataProcessing::CSerialDataProcessing(int threadIndex, const CSystemResource *sysResource, CThread::start_routine_t entry, void *arg) : CThread(threadIndex, sysResource, entry, arg)
 {
@@ -43,24 +46,29 @@ CSerialDataProcessing::~CSerialDataProcessing()
 /**
  * @brief : Main routine for the thread
  *
- * @param arg : Arguments for the routine
- *
  * @return - to join the thread
  */
 void CSerialDataProcessing::run()
 {
 	// The Threads runs here
-	cout << "INFO\t: Thread " << this->getThreadIndex() << " started with ID : " << this->getThreadIndex() << endl;
+	cout << "INFO\t: Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
 
 	while (1)
 	{
-		cout << "INFO\t: Running Thread " << this->getThreadIndex() << " started with ID : " << this->getThreadIndex() << endl;
+		cout << "INFO\t: Running Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
 		sleep(1);
 	}
 }
 
 
 
+/**
+ * @brief : Friend function used to create the thread 
+ *
+ * @param arg : arguments to the thread
+ *
+ * @return 
+ */
 void *friend_run_comm(void *arg)
 {
 	cout << "INFO\t: Thread " << __func__ << endl;
