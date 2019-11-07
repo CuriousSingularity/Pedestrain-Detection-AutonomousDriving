@@ -29,7 +29,7 @@ private:
 	 */
 	void run();
 
-	void filter_algorithm(std::vector<cv::Rect> &nmsDetections, CSerialProtocol::object_detection_frame_t *p_resultCollection, uint32_t &bigIndex);
+	void filter_algorithm(std::vector<cv::Rect> &nmsDetections, CSerialProtocol::object_detection_frame_t *p_resultCollection, int &bigIndex);
 
 public:
 

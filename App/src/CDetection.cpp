@@ -33,7 +33,7 @@ using namespace cv;
 
 
 static const CDetection::hog_config_t hog_config_param {
-	.hitThreshold	= 55,	// Range : 0-100
+		.hitThreshold	= 55,	// Range : 0-100
 		.winStride		= 8,	// Range : 1-32
 		.padding 		= 8,	// Range : 0-64
 		.scale 			= 1.08,	// Range : > 1.0
@@ -110,7 +110,7 @@ void CDetection::run()
 #ifdef ALGO_TIME_MEASUREMENT
 	double t_start = 0;
 #endif
-	uint32_t bigIndex = 0;
+	int bigIndex = -1;
 	extern CRingBuffer<cv::Mat, FRAMERATE> g_framesBuffer;
 	extern CMailBox g__Mailboxes[THREAD_TOTAL_COUNT];
 
@@ -169,9 +169,11 @@ void CDetection::run()
 			for (unsigned int i= 0; i < nmsDetections.size() ; i++)
 			{
 				rectangle(eachFrame, Point(nmsDetections[i].x, nmsDetections[i].y), Point(nmsDetections[i].x + nmsDetections[i].width, nmsDetections[i].y + nmsDetections[i].height), Scalar(0, 0, 255), 5, LINE_8);
-				rectangle(eachFrame, Point(nmsDetections[bigIndex].x, nmsDetections[bigIndex].y), Point(nmsDetections[bigIndex].x + nmsDetections[bigIndex].width, nmsDetections[bigIndex].y + nmsDetections[bigIndex].height), Scalar(0, 255, 0), 5, LINE_8);
+				
+				if (bigIndex >= 0)
+					rectangle(eachFrame, Point(nmsDetections[bigIndex].x, nmsDetections[bigIndex].y), Point(nmsDetections[bigIndex].x + nmsDetections[bigIndex].width, nmsDetections[bigIndex].y + nmsDetections[bigIndex].height), Scalar(0, 255, 0), 5, LINE_8);
 			}
-
+			bigIndex = -1;
 
 			//			rectangle(image, Point(0, 0), Point(20, 20), Scalar(0, 0, 0), -1);
 			//			putText(image, to_string((int) counter), Point(0,0), FONT_HERSHEY_PLAIN, 4,  Scalar(255,255,255), 2 , LINE_AA , false);
@@ -184,10 +186,11 @@ void CDetection::run()
 	}
 }
 
-void CDetection::filter_algorithm(vector<Rect> &nmsDetections, CSerialProtocol::object_detection_frame_t *p_resultCollection, uint32_t &bigIndex)
+void CDetection::filter_algorithm(vector<Rect> &nmsDetections, CSerialProtocol::object_detection_frame_t *p_resultCollection, int &bigIndex)
 {
-	
-	uint32_t bigArea = 0, area = 0;
+
+#define THRESHOLD_AREA 		(0.2 * RESOLUTION_RESIZED_WIDTH * 0.4 * RESOLUTION_RESIZED_HEIGTH)
+	uint32_t bigArea = THRESHOLD_AREA, area = 0;
 
 	for (uint32_t index = 0; index < nmsDetections.size(); index++)
 	{
@@ -200,7 +203,7 @@ void CDetection::filter_algorithm(vector<Rect> &nmsDetections, CSerialProtocol::
 		}
 	}
 
-	if (bigArea != 0)
+	if (bigArea >= THRESHOLD_AREA)
 	{
 		CSerialProtocol::object_detection_block_t blk;
 
