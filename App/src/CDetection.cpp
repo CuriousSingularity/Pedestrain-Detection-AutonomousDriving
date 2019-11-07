@@ -29,6 +29,7 @@ using namespace cv;
 #define DISABLE					0
 #define ENABLE					1
 #define DISPLAY_CONNECTED		DISABLE
+#define ALGO_TIME_MEASUREMENT
 
 
 static const CDetection::hog_config_t hog_config_param {
@@ -153,6 +154,10 @@ void CDetection::run()
 		if (p_resultCollection)
 			this->filter_algorithm(nmsDetections, p_resultCollection, bigIndex);
 
+#ifdef ALGO_TIME_MEASUREMENT
+			cout << endl << "Time elapsed: " << (getTickCount() - t_start) / getTickFrequency() << endl;
+#endif
+
 		// release of data is done at the reception end
 		dataToTx.pDynamicData = p_resultCollection;
 		if (g__Mailboxes[THREAD_COM_TX_SERVICE].send(this->getThreadIndex(), dataToTx) != RC_SUCCESS)
@@ -174,10 +179,6 @@ void CDetection::run()
 			counter = (counter + 1) % 100;
 			imshow( "Detected Image", eachFrame );
 			waitKey(1);
-#endif
-
-#ifdef ALGO_TIME_MEASUREMENT
-			cout << endl << "Time elapsed: " << (getTickCount() - t_start) / getTickFrequency() << endl;
 #endif
 
 	}
@@ -206,6 +207,8 @@ void CDetection::filter_algorithm(vector<Rect> &nmsDetections, CSerialProtocol::
 		blk.theta = (ZERO_PIXEL_ANGLE + ANGELE_RESOLUTION * nmsDetections[bigIndex].x) * ANGLE_PRECISION_FACTOR;
 		blk.delta_theta = (ANGELE_RESOLUTION * nmsDetections[bigIndex].width) * ANGLE_PRECISION_FACTOR;
 
+		cout << "db:\t\t" << blk.theta << "\t\t" << blk.delta_theta << endl << endl;
+		
 		p_resultCollection->blks.push_back(blk);
 	}
 }

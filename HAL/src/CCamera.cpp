@@ -39,7 +39,7 @@ static const CCamera::configuation_t camera_config_param
 	.resized_width	= RESOLUTION_RESIZED_WIDTH,
 	.resized_height	= RESOLUTION_RESIZED_HEIGTH,
 	.framerate	= FRAMERATE,
-	.orientation	= CCamera::ORIENT_DEG_180,
+	.orientation	= CCamera::ORIENT_DEG_0,
 	.colour_format	= "BGR",
 };
 
