@@ -29,7 +29,18 @@
 #define RESOLUTION_CAPTURED_HEIGTH		(720)
 #define RESOLUTION_RESIZED_WIDTH		(640)
 #define RESOLUTION_RESIZED_HEIGTH		(360)
-#define FRAMERATE						(30)
+#define FRAMERATE				(30)
+
+#define RSP_CAMERA_V2
+
+#ifdef RSP_CAMERA_V2
+#define HORIZONTAL_FOV				(62.2)
+#define VERTICAL_FOV				(48.8)
+#define ANGELE_RESOLUTION			((float) HORIZONTAL_FOV / RESOLUTION_RESIZED_WIDTH)
+#define ZERO_PIXEL_ANGLE			((float) -HORIZONTAL_FOV / 2)
+#define ANGLE_PRECISION_FACTOR			(100)
+#endif
+
 
 class CCamera : public CResource {
 private:

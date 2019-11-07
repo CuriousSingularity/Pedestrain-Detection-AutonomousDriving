@@ -113,9 +113,20 @@ void CDetection::run()
 	extern CRingBuffer<cv::Mat, FRAMERATE> g_framesBuffer;
 	extern CMailBox g__Mailboxes[THREAD_TOTAL_COUNT];
 
+	CMailBox::mail_box_data_t dataToTx = 
+	{
+		.sid = global::SID_TX_DATA,
+		.lid = CUart::UART_CHANNEL_1,
+		.pDynamicData = 0,
+	};
+
+	CSerialProtocol::object_detection_frame_t resultCollection;
+	dataToTx.pDynamicData = &resultCollection;
+
+	CSerialProtocol::object_detection_block_t blk;
+
 	while (1)
 	{
-#if 0
 		cout << "INFO\t: Running Detection Algorithm Service " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
 
 		// Detection Algorithm
@@ -158,36 +169,21 @@ void CDetection::run()
 			cout << endl << "Time elapsed: " << (getTickCount() - t_start) / getTickFrequency() << endl;
 #endif
 		}
-#endif
 
-		CMailBox::mail_box_data_t data = 
+		for (uint32_t index = 0; index < nmsDetections.size(); index++)
 		{
-			.sid = global::SID_TX_DATA,
-			.lid = CUart::UART_CHANNEL_1,
-			.pDynamicData = 0,
-		};
+			blk.theta = (ZERO_PIXEL_ANGLE + ANGELE_RESOLUTION * nmsDetections[index].x) * ANGLE_PRECISION_FACTOR;
+			blk.delta_theta = (ANGELE_RESOLUTION * nmsDetections[index].width) * ANGLE_PRECISION_FACTOR;
 
-		CSerialProtocol::object_detection_frame_t collection;
-
-		data.pDynamicData = &collection;
-		CSerialProtocol::object_detection_block_t blk;
-
-		for(int index = 0; index < 12; index++)
-		{
-			blk.theta = index;
-			blk.delta_theta = index;
-			blk.probability = index;
-			blk.opinion = index;
-
-			collection.blks.push_back(blk);
-
-			if (g__Mailboxes[THREAD_COM_TX_SERVICE].send(this->getThreadIndex(), data) != RC_SUCCESS)
-			{
-				cout << "********************* MSG Over Mailbox Failed ****************" << endl;
-			}
-
-			sleep(1);
+			resultCollection.blks.push_back(blk);
 		}
+
+		if (g__Mailboxes[THREAD_COM_TX_SERVICE].send(this->getThreadIndex(), data) != RC_SUCCESS)
+		{
+			cout << "ERROR\t: Failed to send the detected objects " << endl;
+		}
+
+		resultCollection.blks.clear();
 	}
 }
 
