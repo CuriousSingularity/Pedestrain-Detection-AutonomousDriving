@@ -52,18 +52,19 @@ CSerialDataProcessing::~CSerialDataProcessing()
 void CSerialDataProcessing::run()
 {
 	// The Threads runs here
-	cout << "INFO\t: Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
+	cout << "INFO\t: Serial Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
 
+	RC_t ret = RC_SUCCESS;
 	vector<CSerialProtocol::object_detection_lidar_t> detectedObjects;
 	CCom *pComResource = this->m_pSysRes->getSerialResourceReference();
 
 	while (1)
 	{
-		cout << "INFO\t: Running Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
+		cout << "INFO\t: Serial Running Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
 
-		if (this->m_Protocol.readRequest(detectedObjects, pComResource) == RC_SUCCESS)
+		if ((ret = this->m_Protocol.readRequest(detectedObjects, pComResource)) == RC_SUCCESS)
 		{
-
+			// new request from the lidar
 		}
 	}
 }

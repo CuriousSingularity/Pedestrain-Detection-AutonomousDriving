@@ -25,7 +25,10 @@ using namespace cv;
 
 
 // TODO NOL Cheack what to do with all this:
-#define __SHOW_RESULT
+#define DISABLE					0
+#define ENABLE					1
+#define DISPLAY_CONNECTED			DISABLE
+
 // local types
 typedef struct{
 	int value;
@@ -83,7 +86,7 @@ CCameraDataProcessing::~CCameraDataProcessing()
 void CCameraDataProcessing::run()
 {
 	// The Threads runs here
-	cout << "INFO\t: Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
+	cout << "INFO\t: Camera Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
 
 	// Locals declaration:
 	vector<Rect> detections;		// Vector of boxes where a detection was achieved
@@ -92,7 +95,7 @@ void CCameraDataProcessing::run()
 	vector<Rect> nmsDetections;
 	ssize_t rBytes = 0;
 
-#ifdef __SHOW_RESULT
+#if (defined(DISPLAY_CONNECTED) && (DISPLAY_CONNECTED == ENABLE))
 	namedWindow("Detected Image", cv::WINDOW_AUTOSIZE);
 	uint8_t counter = 0;
 #endif
@@ -101,7 +104,7 @@ void CCameraDataProcessing::run()
 
 	while (1)
 	{
-		cout << "INFO\t: Running Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
+		cout << "INFO\t: Camera Running Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
 
 		// Hog run:
 		// TODO NOL: Acquire frame from camera
@@ -132,13 +135,12 @@ void CCameraDataProcessing::run()
 			nms(detections, nmsDetections, (float) nmsThreshold.value / 100, nmsNeighbors.value);
 
 			//	cout << " - After NMS: " << nmsDetections.size() << " matches" << endl;
-#ifdef __SHOW_RESULT
+#if (defined(DISPLAY_CONNECTED) && (DISPLAY_CONNECTED == ENABLE))
 			for (unsigned int i= 0; i < nmsDetections.size() ; i++)
 			{
 				rectangle(image, Point(nmsDetections[i].x, nmsDetections[i].y), Point(nmsDetections[i].x + nmsDetections[i].width, nmsDetections[i].y + nmsDetections[i].height), Scalar(0, 0, 255), 5, LINE_8);
 			}
 
-			cout << endl << "Time elapsed: " << (getTickCount() - t_start) / getTickFrequency() << endl;
 
 			//			rectangle(image, Point(0, 0), Point(20, 20), Scalar(0, 0, 0), -1);
 			//			putText(image, to_string((int) counter), Point(0,0), FONT_HERSHEY_PLAIN, 4,  Scalar(255,255,255), 2 , LINE_AA , false);
@@ -147,6 +149,7 @@ void CCameraDataProcessing::run()
 			imshow( "Detected Image", image );
 			waitKey(1);
 #endif
+			cout << endl << "Time elapsed: " << (getTickCount() - t_start) / getTickFrequency() << endl;
 		}
 	}
 }
