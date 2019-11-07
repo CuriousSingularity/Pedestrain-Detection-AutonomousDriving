@@ -11,8 +11,8 @@
 #include <unistd.h>
 
 // User-defined Header Files
-#include "CPedestrianDetection.h"
 #include "./global.h"
+#include "./App/inc/CApplication.h"
 
 #define VERSION		("0.1")
 
@@ -33,9 +33,9 @@ int main(int argc, char **argv)
 #endif
 	cout << VERSION << "v : Program Started with PPID : " << getppid() << "; PID : " << getpid() << endl;
 
-	CPedestrianDetection	pedestrianDetection;
+	CApplication	pedestrian;
 
-	pedestrianDetection.run();
+	pedestrian.run();
 
 	while(1);
 

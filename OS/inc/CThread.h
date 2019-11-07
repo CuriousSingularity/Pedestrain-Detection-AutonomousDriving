@@ -15,7 +15,7 @@
 #include <pthread.h>
 
 //Own Include Files
-#include "./OS/inc/CSystemResource.h"
+#include "./global.h"
 
 class CThread {
 public:
@@ -37,7 +37,7 @@ public:
 	 * @param pSysRes		: Reference to the system resource which can be used by the threads
 	 * @param entry			: Entry Function for the thread
 	 */
-	CThread(int32_t threadIndex, const CSystemResource *pSysRes = NULL, CThread::start_routine_t entry = NULL, void *arg = NULL);
+	CThread(int32_t threadIndex, CThread::start_routine_t entry = NULL, void *arg = NULL);
 
 	/**
 	 * @brief : Destructor
@@ -102,12 +102,6 @@ private:
 	 * @brief : entry function for a thread
 	 */
 	start_routine_t m_thread_entry;
-
-protected:
-	/**
-	 * @brief : Pointer reference for the System resource
-	 */
-	CSystemResource *m_pSysRes;
 
 };
 /********************

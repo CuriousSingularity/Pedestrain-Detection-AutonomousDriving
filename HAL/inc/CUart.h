@@ -1,7 +1,7 @@
 /***************************************************************************
  *============= Copyright by Darmstadt University of Applied Sciences =======
  ****************************************************************************
- * Filename        : CCom.h
+ * Filename        : CUart.h
  * Author          : Bharath Ramachandraiah (stbhrama@stud.h-da.de)
  * Description     : Serial Communication such as uart, usart, etc. 
  * 			Can be extended for SPI, I2C as a base class.
@@ -9,8 +9,8 @@
  ****************************************************************************/
 
 
-#ifndef CCOM_H
-#define CCOM_H
+#ifndef CUART_H
+#define CUART_H
 
 //System Include Files
 #include <termios.h>
@@ -19,7 +19,7 @@
 //Own Include Files
 #include "./OS/inc/CResource.h"
 
-class CCom : public CResource {
+class CUart : public CResource {
 private:
 
 	/**
@@ -46,15 +46,15 @@ public:
 	/**
 	 * @brief : Constructor
 	 */
-	CCom(std::string devPath, int flag, mode_t mode);
+	CUart(std::string devPath, int flag, mode_t mode);
 
 	/**
 	 * @brief : Destructor
 	 */
-	virtual ~CCom();
+	virtual ~CUart();
 
 };
 /********************
  **  CLASS END
  *********************/
-#endif /* CCOM_H */
+#endif /* CUART_H */

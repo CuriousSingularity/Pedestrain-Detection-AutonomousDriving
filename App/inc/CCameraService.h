@@ -1,24 +1,31 @@
 /***************************************************************************
  *============= Copyright by Darmstadt University of Applied Sciences =======
  ****************************************************************************
- * Filename        : CCameraDataProcessing.h
- * Author          : Nicolas Ojeda Leon (stnioied@stdu.h-da.de)
- * 			Bharath Ramachandraiah (stbhrama@stud.h-da.de)
- * Description     : Camera Detection Algorithm is implemented here.
+ * Filename        : CCameraService.h
+ * Author          : Bharath Ramachandraiah (stbhrama@stud.h-da.de)
+ * Description     : Serial Data Processing thread - packet reception and processing
+ * 			it with Service-ID, Local-ID; predefined protocol.
  *
  ****************************************************************************/
 
-#ifndef CCAMERADATAPROCESSING_H
-#define CCAMERADATAPROCESSING_H
+
+#ifndef CCAMERASERVICE_H
+#define CCAMERASERVICE_H
 
 //System Include Files
 
 //Own Include Files
 #include "./OS/inc/CThread.h"
 #include "./OS/inc/CSemaphore.h"
+#include "./HAL/inc/CCamera.h"
 
-class CCameraDataProcessing : public CThread {
+class CCameraService : public CThread {
 private:
+
+	/**
+	 * @brief : Camera channel 0
+	 */
+	CCamera		m_camera_0;
 
 	/**
 	 * @brief : Main routine for the thread
@@ -33,16 +40,15 @@ public:
 	 * @brief : Constructor
 	 *
 	 * @param threadIndex 	: Thread Index
-	 * @param sysResource	: Global resource pointer
 	 * @param entry		: Entry function for the thread
 	 * @param arg		: Arguments to the thread
 	 */
-	CCameraDataProcessing(int threadIndex, const CSystemResource *sysResource = NULL, CThread::start_routine_t entry = NULL, void *arg = NULL);
+	CCameraService(int threadIndex, CThread::start_routine_t entry = NULL, void *arg = NULL);
 
 	/**
 	 * @brief : Destructor
 	 */
-	~CCameraDataProcessing();
+	~CCameraService();
 
 	/**
 	 * @brief : Friend function used to create the thread 
@@ -51,10 +57,10 @@ public:
 	 *
 	 * @return 
 	 */
-	friend void *friend_run_camera(void *arg);
+	friend void *friend_camera_service(void *arg);
 
 };
 /********************
  **  CLASS END
  *********************/
-#endif /* CCAMERADATAPROCESSING_H */
+#endif /* CCAMERASERVICE_H */

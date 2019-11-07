@@ -61,7 +61,7 @@ CSerialProtocol::~CSerialProtocol()
  *
  * @return : status
  */
-RC_t CSerialProtocol::readRequest(std::vector<object_detection_lidar_t> &detectedObjects, CCom *pComResource)
+RC_t CSerialProtocol::readRequest(std::vector<object_detection_lidar_t> &detectedObjects, CUart *pComResource)
 {
 	RC_t		ret = RC_ERROR_NOT_MATCH;
 	uint8_t 	protocolBuf[PROTOCOL_BUF_SIZE];

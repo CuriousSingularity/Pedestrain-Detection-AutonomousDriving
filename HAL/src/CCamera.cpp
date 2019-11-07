@@ -38,7 +38,7 @@ using namespace global;
 /*
  * Camera Configuration
  */
-static const CCamera::configuation_t camera_config
+static const CCamera::configuation_t camera_config_param
 {
 	.capture_width	= RESOLUTION_CAPTURED_WIDTH,
 	.capture_height	= RESOLUTION_CAPTURED_HEIGTH,
@@ -86,7 +86,7 @@ global::RC_t CCamera::configure()
 
 #if ((TARGET_PLATFORM == NVIDIA) || (TARGET_PLATFORM == RSP))
 	// open will first release the resource in case it was previously open.
-	if (!this->m_cameraStream.open(gstreamer_pipeline(camera_config), cv::CAP_GSTREAMER))
+	if (!this->m_cameraStream.open(gstreamer_pipeline(camera_config_param), cv::CAP_GSTREAMER))
 		return RC_ERROR_OPEN;
 
 	if (!this->m_cameraStream.isOpened())
@@ -156,7 +156,7 @@ RC_t CCamera::getCapture(cv::Mat * const image)
 	if (!this->m_cameraStream.read(capturedImage))
 		return RC_ERROR_READ_FAILS;
 
-	cv::resize(capturedImage, *image, cv::Size(camera_config.resized_width, camera_config.resized_height));
+	cv::resize(capturedImage, *image, cv::Size(camera_config_param.resized_width, camera_config_param.resized_height));
 
 #elif (TARGET_PLATFORM == PC)
 

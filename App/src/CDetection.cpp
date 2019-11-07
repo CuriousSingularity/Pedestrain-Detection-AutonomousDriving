@@ -1,7 +1,7 @@
 /***************************************************************************
  *============= Copyright by Darmstadt University of Applied Sciences =======
  ****************************************************************************
- * Filename        : CCameraDataProcessing.h
+ * Filename        : CDetection.h
  * Author          : Nicolas Ojeda Leon (stnioied@stdu.h-da.de)
  * 			Bharath Ramachandraiah (stbhrama@stud.h-da.de)
  * Description     : Camera Detection Algorithm is implemented here.
@@ -10,50 +10,37 @@
 
 // System includes
 #include <vector>
-#include <opencv2/opencv.hpp>
 #include <iostream>
+#include <opencv2/opencv.hpp>
 
 //Own Include Files
-#include "./App/inc/CCameraDataProcessing.h"
+#include "./App/inc/CDetection.h"
 #include "./Lib/inc/nms.h"
-
 
 //Namespace
 using namespace std;
 using namespace global;
 using namespace cv;
 
-
-// TODO NOL Cheack what to do with all this:
+//Macros
 #define DISABLE					0
 #define ENABLE					1
-#define DISPLAY_CONNECTED			DISABLE
+#define DISPLAY_CONNECTED		DISABLE
 
-// local types
-typedef struct{
-	int value;
-	int max;
-} parameter_t;
-
-typedef enum{
-	DET_DAIMLER,
-	DET_DEFAULT
-} detector_t;
 
 // local constants
 static HOGDescriptor hog;
 
-/* HOG parameters - Trackbar */
-static parameter_t hitThreshold = {55, 100};			// Percentage
-static parameter_t winStride = {8, 32};			// Number of pixels
-static parameter_t padding = {8, 64};				// Number of pixels
-static parameter_t scale = {8, 99};				// This has to be handled as the value after the decimal point, i.e: 5 -> 1.05
-static parameter_t finalThreshold = {0, 100};			// Percentage
-static parameter_t nmsThreshold = {0, 100};			// Percentage
-static parameter_t nmsNeighbors = {0, 20};			// Count
-
-/* HOG detector used */
-detector_t detector = DET_DEFAULT;
+static const CDetection::hog_config_t hog_config_param {
+	.hitThreshold	= 55,	// Range : 0-100
+	.winStride		= 8,	// Range : 1-32
+	.padding 		= 8,	// Range : 0-64
+	.scale 			= 1.08,	// Range : > 1.0
+	.finalThreshold = 0,	// Range : 0-100
+	.nmsThreshold 	= 0,	// Range : 0-100
+	.nmsNeighbors 	= 0,	// Range : 0-100
+	.detectionModel	= CDetection::HOG_DETECTION_DEFAULT,
+};
 
 //Method Implementations
 /**
@@ -64,7 +51,7 @@ detector_t detector = DET_DEFAULT;
  * @param entry		: Entry function for the thread
  * @param arg		: Arguments to the thread
  */
-CCameraDataProcessing::CCameraDataProcessing(int threadIndex, const CSystemResource *sysResource, CThread::start_routine_t entry, void *arg) : CThread(threadIndex, sysResource, entry, arg)
+CDetection::CDetection(int threadIndex, CThread::start_routine_t entry, void *arg) : CThread(threadIndex, entry, arg)
 {
 	//nothing
 }
@@ -72,7 +59,7 @@ CCameraDataProcessing::CCameraDataProcessing(int threadIndex, const CSystemResou
 /**
  * @brief : Destructor
  */
-CCameraDataProcessing::~CCameraDataProcessing()
+CDetection::~CDetection()
 {
 	// nothing
 }
@@ -83,11 +70,12 @@ CCameraDataProcessing::~CCameraDataProcessing()
  *
  * @return - to join the thread
  */
-void CCameraDataProcessing::run()
+void CDetection::run()
 {
 	// The Threads runs here
 	cout << "INFO\t: Camera Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
 
+#if 0
 	// Locals declaration:
 	vector<Rect> detections;		// Vector of boxes where a detection was achieved
 	vector<double> detection_weights;
@@ -152,6 +140,7 @@ void CCameraDataProcessing::run()
 			cout << endl << "Time elapsed: " << (getTickCount() - t_start) / getTickFrequency() << endl;
 		}
 	}
+	#endif
 }
 
 
@@ -162,12 +151,12 @@ void CCameraDataProcessing::run()
  *
  * @return 
  */
-void *friend_run_camera(void *arg)
+void *friend_detection(void *arg)
 {
 	if (arg)
 		cout << "INFO\t: Thread " << __func__ << endl;
 
-	CCameraDataProcessing *ptr = static_cast<CCameraDataProcessing *>(arg);
+	CDetection *ptr = static_cast<CDetection *>(arg);
 
 	if (ptr)
 	{

@@ -1,7 +1,7 @@
 /***************************************************************************
  *============= Copyright by Darmstadt University of Applied Sciences =======
  ****************************************************************************
- * Filename        : CSerialDataProcessing.h
+ * Filename        : CComTxService.h
  * Author          : Bharath Ramachandraiah (stbhrama@stud.h-da.de)
  * Description     : Serial Data Processing thread - packet reception and processing
  * 			it with Service-ID, Local-ID; predefined protocol.
@@ -9,8 +9,8 @@
  ****************************************************************************/
 
 
-#ifndef CSERIALDATAPROCESSING_H
-#define CSERIALDATAPROCESSING_H
+#ifndef CCOMTXSERVICE_H
+#define CCOMTXSERVICE_H
 
 //System Include Files
 
@@ -19,8 +19,13 @@
 #include "./OS/inc/CSemaphore.h"
 #include "./App/inc/CSerialProtocol.h"
 
-class CSerialDataProcessing : public CThread {
+class CComTxService : public CThread {
 private:
+
+	/**
+	 * @brief : UART channel 0
+	 */
+	CUart		m_uart_0;
 
 	/**
 	 * @brief : Protocol parser object
@@ -40,16 +45,15 @@ public:
 	 * @brief : Constructor
 	 *
 	 * @param threadIndex 	: Thread Index
-	 * @param sysResource	: Global resource pointer
 	 * @param entry		: Entry function for the thread
 	 * @param arg		: Arguments to the thread
 	 */
-	CSerialDataProcessing(int threadIndex, const CSystemResource *sysResource = NULL, CThread::start_routine_t entry = NULL, void *arg = NULL);
+	CComTxService(int threadIndex, CThread::start_routine_t entry = NULL, void *arg = NULL);
 
 	/**
 	 * @brief : Destructor
 	 */
-	~CSerialDataProcessing();
+	~CComTxService();
 
 	/**
 	 * @brief : Friend function used to create the thread 
@@ -58,10 +62,10 @@ public:
 	 *
 	 * @return 
 	 */
-	friend void *friend_run_comm(void *arg);
+	friend void *friend_com_tx_service(void *arg);
 
 };
 /********************
  **  CLASS END
  *********************/
-#endif /* CSERIALDATAPROCESSING_H */
+#endif /* CCOMTXSERVICE_H */

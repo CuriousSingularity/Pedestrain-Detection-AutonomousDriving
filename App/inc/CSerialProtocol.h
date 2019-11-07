@@ -17,7 +17,7 @@
 
 //Own Include Files
 #include "./global.h"
-#include "./HAL/inc/CCom.h"
+#include "./HAL/inc/CUart.h"
 
 class CSerialProtocol {
 private:
@@ -51,7 +51,7 @@ public:
 	 *
 	 * @return : status
 	 */
-	global::RC_t readRequest(std::vector<object_detection_lidar_t> &detectedObjects, CCom *pComResource);
+	global::RC_t readRequest(std::vector<object_detection_lidar_t> &detectedObjects, CUart *pComResource);
 
 };
 /********************

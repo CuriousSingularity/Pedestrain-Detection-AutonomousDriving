@@ -1,7 +1,7 @@
 /***************************************************************************
  *============= Copyright by Darmstadt University of Applied Sciences =======
  ****************************************************************************
- * Filename        : CSerialDataProcessing.h
+ * Filename        : CComTxService.h
  * Author          : Bharath Ramachandraiah (stbhrama@stud.h-da.de)
  * Description     : Serial Data Processing thread - packet reception and processing
  * 			it with Service-ID, Local-ID; predefined protocol.
@@ -11,9 +11,12 @@
 
 //System Include Files
 #include <iostream>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 //Own Include Files
-#include "./App/inc/CSerialDataProcessing.h"
+#include "./App/inc/CComTxService.h"
 #include "./App/inc/CSerialProtocol.h"
 
 //Namespace
@@ -29,7 +32,9 @@ using namespace global;
  * @param entry		: Entry function for the thread
  * @param arg		: Arguments to the thread
  */
-CSerialDataProcessing::CSerialDataProcessing(int threadIndex, const CSystemResource *sysResource, CThread::start_routine_t entry, void *arg) : CThread(threadIndex, sysResource, entry, arg)
+CComTxService::CComTxService(int threadIndex, CThread::start_routine_t entry, void *arg) : 
+		CThread(threadIndex, entry, arg), 
+		m_uart_0("/dev/tty0"	, O_RDWR | O_NOCTTY | O_SYNC, S_IRWXU)
 {
 	// nothing
 }
@@ -38,7 +43,7 @@ CSerialDataProcessing::CSerialDataProcessing(int threadIndex, const CSystemResou
 /**
  * @brief : Destructor
  */
-CSerialDataProcessing::~CSerialDataProcessing()
+CComTxService::~CComTxService()
 {
 	// nothing
 }
@@ -49,23 +54,14 @@ CSerialDataProcessing::~CSerialDataProcessing()
  *
  * @return - to join the thread
  */
-void CSerialDataProcessing::run()
+void CComTxService::run()
 {
 	// The Threads runs here
 	cout << "INFO\t: Serial Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
 
-	RC_t ret = RC_SUCCESS;
-	vector<CSerialProtocol::object_detection_lidar_t> detectedObjects;
-	CCom *pComResource = this->m_pSysRes->getSerialResourceReference();
-
 	while (1)
 	{
 		cout << "INFO\t: Serial Running Thread " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
-
-		if ((ret = this->m_Protocol.readRequest(detectedObjects, pComResource)) == RC_SUCCESS)
-		{
-			// new request from the lidar
-		}
 	}
 }
 
@@ -78,11 +74,11 @@ void CSerialDataProcessing::run()
  *
  * @return 
  */
-void *friend_run_comm(void *arg)
+void *friend_com_tx_service(void *arg)
 {
 	cout << "INFO\t: Thread " << __func__ << endl;
 
-	CSerialDataProcessing *ptr = static_cast<CSerialDataProcessing *>(arg);
+	CComTxService *ptr = static_cast<CComTxService *>(arg);
 
 	if (ptr)
 	{

@@ -27,7 +27,7 @@ using namespace global;
  * @param pSysRes		: Reference to the system resource which can be used by the threads
  * @param entry			: Entry Function for the thread
  */
-CThread::CThread(int32_t threadIndex, const CSystemResource *pSysRes, start_routine_t entry, void *arg)
+CThread::CThread(int32_t threadIndex, start_routine_t entry, void *arg)
 {
 	// if this is NULL, then the thread is create with default configuration
 	// TODO: May explore the attributes to utilize CPU and optimizate for a better 
@@ -36,7 +36,6 @@ CThread::CThread(int32_t threadIndex, const CSystemResource *pSysRes, start_rout
 	this->m_thread_entry		= entry;
 	this->m_pArg			= arg;
 	this->m_threadIndex		= threadIndex;
-	this->m_pSysRes			= (CSystemResource *)pSysRes;
 }
 
 
@@ -45,9 +44,6 @@ CThread::CThread(int32_t threadIndex, const CSystemResource *pSysRes, start_rout
  */
 CThread::~CThread()
 {
-	// Disconnect from the global resource
-	this->m_pSysRes = 0;
-
 	if (pthread_attr_destroy(&this->m_attr) != 0)
 	{
 		cout << "ERROR\t: Thread " << this->m_threadIndex << " setup failed due to bad attribute" << endl;

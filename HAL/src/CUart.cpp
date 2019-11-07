@@ -1,7 +1,7 @@
 /***************************************************************************
  *============= Copyright by Darmstadt University of Applied Sciences =======
  ****************************************************************************
- * Filename        : CCom.cpp
+ * Filename        : CUart.cpp
  * Author          : Bharath Ramachandraiah (stbhrama@stud.h-da.de)
  * Description     : Serial Communication such as uart, usart, etc. 
  * 			Can be extended for SPI, I2C as a base class.
@@ -15,7 +15,7 @@
 #include <string.h>
 
 //Own Include Files
-#include "./HAL/inc/CCom.h"
+#include "./HAL/inc/CUart.h"
 
 //Namespaces
 using namespace global;
@@ -26,7 +26,7 @@ using namespace std;
 /**
  * @brief : Constructor
  */
-CCom::CCom(std::string devPath, int flags, mode_t mode) : CResource(devPath, flags, mode) 
+CUart::CUart(std::string devPath, int flags, mode_t mode) : CResource(devPath, flags, mode) 
 {
 	// set up the speed of tx and rx
 	this->m_baudrate_tx	= B115200;
@@ -38,16 +38,16 @@ CCom::CCom(std::string devPath, int flags, mode_t mode) : CResource(devPath, fla
 		cout << "ERROR\t: Resource configuration failed for Device " << this->getDeviceNode() << endl;
 	}
 
-	cout << "INFO\t: Com port " << this->getDeviceNode() << " constructed" << endl;
+	cout << "INFO\t: Uart port " << this->getDeviceNode() << " constructed" << endl;
 }
 
 
 /**
  * @brief : Destructor
  */
-CCom::~CCom()
+CUart::~CUart()
 {
-	cout << "INFO\t: Com port " << this->getDeviceNode() << " destructed" << endl;
+	cout << "INFO\t: Uart port " << this->getDeviceNode() << " destructed" << endl;
 }
 
 
@@ -58,9 +58,9 @@ CCom::~CCom()
  *
  * @return RC_t : Status of the uart communication channel 
  */
-RC_t CCom::configure()
+RC_t CUart::configure()
 {
-	cout << "INFO\t: Com port " << this->getDeviceNode() << " configuration" << endl;
+	cout << "INFO\t: Uart port " << this->getDeviceNode() << " configuration" << endl;
 
 	if (this->m_status != service_READY)
 		return RC_ERROR_INVALID_STATE;

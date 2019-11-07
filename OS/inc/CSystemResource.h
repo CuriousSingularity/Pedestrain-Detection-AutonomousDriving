@@ -12,6 +12,7 @@
 #ifndef CSYSTEMRESOURCE_H
 #define CSYSTEMRESOURCE_H
 
+#if 0
 //System Include Files
 #include <string>
 
@@ -58,6 +59,7 @@ public:
 	CCamera *getCameraResourceReference();
 
 };
+#endif
 /********************
  **  CLASS END
  *********************/

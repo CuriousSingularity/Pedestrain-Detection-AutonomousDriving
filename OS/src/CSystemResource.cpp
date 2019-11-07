@@ -8,7 +8,7 @@
  *
  ****************************************************************************/
 
-
+#if 0
 //System Include Files
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -65,3 +65,4 @@ CCamera *CSystemResource::getCameraResourceReference()
 	return (&(this->m_camera));
 }
 
+#endif
