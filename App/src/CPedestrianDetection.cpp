@@ -57,5 +57,4 @@ void CPedestrianDetection::run()
 	{
 		cout << "ERROR\t: Failed to set up the Camera Algorithm Thread " << this->m_thread_camera.getThreadIndex() << endl;
 	}
-
 }

@@ -31,14 +31,7 @@ using namespace std;
  */
 CCom::CCom() : CResource("/dev/tty0", O_RDWR | O_NOCTTY | O_SYNC, S_IRWXU) 
 {
-	if (this->configure() != RC_SUCCESS)
-	{
-		cout << "ERROR\t: Failed to configure the camera " << this->getDeviceNode() << endl;
-	}
-	else
-	{
-		cout << "INFO\t: Configured the camera " << this->getDeviceNode() << endl;
-	}
+	// nothing
 }
 
 
