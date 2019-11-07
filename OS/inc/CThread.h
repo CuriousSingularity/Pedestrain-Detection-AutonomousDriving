@@ -92,6 +92,7 @@ private:
 	 */
 	start_routine_t m_thread_entry;
 
+protected:
 	/**
 	 * @brief : Pointer reference for the System resource
 	 */
