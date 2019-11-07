@@ -178,7 +178,7 @@ void CDetection::run()
 			resultCollection.blks.push_back(blk);
 		}
 
-		if (g__Mailboxes[THREAD_COM_TX_SERVICE].send(this->getThreadIndex(), data) != RC_SUCCESS)
+		if (g__Mailboxes[THREAD_COM_TX_SERVICE].send(this->getThreadIndex(), dataToTx) != RC_SUCCESS)
 		{
 			cout << "ERROR\t: Failed to send the detected objects " << endl;
 		}
