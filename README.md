@@ -5,6 +5,9 @@
 https://www.youtube.com/watch?v=yvu5OiZNAi8&list=PLLnkq_yigp1uETF3DD3hRX9vUfgOSlGjH&index=12&t=2s
 https://www.youtube.com/watch?v=dXqr_r2ndgk
 
+### Detailed Documentation:
+[Document Link](https://github.com/CuriousSingularity/Pedestrain-Detection-AutonomousDriving/blob/master/Docs/Project.pdf)
+
 ### High Level Design
 
 #### Class Diagram
@@ -38,7 +41,7 @@ https://www.youtube.com/watch?v=dXqr_r2ndgk
     CMutex          :   The class to protect the resource from concurrent access by multiple threads. 
 
 ---
-**TODO insert the class diagram here**
+![class_uml](https://github.com/CuriousSingularity/Pedestrain-Detection-AutonomousDriving/blob/master/Design/class_diagram.gif)
 
 The class design was based on the principle of **Services**. Following this project wide philosophy, the idea behind this 
 principle is to design in such a way that the components (for example the camera) could be used by several modules so it 
@@ -93,7 +96,7 @@ Thread description:
 
 Now, after giving the big picture, a deeper description will be provided:
 
-**TODO sequence diagram here**
+![sequence diagram here](https://github.com/CuriousSingularity/Pedestrain-Detection-AutonomousDriving/blob/master/Sequence.gif)
 
  The sequence diagram shows, in a simplified way, the actions and interactions that each thread has as a function of time.
 
