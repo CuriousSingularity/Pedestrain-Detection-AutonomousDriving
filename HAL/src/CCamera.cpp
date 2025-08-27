@@ -4,7 +4,7 @@
  * Filename        : CCamera.cpp
  * Author          : 	Bharath Ramachandraiah (stbhrama@stud.h-da.de)
  * 			Nicolas Ojeda Leon (stniojed@stud.h-da.de)
- * Description     : Camera class to capture frame or stream the video
+ * Description     : Camera class implementation for capturing frames and streaming video
  *
  * ----- Changelog -----
  *
@@ -31,8 +31,9 @@ using namespace std;
 using namespace global;
 
 // Local variables:
-/*
- * Camera Configuration
+/**
+ * @brief Default camera configuration parameters
+ * Static configuration used for initializing camera with standard settings
  */
 static const CCamera::configuration_t camera_config_param{
     .capture_width = RESOLUTION_CAPTURED_WIDTH,
@@ -46,8 +47,12 @@ static const CCamera::configuration_t camera_config_param{
 
 
 /**
- * gstreamer configuration to be used by OpenCV methods.
- * Local function intended to get the string for configuration of the camera stream
+ * @brief Generate GStreamer pipeline configuration string
+ * Creates a GStreamer pipeline string based on camera configuration parameters
+ * for use with OpenCV VideoCapture on NVIDIA platforms
+ * 
+ * @param config Camera configuration parameters
+ * @return std::string GStreamer pipeline configuration string
  */
 static std::string gstreamer_pipeline(const CCamera::configuration_t& config) {
     return "nvarguscamerasrc ! video/x-raw(memory:NVMM), width=(int)" +
@@ -63,17 +68,16 @@ static std::string gstreamer_pipeline(const CCamera::configuration_t& config) {
 
 // Method Implementations
 /**
- * @brief : Configure the Camera interface
- * 		- Framerate
- * 		- Resolution
- * 		- Orientation
- * 		- ISO
- * 		- Brightness
- * 		- Contrast
- * 		- Sharpness
- * 		- Satureation
- *
- * @return RC_t : Status of the camera
+ * @brief Configure the camera interface
+ * Initializes camera with specified parameters including:
+ * - Framerate: Target frames per second
+ * - Resolution: Capture and output resolution
+ * - Orientation: Camera mounting orientation
+ * - Color format: Output pixel format
+ * 
+ * Uses GStreamer pipeline for NVIDIA hardware acceleration
+ * 
+ * @return RC_t Status code indicating configuration success or failure
  */
 global::RC_t CCamera::configure() {
     LOG_INFO("CCamera", "Camera port " + this->getDeviceNode() + " configuration");
@@ -92,7 +96,13 @@ global::RC_t CCamera::configure() {
 }
 
 /**
- * @brief : Constructor
+ * @brief Constructor
+ * Initializes camera device and attempts configuration
+ * Sets service status based on configuration success
+ * 
+ * @param devPath Device path for camera access
+ * @param flags File access flags
+ * @param mode File permission mode
  */
 CCamera::CCamera(string devPath, int flags, mode_t mode) : CResource(devPath, flags, mode) {
     if (this->configure() != RC_SUCCESS) {
@@ -105,7 +115,8 @@ CCamera::CCamera(string devPath, int flags, mode_t mode) : CResource(devPath, fl
 
 
 /**
- * @brief : Destructor
+ * @brief Destructor
+ * Safely releases camera resources and closes video stream
  */
 CCamera::~CCamera() {
     LOG_INFO("CCamera", "Camera port " + this->getDeviceNode() + " destructed");
@@ -119,11 +130,11 @@ CCamera::~CCamera() {
 
 
 /**
- * @brief : Captures a frame
- *
- * @param image : image / frame from the camera
- *
- * @return - status of capture
+ * @brief Capture a single frame from camera
+ * Reads frame from camera stream and resizes to configured output resolution
+ * 
+ * @param image Pointer to cv::Mat to store captured frame
+ * @return RC_t Status code indicating capture success or failure
  */
 RC_t CCamera::getCapture(cv::Mat* const image) {
     if (this->m_status != service_READY) {
@@ -146,13 +157,13 @@ RC_t CCamera::getCapture(cv::Mat* const image) {
 
 
 /**
- * @brief : Read a frame from the camera
- *
- * @param buffer	: buffer should of type cv::Mat*
- * @param nByte		: ignore
- * @param wByte		: bytes read
- *
- * @return : status of read
+ * @brief Read interface implementation for camera
+ * Implements the CResource read interface for camera frame capture
+ * 
+ * @param buffer Pointer to cv::Mat buffer for frame storage
+ * @param nByte Number of bytes (ignored for camera interface)
+ * @param wByte Reference to store element size of captured frame
+ * @return RC_t Status code indicating read operation result
  */
 RC_t CCamera::read(const void* buffer, const size_t nByte, ssize_t& wByte) {
     RC_t ret = RC_ERROR_READ_FAILS;
@@ -169,13 +180,13 @@ RC_t CCamera::read(const void* buffer, const size_t nByte, ssize_t& wByte) {
 }
 
 /**
- * @brief : write is not used for the camera
- *
- * @param buffer	: ignore
- * @param nByte		: ignore
- * @param wByte		: ignore
- *
- * @return : status will be read only
+ * @brief Write operation not supported
+ * Camera devices are read-only, write operations are not applicable
+ * 
+ * @param buffer Ignored parameter
+ * @param nByte Ignored parameter
+ * @param wByte Ignored parameter
+ * @return RC_t Always returns RC_ERROR_READ_ONLY
  */
 
 RC_t CCamera::write(const void* buffer, const size_t nByte, ssize_t& wByte) {

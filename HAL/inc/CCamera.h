@@ -3,7 +3,7 @@
  ****************************************************************************
  * Filename        : CCamera.h
  * Author          : Bharath Ramachandraiah (stbhrama@stud.h-da.de)
- * Description     : Camera class to capture frame or stream the video
+ * Description     : Camera class to capture frames and stream video from hardware devices
  *
  * ----- Changelog -----
  *
@@ -38,7 +38,7 @@
 #define VERTICAL_FOV (48.8)
 #define ANGLE_RESOLUTION ((float)HORIZONTAL_FOV / RESOLUTION_RESIZED_WIDTH)
 #define ZERO_PIXEL_ANGLE ((float)-HORIZONTAL_FOV / 2)
-#define ANGLE_PRECISION_FACTOR (1)  // change to 100 or 1000 to get the decimal precision
+#define ANGLE_PRECISION_FACTOR (1)  // Scaling factor: change to 100 or 1000 for decimal precision
 #endif
 
 
@@ -72,7 +72,8 @@ class CCamera : public CResource {
 
   public:
     /**
-     * @brief : Orientation for the camera
+     * @brief Camera orientation enumeration
+     * Defines rotation angles for camera mounting orientation
      */
     typedef enum {
         // do not change the order
@@ -83,7 +84,9 @@ class CCamera : public CResource {
     } orientation_e;
 
     /**
-     * @brief : Configuration parameter for the camera
+     * @brief Camera configuration parameters
+     * Structure containing all camera setup parameters including resolution,
+     * framerate, orientation, and color format
      */
     typedef struct {
         unsigned int capture_width;
@@ -96,34 +99,38 @@ class CCamera : public CResource {
     } configuration_t;
 
     /**
-     * @brief : Constructor
+     * @brief Constructor
+     * @param devPath Device path for camera (e.g., /dev/video0)
+     * @param flag File access flags (O_RDWR, O_NOCTTY, etc.)
+     * @param mode File permissions mode
      */
     CCamera(std::string devPath, int flag, mode_t mode);
 
     /**
-     * @brief : Destructor
+     * @brief Destructor
+     * Releases camera resources and cleans up video capture
      */
     virtual ~CCamera();
 
     /**
-     * @brief : Read a frame from the camera
-     *
-     * @param buffer	: buffer should of type cv::Mat*
-     * @param nByte		: ignore
-     * @param wByte		: bytes read
-     *
-     * @return : status of read
+     * @brief Read a frame from the camera
+     * Captures a single frame from the camera and stores it in the provided buffer
+     * 
+     * @param buffer Pointer to cv::Mat buffer for storing the captured frame
+     * @param nByte Number of bytes to read (ignored for camera interface)
+     * @param wByte Reference to store actual bytes read/processed
+     * @return RC_t Status code indicating success or failure
      */
     global::RC_t read(const void* buffer, const size_t nByte, ssize_t& wByte);
 
     /**
-     * @brief : write is not used for the camera
-     *
-     * @param buffer	: ignore
-     * @param nByte		: ignore
-     * @param wByte		: ignore
-     *
-     * @return : status will be read only
+     * @brief Write operation not supported for camera
+     * Camera devices are read-only, this function always returns read-only error
+     * 
+     * @param buffer Ignored parameter
+     * @param nByte Ignored parameter  
+     * @param wByte Ignored parameter
+     * @return RC_t Always returns RC_ERROR_READ_ONLY
      */
     global::RC_t write(const void* buffer, const size_t nByte, ssize_t& wByte);
 };
