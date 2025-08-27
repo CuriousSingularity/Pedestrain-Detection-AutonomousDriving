@@ -28,15 +28,15 @@ class CDetection : public CThread {
      */
     void run();
 
-    void filter_algorithm(std::vector<cv::Rect>& nmsDetections,
-                          CSerialProtocol::object_detection_frame_t* p_resultCollection,
-                          int& bigIndex, const std::vector<uint8_t>& lineDetect);
+    void filterDetections(std::vector<cv::Rect>& detections,
+                          CSerialProtocol::object_detection_frame_t* resultFrame,
+                          int& largestDetectionIndex, const std::vector<uint8_t>& lineDetections);
 
   public:
     typedef enum {
         HOG_DETECTION_DEFAULT = 0,
         HOG_DETECTION_DAIMLER,
-    } hog_detector_t;
+    } HogDetectorType;
 
     typedef struct {
         uint8_t hitThreshold;           // Percentage : 0 - 100
@@ -46,8 +46,8 @@ class CDetection : public CThread {
         uint8_t finalThreshold;         // Percentage
         uint8_t nmsThreshold;           // Percentage
         uint8_t nmsNeighbors;           // Count
-        hog_detector_t detectionModel;  // Detection model type
-    } hog_config_t;
+        HogDetectorType detectionModel;  // Detection model type
+    } HogConfig;
 
     /**
      * @brief : Constructor

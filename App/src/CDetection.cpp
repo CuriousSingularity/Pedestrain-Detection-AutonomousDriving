@@ -29,7 +29,7 @@ using namespace cv;
 using namespace pedestrian_detection::build;
 
 // 🚀 Modern configuration using BuildConstants
-static const CDetection::hog_config_t hog_config_param{
+static const CDetection::HogConfig hog_config_param{
     .hitThreshold = static_cast<int>(DetectionConstants::HOGConfig::DEFAULT_HIT_THRESHOLD),
     .winStride = DetectionConstants::HOGConfig::DEFAULT_WIN_STRIDE,
     .padding = DetectionConstants::HOGConfig::DEFAULT_PADDING,
@@ -109,10 +109,10 @@ void CDetection::run() {
     extern CRingBuffer<cv::Mat, FRAMERATE> g_framesBuffer;
     extern CMailBox g__Mailboxes[THREAD_TOTAL_COUNT];
 
-    CMailBox::mail_box_data_t dataToTx = {
+    CMailBox::MailBoxData dataToTx = {
         .sid = global::SID_TX_DATA,
         .lid = CUart::UART_CHANNEL_1,
-        .pDynamicData = 0,
+        .dynamicData = 0,
     };
 
     CSerialProtocol::object_detection_frame_t* p_resultCollection = 0;
@@ -165,14 +165,14 @@ void CDetection::run() {
             p_resultCollection = new CSerialProtocol::object_detection_frame_t();
 
             if (p_resultCollection)
-                this->filter_algorithm(nmsDetections, p_resultCollection, bigIndex, nmsFiltered);
+                this->filterDetections(nmsDetections, p_resultCollection, bigIndex, nmsFiltered);
 
             if constexpr (BuildConfig::ENABLE_ALGO_TIME_MEASUREMENT) {
                 LOG_DEBUG("CDetection", "Time elapsed: " + std::to_string((getTickCount() - t_start) / getTickFrequency()));
             }
 
             // release of data is done at the reception end
-            dataToTx.pDynamicData = p_resultCollection;
+            dataToTx.dynamicData = p_resultCollection;
             if (g__Mailboxes[THREAD_COM_TX_SERVICE].send(this->getThreadIndex(), dataToTx) !=
                 RC_SUCCESS) {
                 LOG_ERROR("CDetection", "Failed to send the detected objects");
@@ -207,34 +207,34 @@ void CDetection::run() {
     }  // End while (1)
 }
 
-void CDetection::filter_algorithm(vector<Rect>& nmsDetections,
-                                  CSerialProtocol::object_detection_frame_t* p_resultCollection,
-                                  int& bigIndex, const vector<uint8_t>& lineDetect) {
+void CDetection::filterDetections(vector<Rect>& detections,
+                                  CSerialProtocol::object_detection_frame_t* resultFrame,
+                                  int& largestDetectionIndex, const vector<uint8_t>& lineDetections) {
 
-#define THRESHOLD_AREA (0.1 * RESOLUTION_RESIZED_WIDTH * 0.26 * RESOLUTION_RESIZED_HEIGTH)
-    uint32_t bigArea = THRESHOLD_AREA, area = 0;
+#define THRESHOLD_AREA (0.1 * RESOLUTION_RESIZED_WIDTH * 0.26 * RESOLUTION_RESIZED_HEIGHT)
+    uint32_t largestArea = THRESHOLD_AREA, currentArea = 0;
 
-    for (uint32_t index = 0; index < nmsDetections.size(); index++) {
-        area = nmsDetections[index].width * nmsDetections[index].height;
+    for (uint32_t index = 0; index < detections.size(); index++) {
+        currentArea = detections[index].width * detections[index].height;
 
-        if (lineDetect[index] == 1) {
-            if (area > bigArea) {
-                bigIndex = index;
-                bigArea = area;
+        if (lineDetections[index] == 1) {
+            if (currentArea > largestArea) {
+                largestDetectionIndex = index;
+                largestArea = currentArea;
             }
         }
     }
 
-    if (bigArea >= THRESHOLD_AREA) {
-        CSerialProtocol::object_detection_block_t blk;
+    if (largestArea >= THRESHOLD_AREA) {
+        CSerialProtocol::object_detection_block_t detectionBlock;
 
-        blk.theta = (ZERO_PIXEL_ANGLE + ANGELE_RESOLUTION * nmsDetections[bigIndex].x) *
+        detectionBlock.theta = (ZERO_PIXEL_ANGLE + ANGLE_RESOLUTION * detections[largestDetectionIndex].x) *
                     ANGLE_PRECISION_FACTOR;
-        blk.delta_theta =
-            (ANGELE_RESOLUTION * nmsDetections[bigIndex].width) * ANGLE_PRECISION_FACTOR;
+        detectionBlock.delta_theta =
+            (ANGLE_RESOLUTION * detections[largestDetectionIndex].width) * ANGLE_PRECISION_FACTOR;
 
-        LOG_DEBUG("CDetection", "Debug: theta = " + std::to_string((int)blk.theta) + " delta_theta = " + std::to_string((int)blk.delta_theta));
+        LOG_DEBUG("CDetection", "Debug: theta = " + std::to_string((int)detectionBlock.theta) + " delta_theta = " + std::to_string((int)detectionBlock.delta_theta));
 
-        p_resultCollection->blks.push_back(blk);
+        resultFrame->blks.push_back(detectionBlock);
     }
 }
