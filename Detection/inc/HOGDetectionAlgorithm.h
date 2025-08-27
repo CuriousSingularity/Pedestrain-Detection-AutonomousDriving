@@ -18,17 +18,16 @@
 #include <opencv2/objdetect.hpp>
 #include <span>
 #include <ranges>
-#include <format>
 #include <chrono>
 
 /**
  * @brief C++20 HOG-based pedestrian detection algorithm using Strategy pattern
  */
 class HOGDetectionAlgorithm : public IDetectionAlgorithm {
-    static_assert(pedestrian_detection::concepts::DetectionAlgorithm<HOGDetectionAlgorithm>);
+    // Note: Concept validation disabled for GCC 11 compatibility
 private:
     cv::HOGDescriptor m_hogDescriptor;
-    DetectionConfig m_config;
+    IDetectionAlgorithm::DetectionConfig m_config;
     bool m_isInitialized;
     
     // C++20 HOG-specific parameters with designated initializers
@@ -124,22 +123,29 @@ public:
      * @param results Output span of detection results
      * @return global::RC_t Return code indicating success or failure
      */
-    global::RC_t detect(const cv::Mat& frame, std::span<DetectionResult> results) override;
+    global::RC_t detect(const cv::Mat& frame, std::span<IDetectionAlgorithm::DetectionResult> results) override;
+    
+    /**
+     * @brief Detect pedestrians with vector output (legacy interface)
+     * @param frame Input frame for detection
+     * @param results Output vector of detection results
+     * @return global::RC_t Return code indicating success or failure
+     */
+    global::RC_t detectLegacy(const cv::Mat& frame, std::vector<IDetectionAlgorithm::DetectionResult>& results) override;
     
     /**
      * @brief Detect pedestrians with ranges support
      * @param frame Input frame for detection
-     * @return std::vector<DetectionResult> Detection results
+     * @return std::vector<IDetectionAlgorithm::DetectionResult> Detection results
      */
-    std::vector<DetectionResult> detectRange(const cv::Mat& frame) override;
+    std::vector<IDetectionAlgorithm::DetectionResult> detectRange(const cv::Mat& frame) override;
 
     /**
-     * @brief Configure the HOG detection algorithm with C++20 concepts
+     * @brief Configure the HOG detection algorithm
      * @param config Configuration parameters
      * @return global::RC_t Return code indicating success or failure
      */
-    global::RC_t configure(const DetectionConfig& config) 
-        requires pedestrian_detection::concepts::ConfigurationValue<DetectionConfig> override;
+    global::RC_t configure(const IDetectionAlgorithm::DetectionConfig& config) override;
 
     /**
      * @brief Get algorithm name
@@ -149,9 +155,9 @@ public:
     
     /**
      * @brief Get current configuration
-     * @return DetectionConfig Current configuration
+     * @return IDetectionAlgorithm::DetectionConfig Current configuration
      */
-    DetectionConfig getCurrentConfig() const override { return m_config; }
+    IDetectionAlgorithm::DetectionConfig getCurrentConfig() const override { return m_config; }
     
     /**
      * @brief Get processing time statistics

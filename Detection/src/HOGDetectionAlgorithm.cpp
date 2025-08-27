@@ -11,6 +11,10 @@
 #include "../../Common/inc/ConfigurationManager.h"
 #include <iostream>
 #include <algorithm>
+#include <ranges>
+#include <chrono>
+#include <sstream>
+#include <iterator>
 
 using namespace cv;
 using namespace std;
@@ -55,7 +59,25 @@ global::RC_t HOGDetectionAlgorithm::initializeHOG() {
     }
 }
 
-global::RC_t HOGDetectionAlgorithm::detect(const Mat& frame, vector<DetectionResult>& results) {
+global::RC_t HOGDetectionAlgorithm::detect(const Mat& frame, std::span<IDetectionAlgorithm::DetectionResult> results) {
+    vector<IDetectionAlgorithm::DetectionResult> tempResults;
+    auto rc = detectLegacy(frame, tempResults);
+    
+    if (rc == global::RC_SUCCESS && !tempResults.empty()) {
+        size_t copyCount = std::min(tempResults.size(), results.size());
+        std::copy(tempResults.begin(), tempResults.begin() + copyCount, results.begin());
+    }
+    
+    return rc;
+}
+
+std::vector<IDetectionAlgorithm::DetectionResult> HOGDetectionAlgorithm::detectRange(const Mat& frame) {
+    vector<IDetectionAlgorithm::DetectionResult> results;
+    detectLegacy(frame, results);
+    return results;
+}
+
+global::RC_t HOGDetectionAlgorithm::detectLegacy(const Mat& frame, vector<IDetectionAlgorithm::DetectionResult>& results) {
     if (!m_isInitialized) {
         return global::RC_ERROR_INVALID_STATE;
     }
@@ -64,6 +86,7 @@ global::RC_t HOGDetectionAlgorithm::detect(const Mat& frame, vector<DetectionRes
         return global::RC_ERROR_BAD_PARAM;
     }
     
+    auto start = chrono::steady_clock::now();
     results.clear();
     
     try {
@@ -83,11 +106,11 @@ global::RC_t HOGDetectionAlgorithm::detect(const Mat& frame, vector<DetectionRes
             false  // useMeanshiftGrouping
         );
         
-        // Convert weights to confidences
+        // Convert weights to confidences using C++20 ranges
         vector<float> confidences;
-        for (double weight : foundWeights) {
-            confidences.push_back(static_cast<float>(weight));
-        }
+        confidences.reserve(foundWeights.size());
+        std::ranges::transform(foundWeights, std::back_inserter(confidences),
+                              [](double weight) { return static_cast<float>(weight); });
         
         // Apply Non-Maximum Suppression
         vector<Rect> nmsDetections;
@@ -111,7 +134,7 @@ global::RC_t HOGDetectionAlgorithm::detect(const Mat& frame, vector<DetectionRes
             }
             
             // Create detection result
-            DetectionResult result;
+            IDetectionAlgorithm::DetectionResult result;
             result.boundingBox = detection;
             result.confidence = nmsConfidences[i];
             result.angle = calculateAngle(detection, frame.size());
@@ -119,6 +142,9 @@ global::RC_t HOGDetectionAlgorithm::detect(const Mat& frame, vector<DetectionRes
             
             results.push_back(result);
         }
+        
+        auto end = chrono::steady_clock::now();
+        m_lastProcessingTime = chrono::duration_cast<chrono::milliseconds>(end - start);
         
         return global::RC_SUCCESS;
     }
@@ -128,7 +154,7 @@ global::RC_t HOGDetectionAlgorithm::detect(const Mat& frame, vector<DetectionRes
     }
 }
 
-global::RC_t HOGDetectionAlgorithm::configure(const DetectionConfig& config) {
+global::RC_t HOGDetectionAlgorithm::configure(const IDetectionAlgorithm::DetectionConfig& config) {
     m_config = config;
     
     // Save to configuration manager
