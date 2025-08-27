@@ -31,8 +31,8 @@ using namespace global;
 // Global variables
 CRingBuffer<cv::Mat, FRAMERATE> g_framesBuffer;
 
-void CCameraService::cloneMat(cv::Mat& lhs, const cv::Mat& rhs) {
-    lhs = rhs.clone();
+void CCameraService::cloneMat(cv::Mat& destination, const cv::Mat& source) {
+    destination = source.clone();
 }
 
 
@@ -44,7 +44,7 @@ void CCameraService::cloneMat(cv::Mat& lhs, const cv::Mat& rhs) {
  */
 CCameraService::CCameraService(int threadIndex)
     : CThread(threadIndex, [this]() { this->run(); }),
-      m_camera_0("/dev/video0", O_RDWR | O_NOCTTY | O_SYNC, S_IRWXU) {
+      m_primaryCamera("/dev/video0", O_RDWR | O_NOCTTY | O_SYNC, S_IRWXU) {
     // nothing
 }
 
@@ -58,11 +58,11 @@ CCameraService::~CCameraService() {
 
 int CCameraService::signal_type = 0;
 
-void CCameraService::__camera_cyclic__signal_handler(int sig) {
+void CCameraService::handleCameraSignal(int sig) {
     CCameraService::signal_type = sig;
 }
 
-void CCameraService::wait_for_newFrame() {
+void CCameraService::waitForNewFrame() {
     struct timespec delta = {
         .tv_sec = 0,                         // seconds
         .tv_nsec = (999999999 / FRAMERATE),  // nano seconds
@@ -86,10 +86,10 @@ void CCameraService::run() {
     LOG_INFO("CCameraService", "Running Camera Service " + std::to_string(this->getThreadIndex()) + " : " + std::to_string(pthread_self()));
 
     while (1) {
-        this->wait_for_newFrame();
+        this->waitForNewFrame();
 
         // read new image to ring buffer
-        if (this->m_camera_0.read(&image, 0, wBytes) != RC_SUCCESS)
+        if (this->m_primaryCamera.read(&image, 0, wBytes) != RC_SUCCESS)
             continue;
 
         // store the frame to ringbuffer for consumers

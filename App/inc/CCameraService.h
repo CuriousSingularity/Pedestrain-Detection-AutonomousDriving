@@ -24,7 +24,7 @@ class CCameraService : public CThread {
     /**
      * @brief : Camera channel 0
      */
-    CCamera m_camera_0;
+    CCamera m_primaryCamera;
 
     /**
      * @brief : Main routine for the thread
@@ -35,9 +35,9 @@ class CCameraService : public CThread {
 
     static int signal_type;
 
-    static void __camera_cyclic__signal_handler(int sig);
+    static void handleCameraSignal(int sig);
 
-    void wait_for_newFrame();
+    void waitForNewFrame();
 
   public:
     /**
@@ -52,7 +52,7 @@ class CCameraService : public CThread {
      */
     ~CCameraService();
 
-    static void cloneMat(cv::Mat& lhs, const cv::Mat& rhs);
+    static void cloneMat(cv::Mat& destination, const cv::Mat& source);
 };
 /********************
  **  CLASS END
