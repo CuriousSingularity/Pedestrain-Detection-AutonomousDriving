@@ -26,9 +26,9 @@
 #include "./OS/inc/CResource.h"
 
 #define RESOLUTION_CAPTURED_WIDTH (1280)
-#define RESOLUTION_CAPTURED_HEIGTH (720)
+#define RESOLUTION_CAPTURED_HEIGHT (720)
 #define RESOLUTION_RESIZED_WIDTH (960)
-#define RESOLUTION_RESIZED_HEIGTH (540)
+#define RESOLUTION_RESIZED_HEIGHT (540)
 #define FRAMERATE (30)
 
 #define RSP_CAMERA_V2
@@ -36,7 +36,7 @@
 #ifdef RSP_CAMERA_V2
 #define HORIZONTAL_FOV (62.2)
 #define VERTICAL_FOV (48.8)
-#define ANGELE_RESOLUTION ((float)HORIZONTAL_FOV / RESOLUTION_RESIZED_WIDTH)
+#define ANGLE_RESOLUTION ((float)HORIZONTAL_FOV / RESOLUTION_RESIZED_WIDTH)
 #define ZERO_PIXEL_ANGLE ((float)-HORIZONTAL_FOV / 2)
 #define ANGLE_PRECISION_FACTOR (1)  // change to 100 or 1000 to get the decimal precision
 #endif
@@ -93,7 +93,7 @@ class CCamera : public CResource {
         unsigned int framerate;
         orientation_e orientation;
         std::string colour_format;
-    } configuation_t;
+    } configuration_t;
 
     /**
      * @brief : Constructor

@@ -34,11 +34,11 @@ using namespace global;
 /*
  * Camera Configuration
  */
-static const CCamera::configuation_t camera_config_param{
+static const CCamera::configuration_t camera_config_param{
     .capture_width = RESOLUTION_CAPTURED_WIDTH,
-    .capture_height = RESOLUTION_CAPTURED_HEIGTH,
+    .capture_height = RESOLUTION_CAPTURED_HEIGHT,
     .resized_width = RESOLUTION_RESIZED_WIDTH,
-    .resized_height = RESOLUTION_RESIZED_HEIGTH,
+    .resized_height = RESOLUTION_RESIZED_HEIGHT,
     .framerate = FRAMERATE,
     .orientation = CCamera::ORIENT_DEG_180,
     .colour_format = "BGR",
@@ -49,7 +49,7 @@ static const CCamera::configuation_t camera_config_param{
  * gstreamer configuration to be used by OpenCV methods.
  * Local function intended to get the string for configuration of the camera stream
  */
-static std::string gstreamer_pipeline(const CCamera::configuation_t& config) {
+static std::string gstreamer_pipeline(const CCamera::configuration_t& config) {
     return "nvarguscamerasrc ! video/x-raw(memory:NVMM), width=(int)" +
            std::to_string(config.capture_width) + ", height=(int)" +
            std::to_string(config.capture_height) + ", format=(string)NV12, framerate=(fraction)" +
