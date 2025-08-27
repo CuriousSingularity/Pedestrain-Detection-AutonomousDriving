@@ -31,6 +31,23 @@ GEN_DESIGN_SCRIPT=generate_design.sh
 CXX ?= g++
 CC = $(CXX)
 
+# 🚀 Configurable Build Flags
+# Debug and development flags (can be overridden via command line)
+ENABLE_ALGO_TIME_MEASUREMENT ?= 0
+ENABLE_DISPLAY_CONNECTED ?= 0
+ENABLE_DEBUG_LOGGING ?= 0
+ENABLE_PERFORMANCE_PROFILING ?= 0
+ENABLE_VERBOSE_OUTPUT ?= 0
+
+# Build type configuration
+BUILD_TYPE ?= RELEASE
+DEBUG_LEVEL ?= 0
+
+# Feature flags
+ENABLE_MODERN_CPP20 ?= 1
+ENABLE_COROUTINES ?= 1
+ENABLE_CONCEPTS ?= 1
+
 # Check GCC version and set appropriate C++ standard
 GCC_VERSION := $(shell $(CXX) -dumpversion)
 GCC_VERSION_MAJOR := $(shell echo $(GCC_VERSION) | cut -d. -f1)
@@ -50,7 +67,32 @@ else
     MODULE_FLAG = 
 endif
 
-CFLAGS=-c -Wall -Wextra $(STD_FLAG) $(COROUTINE_FLAG) $(MODULE_FLAG) -Wno-deprecated-enum-enum-conversion
+# 🔧 Build Flag Generation
+BUILD_FLAGS = 
+ifeq ($(ENABLE_ALGO_TIME_MEASUREMENT), 1)
+    BUILD_FLAGS += -DALGO_TIME_MEASUREMENT
+endif
+ifeq ($(ENABLE_DISPLAY_CONNECTED), 1)
+    BUILD_FLAGS += -DDISPLAY_CONNECTED=1
+else
+    BUILD_FLAGS += -DDISPLAY_CONNECTED=0
+endif
+ifeq ($(ENABLE_DEBUG_LOGGING), 1)
+    BUILD_FLAGS += -DDEBUG_LOGGING -DDEBUG
+endif
+ifeq ($(ENABLE_PERFORMANCE_PROFILING), 1)
+    BUILD_FLAGS += -DPERFORMANCE_PROFILING -pg
+endif
+ifeq ($(ENABLE_VERBOSE_OUTPUT), 1)
+    BUILD_FLAGS += -DVERBOSE_OUTPUT
+endif
+ifeq ($(BUILD_TYPE), DEBUG)
+    BUILD_FLAGS += -g -O0 -DDEBUG
+else ifeq ($(BUILD_TYPE), RELEASE)
+    BUILD_FLAGS += -O3 -DNDEBUG
+endif
+
+CFLAGS=-c -Wall -Wextra $(STD_FLAG) $(COROUTINE_FLAG) $(MODULE_FLAG) $(BUILD_FLAGS) -Wno-deprecated-enum-enum-conversion
 LFLAGS=-pthread -lstdc++ -lopencv_core -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui -lopencv_calib3d -lopencv_objdetect -lopencv_flann -lopencv_videoio -lopencv_dnn
 EFLAGS=-o
 DFLAGS=-D
@@ -97,3 +139,44 @@ obj:*.cpp
 clean:
 	rm $(PATH_BUILD_DIR)/*.o -r -v
 	rm exe*
+
+# 📋 Build configuration help
+help:
+	@echo "🚀 Pedestrian Detection Build System"
+	@echo "=================================="
+	@echo ""
+	@echo "📦 Available Platforms:"
+	@echo "  PLATFORM=NVIDIA    - NVIDIA Jetson Nano"
+	@echo "  PLATFORM=RSP       - Raspberry Pi"
+	@echo "  PLATFORM=PC        - PC Platform"
+	@echo ""
+	@echo "🔧 Configurable Flags:"
+	@echo "  ENABLE_ALGO_TIME_MEASUREMENT=1  - Enable algorithm timing"
+	@echo "  ENABLE_DISPLAY_CONNECTED=1      - Enable display output"
+	@echo "  ENABLE_DEBUG_LOGGING=1          - Enable debug logging"
+	@echo "  ENABLE_PERFORMANCE_PROFILING=1  - Enable performance profiling"
+	@echo "  ENABLE_VERBOSE_OUTPUT=1         - Enable verbose output"
+	@echo ""
+	@echo "🏗️ Build Types:"
+	@echo "  BUILD_TYPE=DEBUG    - Debug build (-g -O0)"
+	@echo "  BUILD_TYPE=RELEASE  - Release build (-O3 -DNDEBUG)"
+	@echo ""
+	@echo "🎯 Examples:"
+	@echo "  make PLATFORM=PC"
+	@echo "  make PLATFORM=NVIDIA ENABLE_ALGO_TIME_MEASUREMENT=1"
+	@echo "  make PLATFORM=PC BUILD_TYPE=DEBUG ENABLE_DEBUG_LOGGING=1"
+	@echo "  make clean"
+	@echo ""
+
+# 🎯 Quick build targets
+debug:
+	$(MAKE) exe BUILD_TYPE=DEBUG ENABLE_DEBUG_LOGGING=1
+
+profile:
+	$(MAKE) exe ENABLE_ALGO_TIME_MEASUREMENT=1 ENABLE_PERFORMANCE_PROFILING=1
+
+timing:
+	$(MAKE) exe ENABLE_ALGO_TIME_MEASUREMENT=1
+
+display:
+	$(MAKE) exe ENABLE_DISPLAY_CONNECTED=1

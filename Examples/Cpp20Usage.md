@@ -1,8 +1,8 @@
-# C++20 Usage Examples
+# 🚀 C++20 Usage Examples
 
 This document demonstrates how to use the modernized C++20 features in the pedestrian detection system.
 
-## 1. Using Concepts for Type Safety
+## 1. 🔒 Using Concepts for Type Safety
 
 ```cpp
 #include "Common/inc/Concepts.h"
@@ -21,7 +21,7 @@ processWithAlgorithm(hog, frame);  // ✓ Compiles
 // processWithAlgorithm(someOtherClass, frame);  // ✗ Compile error
 ```
 
-## 2. Coroutines for Async Processing
+## 2. ♾️ Coroutines for Async Processing
 
 ```cpp
 #include "Common/inc/AsyncDetection.h"
@@ -48,7 +48,7 @@ void streamingDetection() {
 }
 ```
 
-## 3. Ranges for Data Processing
+## 3. 🔢 Ranges for Data Processing
 
 ```cpp
 #include "Common/inc/RangesUtilities.h"
@@ -76,7 +76,7 @@ void processDetections(std::span<const IDetectionAlgorithm::DetectionResult> det
 }
 ```
 
-## 4. Modern Constants and Compile-time Evaluation
+## 4. ⚖️ Modern Constants and Compile-time Evaluation
 
 ```cpp
 #include "Common/inc/ModernConstants.h"
@@ -101,7 +101,7 @@ void setupDetection() {
 }
 ```
 
-## 5. Modern Application with C++20 Features
+## 5. ✨ Modern Application with C++20 Features
 
 ```cpp
 #include "App/inc/ModernCpp20Application.h"
@@ -146,7 +146,7 @@ int main() {
 }
 ```
 
-## 6. Using std::format for Logging
+## 6. 📝 Using std::format for Logging
 
 ```cpp
 #include <format>
@@ -176,7 +176,7 @@ void logDetectionResults(const std::vector<IDetectionAlgorithm::DetectionResult>
 }
 ```
 
-## 7. Structured Bindings and Modern Syntax
+## 7. 🏗️ Structured Bindings and Modern Syntax
 
 ```cpp
 void modernSyntaxExample() {
@@ -203,7 +203,7 @@ void modernSyntaxExample() {
 }
 ```
 
-## 8. Concepts-Constrained Templates
+## 8. 🎨 Concepts-Constrained Templates
 
 ```cpp
 template<concepts::DetectionAlgorithm Algorithm, 
@@ -235,7 +235,7 @@ private:
 };
 ```
 
-## 9. Performance Monitoring with Chrono
+## 9. ⏱️ Performance Monitoring with Chrono
 
 ```cpp
 #include <chrono>
@@ -273,7 +273,7 @@ private:
 };
 ```
 
-## 10. Modern Error Handling
+## 10. 🚨 Modern Error Handling
 
 ```cpp
 #include <expected>  // C++23 feature

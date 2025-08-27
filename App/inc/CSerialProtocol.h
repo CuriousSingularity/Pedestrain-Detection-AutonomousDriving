@@ -18,29 +18,32 @@
 //Own Include Files
 #include "./global.h"
 #include "./HAL/inc/CUart.h"
+#include "./Common/inc/BuildConstants.h"
 
+// 🚀 Using BuildConstants for protocol definitions
+using namespace pedestrian_detection::build;
 
-//Macros
-#define SOP				(0xFA)
-#define EOP				(0xFD)
+// Legacy compatibility macros (using new constants)
+#define SOP				ProtocolConstants::SOP
+#define EOP				ProtocolConstants::EOP
+#define DLC				ProtocolConstants::DLC
 
-// size
-// change the paylock blocks according to the requirement
+// size calculations using constants
 #define PAYLOAD_BLOCKS			10
 #define BLOCK_SIZE			(sizeof(CSerialProtocol::object_detection_block_t))
 
 #define SOP_SIZE			1
 #define EOP_SIZE			1
 #define DLC_SIZE			1
-#define DLC				4
 #define PAYLOAD_SIZE			(PAYLOAD_BLOCKS * BLOCK_SIZE)
 
-#define SOP_INDEX			0
-#define DLC_INDEX			(SOP_INDEX + SOP_SIZE)
+// Protocol structure indices (using constexpr values)
+#define SOP_INDEX			static_cast<int>(ProtocolConstants::POS_SOP)
+#define DLC_INDEX			static_cast<int>(ProtocolConstants::POS_DLC)
 #define PAYLOAD_INDEX			(DLC_INDEX + DLC_SIZE)
 #define EOP_INDEX			(PAYLOAD_INDEX + DLC)
 
-#define PROTOCOL_BUF_MAX_SIZE		(SOP_SIZE + DLC_SIZE + DLC + EOP_SIZE)
+#define PROTOCOL_BUF_MAX_SIZE		static_cast<int>(ProtocolConstants::PROTOCOL_SIZE)
 
 class CSerialProtocol {
 private:

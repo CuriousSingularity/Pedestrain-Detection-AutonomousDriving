@@ -19,27 +19,23 @@
 #include "./App/inc/CCameraService.h"
 #include "./OS/inc/CMailBox.h"
 #include "./App/inc/CSerialProtocol.h"
+#include "./Common/inc/BuildConstants.h"
 
 //Namespace
 using namespace std;
 using namespace global;
 using namespace cv;
+using namespace pedestrian_detection::build;
 
-//Macros
-#define DISABLE					0
-#define ENABLE					1
-#define DISPLAY_CONNECTED		DISABLE
-#define ALGO_TIME_MEASUREMENT
-
-
+// 🚀 Modern configuration using BuildConstants
 static const CDetection::hog_config_t hog_config_param {
-		.hitThreshold	= 95,	// Range : 0-100
-		.winStride		= 16,	// Range : 1-32
-		.padding 		= 8,	// Range : 0-64
-		.scale 			= 1.26,	// Range : > 1.0
-		.finalThreshold = 0,	// Range : 0-100
-		.nmsThreshold 	= 0,	// Range : 0-100
-		.nmsNeighbors 	= 0,	// Range : 0-99
+		.hitThreshold	= static_cast<int>(DetectionConstants::HOGConfig::DEFAULT_HIT_THRESHOLD),
+		.winStride		= DetectionConstants::HOGConfig::DEFAULT_WIN_STRIDE,
+		.padding 		= DetectionConstants::HOGConfig::DEFAULT_PADDING,
+		.scale 			= DetectionConstants::HOGConfig::DEFAULT_SCALE,
+		.finalThreshold = static_cast<int>(DetectionConstants::HOGConfig::DEFAULT_FINAL_THRESHOLD),
+		.nmsThreshold 	= static_cast<int>(DetectionConstants::HOGConfig::DEFAULT_NMS_THRESHOLD),
+		.nmsNeighbors 	= DetectionConstants::HOGConfig::DEFAULT_NMS_NEIGHBORS,
 		.detectionModel	= CDetection::HOG_DETECTION_DEFAULT,
 };
 
@@ -87,10 +83,13 @@ void CDetection::run()
 	// nms 
 	vector<Rect> nmsDetections;
 
-#if (defined(DISPLAY_CONNECTED) && (DISPLAY_CONNECTED == ENABLE))
-	namedWindow("Detected Image", cv::WINDOW_AUTOSIZE);
+	// Variables for conditional compilation
 	uint8_t counter = 0;
-#endif
+	double t_start = 0;
+
+	if constexpr (BuildConfig::ENABLE_DISPLAY_CONNECTED) {
+		namedWindow("Detected Image", cv::WINDOW_AUTOSIZE);
+	}
 
 	// select the algorithm from the configuration
 	switch (hog_config_param.detectionModel)
@@ -109,9 +108,6 @@ void CDetection::run()
 			break;
 	}
 
-#ifdef ALGO_TIME_MEASUREMENT
-	double t_start = 0;
-#endif
 	int bigIndex = -1;
 	extern CRingBuffer<cv::Mat, FRAMERATE> g_framesBuffer;
 	extern CMailBox g__Mailboxes[THREAD_TOTAL_COUNT];
@@ -132,10 +128,10 @@ void CDetection::run()
 		// Detection Algorithm
 		if (g_framesBuffer.readData(&eachFrame, CCameraService::cloneMat) == RC_SUCCESS)
 		{
-#ifdef ALGO_TIME_MEASUREMENT
-			// debugging the time
-			t_start = getTickCount();
-#endif
+			if constexpr (BuildConfig::ENABLE_ALGO_TIME_MEASUREMENT) {
+				// debugging the time
+				t_start = getTickCount();
+			}
 
 			hog.detectMultiScale(
 					eachFrame,							/* Source image */
@@ -168,16 +164,15 @@ void CDetection::run()
 					nmsFiltered[i] = 1;
 				}
 			}
-		}
 
 		p_resultCollection = new CSerialProtocol::object_detection_frame_t();
 
 		if (p_resultCollection)
 			this->filter_algorithm(nmsDetections, p_resultCollection, bigIndex, nmsFiltered);
 
-#ifdef ALGO_TIME_MEASUREMENT
+		if constexpr (BuildConfig::ENABLE_ALGO_TIME_MEASUREMENT) {
 			cout << endl << "Time elapsed: " << (getTickCount() - t_start) / getTickFrequency() << endl;
-#endif
+		}
 
 		// release of data is done at the reception end
 		dataToTx.pDynamicData = p_resultCollection;
@@ -186,7 +181,7 @@ void CDetection::run()
 			cout << "ERROR\t: Failed to send the detected objects " << endl;
 		}
 
-#if (defined(DISPLAY_CONNECTED) && (DISPLAY_CONNECTED == ENABLE))
+		if constexpr (BuildConfig::ENABLE_DISPLAY_CONNECTED) {
 			for (unsigned int i= 0; i < nmsDetections.size() ; i++)
 			{
 				rectangle(eachFrame, Point(nmsDetections[i].x, nmsDetections[i].y), Point(nmsDetections[i].x + nmsDetections[i].width, nmsDetections[i].y + nmsDetections[i].height), Scalar(0, 0, 255), 5, LINE_8);
@@ -202,9 +197,10 @@ void CDetection::run()
 			counter = (counter + 1) % 100;
 			imshow( "Detected Image", eachFrame );
 			waitKey(1);
-#endif
+		}
 
-	}
+		} // End if (g_framesBuffer.readData(...) == RC_SUCCESS)
+	} // End while (1)
 }
 
 void CDetection::filter_algorithm(vector<Rect> &nmsDetections, CSerialProtocol::object_detection_frame_t *p_resultCollection, int &bigIndex, const vector<uint8_t>& lineDetect)

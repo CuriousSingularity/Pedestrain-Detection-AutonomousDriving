@@ -1,16 +1,16 @@
-# Pedestrain Detection
-## Autonomous Driving
+# 🚶‍♂️ Pedestrian Detection
+## 🚗 Autonomous Driving
 
-### Demo:
+### 🎬 Demo:
 https://www.youtube.com/watch?v=yvu5OiZNAi8&list=PLLnkq_yigp1uETF3DD3hRX9vUfgOSlGjH&index=12&t=2s
 https://www.youtube.com/watch?v=dXqr_r2ndgk
 
-### Detailed Documentation:
+### 📚 Detailed Documentation:
 [Document Link](https://github.com/CuriousSingularity/Pedestrain-Detection-AutonomousDriving/blob/master/Docs/Project.pdf)
 
-### High Level Design
+### 🏗️ High Level Design
 
-#### Class Diagram
+#### 📊 Class Diagram
 ---
 **CApplication is the main class of the Pedestrian Detection Application.**
 
@@ -108,7 +108,7 @@ T2 (Detection): The main application thread which runs the pedestrian detection 
 
 T1 (Com Tx service): This thread is normally blocked waiting for a message to arrive at its mailbox. Using the receive method of the Mailbox, a blocking function is called, which is released when a message is available at the mailbox. When a message arrives and the thread is executed, the detected pedestrians’ information is encapsulated according to the Serial Protocol and then, after it is parsed to a raw array, sent over the UART port.
 
-#### Angle of Detected Pedestrian
+#### 📐 Angle of Detected Pedestrian
 For determining the angle and the range spanned by the detected pedestrian, the 62° angle of the camera is to be considered in the following calculations:
 
 **TODO angle pic here**
@@ -118,10 +118,10 @@ Using the previous diagram, the angle of a given point inside the frame can be c
 **TODO formula pic**
 
 
-## Detection Algorithm 
-OpenCV - HOG
+## 🔍 Detection Algorithm 
+**OpenCV - HOG**
 
-### Filtering
+### 🔧 Filtering
 Finally, after getting all the possible detections from the NMS, a filtering is performed to further decide if a pedestrian is present or not.
 
 **TODO filter pic here**
@@ -132,7 +132,7 @@ Those areas with a positive detection, even after filtering out the areas contai
 
 Following the 2 filters, the final decision is made on the remaining hypothesis by taking the biggest area, which would be the pedestrian standing closer to the car. Having the final decision, the angle calculation (as explained before) is done. After this process, the result consists of an angle (θ) together with the spanning angle of the detection (Δθ). 
 
-#### Protocol
+#### 📡 Protocol
 Protocol information is depicted below: 
 **TODO insert the protocol pic here**
 
@@ -145,12 +145,12 @@ The byte information is as follows:
     Reserved    - 2 byte - 0xXXXX - Reserved bytes
     EOP         - 1 byte - 0xFD - End of Protocol 
 
-### Packages
+### 📦 Dependencies
 
-    OpenCV - 3.4
-    cmake
-    pthread
-    man pages
+- **OpenCV** 3.4 - Computer vision library
+- **cmake** - Build system generator
+- **pthread** - POSIX threading library
+- **man pages** - Manual pages
 
 &copy; All Rights Reserved for Authors
 
