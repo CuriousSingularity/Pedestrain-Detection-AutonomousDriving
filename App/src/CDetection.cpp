@@ -17,6 +17,7 @@
 #include "./App/inc/CDetection.h"
 #include "./App/inc/CSerialProtocol.h"
 #include "./Common/inc/BuildConstants.h"
+#include "./Common/inc/Logger.h"
 #include "./Lib/inc/CRingBuffer.h"
 #include "./Lib/inc/nms.h"
 #include "./OS/inc/CMailBox.h"
@@ -67,8 +68,7 @@ CDetection::~CDetection() {
  */
 void CDetection::run() {
     // The Threads runs here
-    cout << "INFO\t: Detection Algorithm Service " << this->getThreadIndex()
-         << " started with ID : " << pthread_self() << endl;
+    LOG_INFO("CDetection", "Detection Algorithm Service " + std::to_string(this->getThreadIndex()) + " started with ID : " + std::to_string(pthread_self()));
 
     // Hog detection
     Mat eachFrame, cannyMat, greyMat;
@@ -117,8 +117,7 @@ void CDetection::run() {
 
     CSerialProtocol::object_detection_frame_t* p_resultCollection = 0;
 
-    cout << "INFO\t: Running Detection Algorithm Service " << this->getThreadIndex()
-         << " started with ID : " << pthread_self() << endl;
+    LOG_INFO("CDetection", "Running Detection Algorithm Service " + std::to_string(this->getThreadIndex()) + " started with ID : " + std::to_string(pthread_self()));
 
     while (1) {
         // Detection Algorithm
@@ -169,15 +168,14 @@ void CDetection::run() {
                 this->filter_algorithm(nmsDetections, p_resultCollection, bigIndex, nmsFiltered);
 
             if constexpr (BuildConfig::ENABLE_ALGO_TIME_MEASUREMENT) {
-                cout << endl
-                     << "Time elapsed: " << (getTickCount() - t_start) / getTickFrequency() << endl;
+                LOG_DEBUG("CDetection", "Time elapsed: " + std::to_string((getTickCount() - t_start) / getTickFrequency()));
             }
 
             // release of data is done at the reception end
             dataToTx.pDynamicData = p_resultCollection;
             if (g__Mailboxes[THREAD_COM_TX_SERVICE].send(this->getThreadIndex(), dataToTx) !=
                 RC_SUCCESS) {
-                cout << "ERROR\t: Failed to send the detected objects " << endl;
+                LOG_ERROR("CDetection", "Failed to send the detected objects");
             }
 
             if constexpr (BuildConfig::ENABLE_DISPLAY_CONNECTED) {
@@ -235,7 +233,7 @@ void CDetection::filter_algorithm(vector<Rect>& nmsDetections,
         blk.delta_theta =
             (ANGELE_RESOLUTION * nmsDetections[bigIndex].width) * ANGLE_PRECISION_FACTOR;
 
-        cout << "db:\t\t" << (int)blk.theta << "\t\t" << (int)blk.delta_theta << endl << endl;
+        LOG_DEBUG("CDetection", "Debug: theta = " + std::to_string((int)blk.theta) + " delta_theta = " + std::to_string((int)blk.delta_theta));
 
         p_resultCollection->blks.push_back(blk);
     }

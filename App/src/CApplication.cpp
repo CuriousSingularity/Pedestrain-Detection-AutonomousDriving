@@ -14,6 +14,7 @@
 
 // Own Include Files
 #include "./App/inc/CApplication.h"
+#include "./Common/inc/Logger.h"
 #include "./OS/inc/CMailBox.h"
 
 // Namespace
@@ -54,27 +55,22 @@ CApplication::~CApplication() {
 void CApplication::run() {
     // Create the Threads
     if (this->m_thread_com_tx_service.create() != RC_SUCCESS) {
-        cout << "ERROR\t: Failed to set up the Communication Tx Service Thread "
-             << this->m_thread_com_tx_service.getThreadIndex() << endl;
+        LOG_ERROR("CApplication", "Failed to set up the Communication Tx Service Thread " + std::to_string(this->m_thread_com_tx_service.getThreadIndex()));
     }
 
     if (this->m_thread_com_rx_service.create() != RC_SUCCESS) {
-        cout << "ERROR\t: Failed to set up the Communication Rx Service Thread "
-             << this->m_thread_com_rx_service.getThreadIndex() << endl;
+        LOG_ERROR("CApplication", "Failed to set up the Communication Rx Service Thread " + std::to_string(this->m_thread_com_rx_service.getThreadIndex()));
     }
 
     if (this->m_thread_camera_service.create() != RC_SUCCESS) {
-        cout << "ERROR\t: Failed to set up the Camera Service Thread "
-             << this->m_thread_camera_service.getThreadIndex() << endl;
+        LOG_ERROR("CApplication", "Failed to set up the Camera Service Thread " + std::to_string(this->m_thread_camera_service.getThreadIndex()));
     }
 
     if (this->m_thread_detection.create() != RC_SUCCESS) {
-        cout << "ERROR\t: Failed to set up the Detection Thread "
-             << this->m_thread_detection.getThreadIndex() << endl;
+        LOG_ERROR("CApplication", "Failed to set up the Detection Thread " + std::to_string(this->m_thread_detection.getThreadIndex()));
     }
 
-    cout << "INFO\t: Running Background Thread 0 started with ID : " << std::this_thread::get_id()
-         << endl;
+    LOG_INFO("CApplication", "Running Background Thread 0 started with ID : " + std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id())));
     while (1) {
         // background thread
         sleep(1);
