@@ -173,13 +173,19 @@ class Logger {
      */
     void clearDestinations();
 
+    /**
+     * @brief Convert log level to string (public for destinations)
+     * @param level Log level to convert
+     * @return String representation of the level
+     */
+    std::string levelToString(LogLevel level) const;
+
     // Deleted copy constructor and assignment operator for singleton
     Logger(const Logger&) = delete;
     Logger& operator=(const Logger&) = delete;
 
   private:
     std::string getCurrentTimestamp() const;
-    std::string levelToString(LogLevel level) const;
     global::thread_id_t getCurrentThreadId() const;
 };
 
