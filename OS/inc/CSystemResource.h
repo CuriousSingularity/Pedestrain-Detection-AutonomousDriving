@@ -17,8 +17,8 @@
 #include <string>
 
 //Own Include Files
-#include "./HAL/inc/CCom.h"
 #include "./HAL/inc/CCamera.h"
+#include "./HAL/inc/CCom.h"
 
 class CSystemResource {
 private:

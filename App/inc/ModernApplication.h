@@ -10,42 +10,43 @@
 #ifndef MODERNAPPLICATION_H
 #define MODERNAPPLICATION_H
 
-#include "../../Common/inc/IServiceFactory.h"
+#include "../../Common/inc/ConfigurationManager.h"
+#include "../../Common/inc/ErrorHandler.h"
+#include "../../Common/inc/ICommand.h"
 #include "../../Common/inc/IDetectionAlgorithm.h"
 #include "../../Common/inc/IObserver.h"
-#include "../../Common/inc/ObservableSubject.h"
-#include "../../Common/inc/ICommand.h"
-#include "../../Common/inc/ConfigurationManager.h"
+#include "../../Common/inc/IServiceFactory.h"
 #include "../../Common/inc/Logger.h"
-#include "../../Common/inc/ErrorHandler.h"
+#include "../../Common/inc/ObservableSubject.h"
 #include "../../Communication/inc/CommandQueue.h"
 #include "../../OS/inc/CThread.h"
-#include <memory>
+
 #include <atomic>
+#include <memory>
 
 /**
  * @brief Modern application class using design patterns and SOLID principles
  */
 class ModernApplication : public IObserver {
-private:
+  private:
     // Core components
     std::unique_ptr<IServiceFactory> m_serviceFactory;
     std::unique_ptr<IDetectionAlgorithm> m_detectionAlgorithm;
     std::unique_ptr<CommandQueue> m_commandQueue;
     std::shared_ptr<ObservableSubject> m_eventSubject;
-    
+
     // Service threads
     std::unique_ptr<CThread> m_detectionThread;
     std::unique_ptr<CThread> m_cameraThread;
     std::unique_ptr<CThread> m_communicationThread;
     std::unique_ptr<CThread> m_commandProcessorThread;
-    
+
     // Application state
     std::atomic<bool> m_isRunning;
     std::atomic<bool> m_shutdownRequested;
     PlatformType m_platformType;
     std::string m_configFile;
-    
+
     // Statistics
     struct ApplicationStats {
         uint64_t totalFramesProcessed;
@@ -54,10 +55,10 @@ private:
         uint64_t errorsHandled;
         double averageProcessingTime;
     } m_stats;
-    
+
     mutable std::mutex m_statsMutex;
 
-public:
+  public:
     /**
      * @brief Constructor
      * @param configFile Path to configuration file
@@ -139,7 +140,7 @@ public:
      */
     std::shared_ptr<ObservableSubject> getEventSubject() const { return m_eventSubject; }
 
-private:
+  private:
     /**
      * @brief Load configuration from file
      * @return global::RC_t Return code indicating success or failure

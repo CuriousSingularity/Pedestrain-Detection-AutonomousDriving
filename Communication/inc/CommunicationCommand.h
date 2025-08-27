@@ -10,11 +10,12 @@
 #ifndef COMMUNICATIONCOMMAND_H
 #define COMMUNICATIONCOMMAND_H
 
+#include "../../App/inc/CSerialProtocol.h"
 #include "../../Common/inc/ICommand.h"
 #include "../../Common/inc/IDetectionAlgorithm.h"
-#include "../../App/inc/CSerialProtocol.h"
-#include <memory>
+
 #include <atomic>
+#include <memory>
 
 // Forward declarations
 class CUart;
@@ -23,21 +24,21 @@ class CUart;
  * @brief Command to send detection data via communication interface
  */
 class SendDetectionDataCommand : public ICommand {
-private:
+  private:
     std::shared_ptr<CUart> m_communicationService;
     std::vector<IDetectionAlgorithm::DetectionResult> m_detectionResults;
     std::unique_ptr<CSerialProtocol> m_protocol;
     static std::atomic<uint32_t> s_commandIdCounter;
     uint32_t m_commandId;
 
-public:
+  public:
     /**
      * @brief Constructor
      * @param commService Communication service for sending data
      * @param results Detection results to send
      */
-    SendDetectionDataCommand(std::shared_ptr<CUart> commService, 
-                           const std::vector<IDetectionAlgorithm::DetectionResult>& results);
+    SendDetectionDataCommand(std::shared_ptr<CUart> commService,
+                             const std::vector<IDetectionAlgorithm::DetectionResult>& results);
 
     /**
      * @brief Execute the command
@@ -74,7 +75,7 @@ public:
  * @brief Command to configure camera settings
  */
 class ConfigureCameraCommand : public ICommand {
-private:
+  private:
     struct CameraConfig {
         int frameRate;
         cv::Size resolution;
@@ -82,11 +83,11 @@ private:
         int contrast;
         bool autoExposure;
     } m_config;
-    
+
     static std::atomic<uint32_t> s_commandIdCounter;
     uint32_t m_commandId;
 
-public:
+  public:
     /**
      * @brief Constructor
      * @param config Camera configuration parameters
@@ -122,20 +123,20 @@ public:
  * @brief Command to configure detection algorithm
  */
 class ConfigureDetectionCommand : public ICommand {
-private:
+  private:
     IDetectionAlgorithm::DetectionConfig m_config;
     std::shared_ptr<IDetectionAlgorithm> m_algorithm;
     static std::atomic<uint32_t> s_commandIdCounter;
     uint32_t m_commandId;
 
-public:
+  public:
     /**
      * @brief Constructor
      * @param algorithm Detection algorithm to configure
      * @param config Detection configuration parameters
      */
     ConfigureDetectionCommand(std::shared_ptr<IDetectionAlgorithm> algorithm,
-                            const IDetectionAlgorithm::DetectionConfig& config);
+                              const IDetectionAlgorithm::DetectionConfig& config);
 
     /**
      * @brief Execute the command
@@ -173,7 +174,7 @@ public:
      */
     uint32_t getId() const override { return m_commandId; }
 
-private:
+  private:
     IDetectionAlgorithm::DetectionConfig m_previousConfig;
     bool m_hasPreviousConfig;
 };
@@ -182,11 +183,11 @@ private:
  * @brief Emergency stop command
  */
 class EmergencyStopCommand : public ICommand {
-private:
+  private:
     static std::atomic<uint32_t> s_commandIdCounter;
     uint32_t m_commandId;
 
-public:
+  public:
     /**
      * @brief Constructor
      */

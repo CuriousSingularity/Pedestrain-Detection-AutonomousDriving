@@ -12,53 +12,49 @@
 #ifndef CCOMTXSERVICE_H
 #define CCOMTXSERVICE_H
 
-//System Include Files
+// System Include Files
 
-//Own Include Files
-#include "./OS/inc/CThread.h"
+// Own Include Files
+#include "./App/inc/CSerialProtocol.h"
 #include "./OS/inc/CMailBox.h"
 #include "./OS/inc/CSemaphore.h"
-#include "./App/inc/CSerialProtocol.h"
+#include "./OS/inc/CThread.h"
 
 class CComTxService : public CThread {
-private:
+  private:
+    /**
+     * @brief : UART channel 1
+     */
+    CUart m_uart_1;
 
-	/**
-	 * @brief : UART channel 1
-	 */
-	CUart		m_uart_1;
+    /**
+     * @brief : Protocol parser object
+     */
+    CSerialProtocol m_Protocol;
 
-	/**
-	 * @brief : Protocol parser object
-	 */
-	CSerialProtocol		m_Protocol;
+    /**
+     * @brief : Main routine for the thread
+     *
+     * @return - to join the thread
+     */
+    void run();
 
-	/**
-	 * @brief : Main routine for the thread
-	 *
-	 * @return - to join the thread
-	 */
-	void run();
+    global::RC_t processRecvdMsg(CMailBox::mail_box_data_t& data);
 
-	global::RC_t processRecvdMsg(CMailBox::mail_box_data_t &data);
+    global::RC_t processDataForTx(CMailBox::mail_box_data_t& data);
 
-	global::RC_t processDataForTx(CMailBox::mail_box_data_t &data);
+  public:
+    /**
+     * @brief : Constructor
+     *
+     * @param threadIndex 	: Thread Index
+     */
+    CComTxService(int threadIndex);
 
-public:
-
-	/**
-	 * @brief : Constructor
-	 *
-	 * @param threadIndex 	: Thread Index
-	 */
-	CComTxService(int threadIndex);
-
-	/**
-	 * @brief : Destructor
-	 */
-	~CComTxService();
-
-
+    /**
+     * @brief : Destructor
+     */
+    ~CComTxService();
 };
 /********************
  **  CLASS END

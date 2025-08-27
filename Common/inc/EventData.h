@@ -11,9 +11,11 @@
 #define EVENTDATA_H
 
 #include "global.h"
-#include <opencv2/opencv.hpp>
-#include <vector>
+
 #include <string>
+#include <vector>
+
+#include <opencv2/opencv.hpp>
 
 /**
  * @brief Event types for the observer pattern
@@ -33,7 +35,7 @@ struct EventData {
     EventType type;
     int threadId;
     uint64_t timestamp;
-    
+
     virtual ~EventData() = default;
 };
 
@@ -55,9 +57,8 @@ struct DetectionEventData : public EventData {
     std::string algorithmName;
     float processingTimeMs;
 
-    DetectionEventData(const std::vector<SimpleDetectionResult>& results, 
-                      const std::string& algName, 
-                      float processTime) 
+    DetectionEventData(const std::vector<SimpleDetectionResult>& results,
+                       const std::string& algName, float processTime)
         : detections(results), algorithmName(algName), processingTimeMs(processTime) {
         type = EventType::DETECTION_RESULT;
     }

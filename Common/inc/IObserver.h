@@ -10,15 +10,16 @@
 #ifndef IOBSERVER_H
 #define IOBSERVER_H
 
-#include "global.h"
 #include "EventData.h"
+#include "global.h"
+
 #include <memory>
 
 /**
  * @brief Observer interface for receiving event notifications
  */
 class IObserver {
-public:
+  public:
     virtual ~IObserver() = default;
 
     /**
@@ -38,7 +39,7 @@ public:
  * @brief Subject interface for observable objects
  */
 class IObservable {
-public:
+  public:
     virtual ~IObservable() = default;
 
     /**
@@ -47,7 +48,8 @@ public:
      * @param eventType Type of events to observe (optional filter)
      * @return global::RC_t Return code indicating success or failure
      */
-    virtual global::RC_t addObserver(std::shared_ptr<IObserver> observer, EventType eventType = EventType::DETECTION_RESULT) = 0;
+    virtual global::RC_t addObserver(std::shared_ptr<IObserver> observer,
+                                     EventType eventType = EventType::DETECTION_RESULT) = 0;
 
     /**
      * @brief Remove an observer from the notification list

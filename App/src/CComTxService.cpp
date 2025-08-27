@@ -9,22 +9,23 @@
  ****************************************************************************/
 
 
-//System Include Files
+// System Include Files
 #include <iostream>
-#include <sys/types.h>
-#include <sys/stat.h>
+
 #include <fcntl.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
-//Own Include Files
+// Own Include Files
 #include "./App/inc/CComTxService.h"
 #include "./App/inc/CSerialProtocol.h"
 
-//Namespace
+// Namespace
 using namespace std;
 using namespace global;
 
-//Method Implementations
+// Method Implementations
 /**
  * @brief : Constructor
  *
@@ -33,20 +34,18 @@ using namespace global;
  * @param entry		: Entry function for the thread
  * @param arg		: Arguments to the thread
  */
-CComTxService::CComTxService(int threadIndex) : 
-		CThread(threadIndex, [this]() { this->run(); }), 
-		m_uart_1("/dev/ttyTHS1"	, O_RDWR | O_NOCTTY | O_SYNC, S_IRWXU)
-{
-	// nothing
+CComTxService::CComTxService(int threadIndex)
+    : CThread(threadIndex, [this]() { this->run(); }),
+      m_uart_1("/dev/ttyTHS1", O_RDWR | O_NOCTTY | O_SYNC, S_IRWXU) {
+    // nothing
 }
 
 
 /**
  * @brief : Destructor
  */
-CComTxService::~CComTxService()
-{
-	// nothing
+CComTxService::~CComTxService() {
+    // nothing
 }
 
 
@@ -55,103 +54,96 @@ CComTxService::~CComTxService()
  *
  * @return - to join the thread
  */
-void CComTxService::run()
-{
-	// The Threads runs here
-	cout << "INFO\t: Communication Tx Service " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
+void CComTxService::run() {
+    // The Threads runs here
+    cout << "INFO\t: Communication Tx Service " << this->getThreadIndex()
+         << " started with ID : " << pthread_self() << endl;
 
-	cout << "INFO\t: Running Communication Tx Service " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
-	// Mailboxes
-	extern CMailBox g__Mailboxes[THREAD_TOTAL_COUNT];
+    cout << "INFO\t: Running Communication Tx Service " << this->getThreadIndex()
+         << " started with ID : " << pthread_self() << endl;
+    // Mailboxes
+    extern CMailBox g__Mailboxes[THREAD_TOTAL_COUNT];
 
-	int msg_src_id = 0;
-	CMailBox::mail_box_data_t msg_recv = {0};
+    int msg_src_id = 0;
+    CMailBox::mail_box_data_t msg_recv = {0};
 
-	while (1)
-	{
-		if (g__Mailboxes[THREAD_COM_TX_SERVICE].receive(msg_src_id, msg_recv) != RC_SUCCESS)
-			continue;
+    while (1) {
+        if (g__Mailboxes[THREAD_COM_TX_SERVICE].receive(msg_src_id, msg_recv) != RC_SUCCESS)
+            continue;
 
-		// check who sent the message
-		switch (msg_src_id)
-		{
-			case THREAD_DETECTION_SERVICE:
-				// process the message
-				this->processRecvdMsg(msg_recv);
-				break;
+        // check who sent the message
+        switch (msg_src_id) {
+        case THREAD_DETECTION_SERVICE:
+            // process the message
+            this->processRecvdMsg(msg_recv);
+            break;
 
-			default:
-				break;
-		}
-	}
+        default:
+            break;
+        }
+    }
 }
 
 
-RC_t CComTxService::processDataForTx(CMailBox::mail_box_data_t &data)
-{
-	CSerialProtocol::object_detection_frame_t *ptr = static_cast<CSerialProtocol::object_detection_frame_t *>(data.pDynamicData);
+RC_t CComTxService::processDataForTx(CMailBox::mail_box_data_t& data) {
+    CSerialProtocol::object_detection_frame_t* ptr =
+        static_cast<CSerialProtocol::object_detection_frame_t*>(data.pDynamicData);
 
-	if (!ptr)
-	{
-		cout << "ERROR\t: Invalid Memory used for Tx " << endl;
-		return RC_ERROR_MEMORY;
-	}
+    if (!ptr) {
+        cout << "ERROR\t: Invalid Memory used for Tx " << endl;
+        return RC_ERROR_MEMORY;
+    }
 
-	char __tx_buf[PROTOCOL_BUF_MAX_SIZE];
+    char __tx_buf[PROTOCOL_BUF_MAX_SIZE];
 
-	memset (__tx_buf, 0, sizeof(__tx_buf));
+    memset(__tx_buf, 0, sizeof(__tx_buf));
 
-	uint8_t __blk_cnt = 0;
-	uint16_t __tx_length = 0;
+    uint8_t __blk_cnt = 0;
+    uint16_t __tx_length = 0;
 
-	__blk_cnt = ptr->blks.size();
-	__blk_cnt			= __blk_cnt > PAYLOAD_BLOCKS ? PAYLOAD_BLOCKS : __blk_cnt;
-	__tx_buf[SOP_INDEX] 		= SOP;
-	__tx_buf[DLC_INDEX]		= DLC;
+    __blk_cnt = ptr->blks.size();
+    __blk_cnt = __blk_cnt > PAYLOAD_BLOCKS ? PAYLOAD_BLOCKS : __blk_cnt;
+    __tx_buf[SOP_INDEX] = SOP;
+    __tx_buf[DLC_INDEX] = DLC;
 
-	if (__blk_cnt)
-		memcpy(&__tx_buf[PAYLOAD_INDEX], ptr->blks.data(), __blk_cnt * BLOCK_SIZE);
+    if (__blk_cnt)
+        memcpy(&__tx_buf[PAYLOAD_INDEX], ptr->blks.data(), __blk_cnt * BLOCK_SIZE);
 
-	__tx_buf[EOP_INDEX]		= EOP;
+    __tx_buf[EOP_INDEX] = EOP;
 
-	__tx_length = SOP_SIZE + DLC_SIZE + DLC + EOP_SIZE;
+    __tx_length = SOP_SIZE + DLC_SIZE + DLC + EOP_SIZE;
 
-	RC_t ret = RC_ERROR_INVALID;
-	ssize_t wBytes = 0;
+    RC_t ret = RC_ERROR_INVALID;
+    ssize_t wBytes = 0;
 
-	switch (data.lid)
-	{
-		case CUart::UART_CHANNEL_1:
-			ret = this->m_uart_1.write(__tx_buf, __tx_length, wBytes);
-			break;
+    switch (data.lid) {
+    case CUart::UART_CHANNEL_1:
+        ret = this->m_uart_1.write(__tx_buf, __tx_length, wBytes);
+        break;
 
-		default:
-			cout << "ERROR\t: Invalid UART Channel Tx Request " << endl;
-			break;
-	}
+    default:
+        cout << "ERROR\t: Invalid UART Channel Tx Request " << endl;
+        break;
+    }
 
-	return ret;
+    return ret;
 }
 
-RC_t CComTxService::processRecvdMsg(CMailBox::mail_box_data_t &data)
-{
-	RC_t ret = RC_ERROR_INVALID;
+RC_t CComTxService::processRecvdMsg(CMailBox::mail_box_data_t& data) {
+    RC_t ret = RC_ERROR_INVALID;
 
-	switch (data.sid)
-	{
-		case SID_TX_DATA:
-			ret = this->processDataForTx(data);
+    switch (data.sid) {
+    case SID_TX_DATA:
+        ret = this->processDataForTx(data);
 
-			//release the resource
-			delete((CSerialProtocol::object_detection_frame_t *)data.pDynamicData);
+        // release the resource
+        delete ((CSerialProtocol::object_detection_frame_t*)data.pDynamicData);
 
-			break;
+        break;
 
-		default:
-			break;
-	}
+    default:
+        break;
+    }
 
-	return ret;
+    return ret;
 }
-
-

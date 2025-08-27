@@ -11,33 +11,23 @@
 #define LOGGER_H
 
 #include "global.h"
-#include <string>
+
+#include <fstream>
 #include <memory>
 #include <mutex>
-#include <vector>
-#include <fstream>
 #include <sstream>
+#include <string>
+#include <vector>
 
 /**
  * @brief Log levels
  */
-enum class LogLevel {
-    TRACE = 0,
-    DEBUG = 1,
-    INFO = 2,
-    WARNING = 3,
-    ERROR = 4,
-    CRITICAL = 5
-};
+enum class LogLevel { TRACE = 0, DEBUG = 1, INFO = 2, WARNING = 3, ERROR = 4, CRITICAL = 5 };
 
 /**
  * @brief Log output destinations
  */
-enum class LogOutput {
-    CONSOLE,
-    FILE,
-    SYSLOG
-};
+enum class LogOutput { CONSOLE, FILE, SYSLOG };
 
 /**
  * @brief Log entry structure
@@ -56,7 +46,7 @@ struct LogEntry {
  * @brief Abstract log destination interface
  */
 class ILogDestination {
-public:
+  public:
     virtual ~ILogDestination() = default;
     virtual global::RC_t write(const LogEntry& entry) = 0;
     virtual global::RC_t flush() = 0;
@@ -68,18 +58,18 @@ public:
  * @brief Console log destination
  */
 class ConsoleLogDestination : public ILogDestination {
-private:
+  private:
     bool m_enabled;
     bool m_useColors;
 
-public:
+  public:
     explicit ConsoleLogDestination(bool useColors = true);
     global::RC_t write(const LogEntry& entry) override;
     global::RC_t flush() override;
     bool isEnabled() const override { return m_enabled; }
     void setEnabled(bool enabled) override { m_enabled = enabled; }
 
-private:
+  private:
     std::string getColorCode(LogLevel level) const;
     std::string getResetCode() const;
 };
@@ -88,25 +78,25 @@ private:
  * @brief File log destination
  */
 class FileLogDestination : public ILogDestination {
-private:
+  private:
     std::ofstream m_file;
     std::string m_filename;
     bool m_enabled;
     size_t m_maxFileSize;
     int m_maxBackupFiles;
 
-public:
-    explicit FileLogDestination(const std::string& filename, 
-                               size_t maxFileSize = 10 * 1024 * 1024,  // 10MB
-                               int maxBackupFiles = 5);
+  public:
+    explicit FileLogDestination(const std::string& filename,
+                                size_t maxFileSize = 10 * 1024 * 1024,  // 10MB
+                                int maxBackupFiles = 5);
     ~FileLogDestination();
-    
+
     global::RC_t write(const LogEntry& entry) override;
     global::RC_t flush() override;
     bool isEnabled() const override { return m_enabled; }
     void setEnabled(bool enabled) override { m_enabled = enabled; }
 
-private:
+  private:
     global::RC_t rotateFile();
     size_t getFileSize() const;
 };
@@ -115,7 +105,7 @@ private:
  * @brief Singleton logger class
  */
 class Logger {
-private:
+  private:
     std::vector<std::unique_ptr<ILogDestination>> m_destinations;
     LogLevel m_minLevel;
     mutable std::mutex m_logMutex;
@@ -123,7 +113,7 @@ private:
 
     Logger();
 
-public:
+  public:
     /**
      * @brief Get singleton instance
      * @return Logger& Reference to singleton instance
@@ -169,11 +159,8 @@ public:
      * @param function Function name (optional)
      * @param line Line number (optional)
      */
-    void log(LogLevel level, 
-             const std::string& component, 
-             const std::string& message,
-             const std::string& function = "",
-             int line = 0);
+    void log(LogLevel level, const std::string& component, const std::string& message,
+             const std::string& function = "", int line = 0);
 
     /**
      * @brief Flush all log destinations
@@ -190,29 +177,37 @@ public:
     Logger(const Logger&) = delete;
     Logger& operator=(const Logger&) = delete;
 
-private:
+  private:
     std::string getCurrentTimestamp() const;
     std::string levelToString(LogLevel level) const;
     global::thread_id_t getCurrentThreadId() const;
 };
 
 // Convenience macros for logging
-#define LOG_TRACE(component, message) Logger::getInstance().log(LogLevel::TRACE, component, message, __FUNCTION__, __LINE__)
-#define LOG_DEBUG(component, message) Logger::getInstance().log(LogLevel::DEBUG, component, message, __FUNCTION__, __LINE__)
-#define LOG_INFO(component, message) Logger::getInstance().log(LogLevel::INFO, component, message, __FUNCTION__, __LINE__)
-#define LOG_WARNING(component, message) Logger::getInstance().log(LogLevel::WARNING, component, message, __FUNCTION__, __LINE__)
-#define LOG_ERROR(component, message) Logger::getInstance().log(LogLevel::ERROR, component, message, __FUNCTION__, __LINE__)
-#define LOG_CRITICAL(component, message) Logger::getInstance().log(LogLevel::CRITICAL, component, message, __FUNCTION__, __LINE__)
+#define LOG_TRACE(component, message)                                                              \
+    Logger::getInstance().log(LogLevel::TRACE, component, message, __FUNCTION__, __LINE__)
+#define LOG_DEBUG(component, message)                                                              \
+    Logger::getInstance().log(LogLevel::DEBUG, component, message, __FUNCTION__, __LINE__)
+#define LOG_INFO(component, message)                                                               \
+    Logger::getInstance().log(LogLevel::INFO, component, message, __FUNCTION__, __LINE__)
+#define LOG_WARNING(component, message)                                                            \
+    Logger::getInstance().log(LogLevel::WARNING, component, message, __FUNCTION__, __LINE__)
+#define LOG_ERROR(component, message)                                                              \
+    Logger::getInstance().log(LogLevel::ERROR, component, message, __FUNCTION__, __LINE__)
+#define LOG_CRITICAL(component, message)                                                           \
+    Logger::getInstance().log(LogLevel::CRITICAL, component, message, __FUNCTION__, __LINE__)
 
 // Stream-based logging macros
-#define LOG_STREAM(level, component) \
-    do { \
-        std::ostringstream oss; \
-        oss
-        
-#define LOG_STREAM_END \
-        ; Logger::getInstance().log(level, component, oss.str(), __FUNCTION__, __LINE__); \
-    } while(0)
+#define LOG_STREAM(level, component)                                                               \
+    do {                                                                                           \
+        std::ostringstream oss;                                                                    \
+    oss
+
+#define LOG_STREAM_END                                                                             \
+    ;                                                                                              \
+    Logger::getInstance().log(level, component, oss.str(), __FUNCTION__, __LINE__);                \
+    }                                                                                              \
+    while (0)
 
 #define LOG_TRACE_STREAM(component) LOG_STREAM(LogLevel::TRACE, component)
 #define LOG_DEBUG_STREAM(component) LOG_STREAM(LogLevel::DEBUG, component)

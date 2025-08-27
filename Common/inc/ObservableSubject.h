@@ -10,22 +10,23 @@
 #ifndef OBSERVABLESUBJECT_H
 #define OBSERVABLESUBJECT_H
 
-#include "IObserver.h"
 #include "EventData.h"
+#include "IObserver.h"
+
 #include <map>
-#include <vector>
 #include <memory>
 #include <mutex>
+#include <vector>
 
 /**
  * @brief Concrete implementation of IObservable interface
  */
 class ObservableSubject : public IObservable {
-private:
+  private:
     mutable std::mutex m_observerMutex;
     std::map<EventType, std::vector<std::weak_ptr<IObserver>>> m_observers;
 
-public:
+  public:
     /**
      * @brief Constructor
      */
@@ -42,7 +43,8 @@ public:
      * @param eventType Type of events to observe
      * @return global::RC_t Return code indicating success or failure
      */
-    global::RC_t addObserver(std::shared_ptr<IObserver> observer, EventType eventType = EventType::DETECTION_RESULT) override;
+    global::RC_t addObserver(std::shared_ptr<IObserver> observer,
+                             EventType eventType = EventType::DETECTION_RESULT) override;
 
     /**
      * @brief Remove an observer from the notification list

@@ -7,37 +7,34 @@
  *
  ****************************************************************************/
 
-//System Include Files
+// System Include Files
 #include <iostream>
+
 #include <errno.h>
 
-//Own Include Files
+// Own Include Files
 #include "CMutex.h"
 
-//Namespace
+// Namespace
 using namespace global;
 using namespace std;
 
-//Method Implementations
+// Method Implementations
 
 /**
  * @brief : Constructor
  */
-CMutex::CMutex()
-{
-	this->m_status = service_READY;
+CMutex::CMutex() {
+    this->m_status = service_READY;
 }
 
 
 /**
- * @brief : Destructor 
+ * @brief : Destructor
  */
-CMutex::~CMutex()
-{
-	this->m_status = service_UNDEFINED;
+CMutex::~CMutex() {
+    this->m_status = service_UNDEFINED;
 }
-
-
 
 
 /**
@@ -45,20 +42,16 @@ CMutex::~CMutex()
  *
  * @return RC_t : status
  */
-RC_t CMutex::lock()
-{
-	if (this->m_status != service_READY)
-		return RC_ERROR_INVALID_STATE;
+RC_t CMutex::lock() {
+    if (this->m_status != service_READY)
+        return RC_ERROR_INVALID_STATE;
 
-	try
-	{
-		m_mutex.lock();
-		return RC_SUCCESS;
-	}
-	catch (const std::exception& e)
-	{
-		return RC_ERROR_CLOSE;
-	}
+    try {
+        m_mutex.lock();
+        return RC_SUCCESS;
+    } catch (const std::exception& e) {
+        return RC_ERROR_CLOSE;
+    }
 }
 
 /**
@@ -66,15 +59,14 @@ RC_t CMutex::lock()
  *
  * @return RC_t : status
  */
-RC_t CMutex::trylock()
-{
-	if (this->m_status != service_READY)
-		return RC_ERROR_INVALID_STATE;
+RC_t CMutex::trylock() {
+    if (this->m_status != service_READY)
+        return RC_ERROR_INVALID_STATE;
 
-	if (m_mutex.try_lock())
-		return RC_SUCCESS;
-	else
-		return RC_ERROR_CLOSE;
+    if (m_mutex.try_lock())
+        return RC_SUCCESS;
+    else
+        return RC_ERROR_CLOSE;
 }
 
 
@@ -83,19 +75,14 @@ RC_t CMutex::trylock()
  *
  * @return RC_t : status
  */
-RC_t CMutex::unlock()
-{
-	if (this->m_status != service_READY)
-		return RC_ERROR_INVALID_STATE;
+RC_t CMutex::unlock() {
+    if (this->m_status != service_READY)
+        return RC_ERROR_INVALID_STATE;
 
-	try
-	{
-		m_mutex.unlock();
-		return RC_SUCCESS;
-	}
-	catch (const std::exception& e)
-	{
-		return RC_ERROR_CLOSE;
-	}
+    try {
+        m_mutex.unlock();
+        return RC_SUCCESS;
+    } catch (const std::exception& e) {
+        return RC_ERROR_CLOSE;
+    }
 }
-

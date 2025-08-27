@@ -1,7 +1,7 @@
 
 #pragma once
-#include <opencv2/opencv.hpp>
 #include <assert.h>
+#include <opencv2/opencv.hpp>
 
 /**
  * @brief nms
@@ -11,31 +11,23 @@
  * @param thresh
  * @param neighbors
  */
-inline void nms(
-        const std::vector<cv::Rect>& srcRects,
-        std::vector<cv::Rect>& resRects,
-        float thresh,
-        int neighbors = 0
-        )
-{
+inline void nms(const std::vector<cv::Rect>& srcRects, std::vector<cv::Rect>& resRects,
+                float thresh, int neighbors = 0) {
     resRects.clear();
 
     const size_t size = srcRects.size();
-    if (!size)
-    {
+    if (!size) {
         return;
     }
 
     // Sort the bounding boxes by the bottom - right y - coordinate of the bounding box
     std::multimap<int, size_t> idxs;
-    for (size_t i = 0; i < size; ++i)
-    {
+    for (size_t i = 0; i < size; ++i) {
         idxs.insert(std::pair<int, size_t>(srcRects[i].br().y, i));
     }
 
     // keep looping while some indexes still remain in the indexes list
-    while (idxs.size() > 0)
-    {
+    while (idxs.size() > 0) {
         // grab the last rectangle
         auto lastElem = --std::end(idxs);
         const cv::Rect& rect1 = srcRects[lastElem->second];
@@ -44,8 +36,7 @@ inline void nms(
 
         idxs.erase(lastElem);
 
-        for (auto pos = std::begin(idxs); pos != std::end(idxs); )
-        {
+        for (auto pos = std::begin(idxs); pos != std::end(idxs);) {
             // grab the current rectangle
             const cv::Rect& rect2 = srcRects[pos->second];
 
@@ -54,18 +45,14 @@ inline void nms(
             float overlap = intArea / unionArea;
 
             // if there is sufficient overlap, suppress the current bounding box
-            if (overlap > thresh)
-            {
+            if (overlap > thresh) {
                 pos = idxs.erase(pos);
                 ++neigborsCount;
-            }
-            else
-            {
+            } else {
                 ++pos;
             }
         }
-        if (neigborsCount >= neighbors)
-        {
+        if (neigborsCount >= neighbors) {
             resRects.push_back(rect1);
         }
     }
@@ -80,20 +67,13 @@ inline void nms(
  * @param thresh
  * @param neighbors
  */
-inline void nms2(
-        const std::vector<cv::Rect>& srcRects,
-        const std::vector<float>& scores,
-        std::vector<cv::Rect>& resRects,
-        float thresh,
-        int neighbors = 0,
-        float minScoresSum = 0.f
-        )
-{
+inline void nms2(const std::vector<cv::Rect>& srcRects, const std::vector<float>& scores,
+                 std::vector<cv::Rect>& resRects, float thresh, int neighbors = 0,
+                 float minScoresSum = 0.f) {
     resRects.clear();
 
     const size_t size = srcRects.size();
-    if (!size)
-    {
+    if (!size) {
         return;
     }
 
@@ -101,14 +81,12 @@ inline void nms2(
 
     // Sort the bounding boxes by the detection score
     std::multimap<float, size_t> idxs;
-    for (size_t i = 0; i < size; ++i)
-    {
+    for (size_t i = 0; i < size; ++i) {
         idxs.insert(std::pair<float, size_t>(scores[i], i));
     }
 
     // keep looping while some indexes still remain in the indexes list
-    while (idxs.size() > 0)
-    {
+    while (idxs.size() > 0) {
         // grab the last rectangle
         auto lastElem = --std::end(idxs);
         const cv::Rect& rect1 = srcRects[lastElem->second];
@@ -118,8 +96,7 @@ inline void nms2(
 
         idxs.erase(lastElem);
 
-        for (auto pos = std::begin(idxs); pos != std::end(idxs); )
-        {
+        for (auto pos = std::begin(idxs); pos != std::end(idxs);) {
             // grab the current rectangle
             const cv::Rect& rect2 = srcRects[pos->second];
 
@@ -128,20 +105,15 @@ inline void nms2(
             float overlap = intArea / unionArea;
 
             // if there is sufficient overlap, suppress the current bounding box
-            if (overlap > thresh)
-            {
+            if (overlap > thresh) {
                 scoresSum += pos->first;
                 pos = idxs.erase(pos);
                 ++neigborsCount;
-            }
-            else
-            {
+            } else {
                 ++pos;
             }
         }
-        if (neigborsCount >= neighbors &&
-                scoresSum >= minScoresSum)
-        {
+        if (neigborsCount >= neighbors && scoresSum >= minScoresSum) {
             resRects.push_back(rect1);
         }
     }

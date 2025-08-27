@@ -11,6 +11,7 @@
 #define ISERVICEFACTORY_H
 
 #include "global.h"
+
 #include <memory>
 #include <string>
 
@@ -23,17 +24,13 @@ class CThread;
 /**
  * @brief Platform types for factory selection
  */
-enum class PlatformType {
-    NVIDIA_JETSON = NVIDIA,
-    RASPBERRY_PI = RSP,
-    PC_PLATFORM = PC
-};
+enum class PlatformType { NVIDIA_JETSON = NVIDIA, RASPBERRY_PI = RSP, PC_PLATFORM = PC };
 
 /**
  * @brief Abstract factory interface for creating platform-specific services
  */
 class IServiceFactory {
-public:
+  public:
     virtual ~IServiceFactory() = default;
 
     /**
@@ -73,7 +70,7 @@ public:
  * @brief Factory manager for creating platform-specific factories
  */
 class ServiceFactoryManager {
-public:
+  public:
     /**
      * @brief Create factory instance for specified platform
      * @param platformType Platform type
@@ -87,7 +84,7 @@ public:
      */
     static std::unique_ptr<IServiceFactory> createFactoryForCurrentPlatform();
 
-private:
+  private:
     ServiceFactoryManager() = default;
 };
 

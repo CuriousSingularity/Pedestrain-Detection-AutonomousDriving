@@ -8,13 +8,15 @@
  ****************************************************************************/
 
 #include "../inc/HOGDetectionAlgorithm.h"
+
 #include "../../Common/inc/ConfigurationManager.h"
-#include <iostream>
+
 #include <algorithm>
-#include <ranges>
 #include <chrono>
-#include <sstream>
+#include <iostream>
 #include <iterator>
+#include <ranges>
+#include <sstream>
 
 using namespace cv;
 using namespace std;
@@ -33,7 +35,7 @@ HOGDetectionAlgorithm::HOGDetectionAlgorithm() : m_isInitialized(false) {
     m_config.scaleFactor = 1.1f;
     m_config.minNeighbors = 3;
     m_config.minSize = Size(30, 30);
-    
+
     // Initialize HOG descriptor
     initializeHOG();
 }
@@ -42,113 +44,118 @@ global::RC_t HOGDetectionAlgorithm::initializeHOG() {
     try {
         // Create HOG descriptor with default people detector
         m_hogDescriptor.setSVMDetector(HOGDescriptor::getDefaultPeopleDetector());
-        
+
         // Load configuration from ConfigurationManager if available
         auto& configMgr = ConfigurationManager::getInstance();
-        
-        m_config.hitThreshold = configMgr.getValue(ConfigCategory::DETECTION, "hitThreshold", ConfigValue(0.5f)).floatValue;
-        m_config.scaleFactor = configMgr.getValue(ConfigCategory::DETECTION, "scaleFactor", ConfigValue(1.1f)).floatValue;
-        m_config.minNeighbors = configMgr.getValue(ConfigCategory::DETECTION, "minNeighbors", ConfigValue(3)).intValue;
-        
+
+        m_config.hitThreshold =
+            configMgr.getValue(ConfigCategory::DETECTION, "hitThreshold", ConfigValue(0.5f))
+                .floatValue;
+        m_config.scaleFactor =
+            configMgr.getValue(ConfigCategory::DETECTION, "scaleFactor", ConfigValue(1.1f))
+                .floatValue;
+        m_config.minNeighbors =
+            configMgr.getValue(ConfigCategory::DETECTION, "minNeighbors", ConfigValue(3)).intValue;
+
         m_isInitialized = true;
         return global::RC_SUCCESS;
-    }
-    catch (const exception& e) {
+    } catch (const exception& e) {
         cerr << "ERROR: Failed to initialize HOG descriptor: " << e.what() << endl;
         return global::RC_ERROR;
     }
 }
 
-global::RC_t HOGDetectionAlgorithm::detect(const Mat& frame, std::span<IDetectionAlgorithm::DetectionResult> results) {
+global::RC_t
+HOGDetectionAlgorithm::detect(const Mat& frame,
+                              std::span<IDetectionAlgorithm::DetectionResult> results) {
     vector<IDetectionAlgorithm::DetectionResult> tempResults;
     auto rc = detectLegacy(frame, tempResults);
-    
+
     if (rc == global::RC_SUCCESS && !tempResults.empty()) {
         size_t copyCount = std::min(tempResults.size(), results.size());
         std::copy(tempResults.begin(), tempResults.begin() + copyCount, results.begin());
     }
-    
+
     return rc;
 }
 
-std::vector<IDetectionAlgorithm::DetectionResult> HOGDetectionAlgorithm::detectRange(const Mat& frame) {
+std::vector<IDetectionAlgorithm::DetectionResult>
+HOGDetectionAlgorithm::detectRange(const Mat& frame) {
     vector<IDetectionAlgorithm::DetectionResult> results;
     detectLegacy(frame, results);
     return results;
 }
 
-global::RC_t HOGDetectionAlgorithm::detectLegacy(const Mat& frame, vector<IDetectionAlgorithm::DetectionResult>& results) {
+global::RC_t
+HOGDetectionAlgorithm::detectLegacy(const Mat& frame,
+                                    vector<IDetectionAlgorithm::DetectionResult>& results) {
     if (!m_isInitialized) {
         return global::RC_ERROR_INVALID_STATE;
     }
-    
+
     if (frame.empty()) {
         return global::RC_ERROR_BAD_PARAM;
     }
-    
+
     auto start = chrono::steady_clock::now();
     results.clear();
-    
+
     try {
         vector<Rect> detections;
         vector<double> foundWeights;
-        
+
         // Perform HOG detection
-        m_hogDescriptor.detectMultiScale(
-            frame,
-            detections,
-            foundWeights,
-            m_config.hitThreshold,
-            Size(8, 8),  // winStride
-            Size(32, 32), // padding
-            m_config.scaleFactor,
-            2,  // finalThreshold
-            false  // useMeanshiftGrouping
+        m_hogDescriptor.detectMultiScale(frame, detections, foundWeights, m_config.hitThreshold,
+                                         Size(8, 8),    // winStride
+                                         Size(32, 32),  // padding
+                                         m_config.scaleFactor,
+                                         2,     // finalThreshold
+                                         false  // useMeanshiftGrouping
         );
-        
+
         // Convert weights to confidences using C++20 ranges
         vector<float> confidences;
         confidences.reserve(foundWeights.size());
         std::ranges::transform(foundWeights, std::back_inserter(confidences),
-                              [](double weight) { return static_cast<float>(weight); });
-        
+                               [](double weight) { return static_cast<float>(weight); });
+
         // Apply Non-Maximum Suppression
         vector<Rect> nmsDetections;
         vector<float> nmsConfidences;
-        if (applyNMS(detections, confidences, nmsDetections, nmsConfidences) != global::RC_SUCCESS) {
+        if (applyNMS(detections, confidences, nmsDetections, nmsConfidences) !=
+            global::RC_SUCCESS) {
             return global::RC_ERROR;
         }
-        
+
         // Apply additional filtering and create results
         for (size_t i = 0; i < nmsDetections.size(); ++i) {
             const Rect& detection = nmsDetections[i];
-            
+
             // Apply straight line filter
             if (!applyStraightLineFilter(frame, detection)) {
                 continue;
             }
-            
+
             // Apply area filter
             if (!applyAreaFilter(detection)) {
                 continue;
             }
-            
+
             // Create detection result
             IDetectionAlgorithm::DetectionResult result;
             result.boundingBox = detection;
             result.confidence = nmsConfidences[i];
             result.angle = calculateAngle(detection, frame.size());
             result.deltaAngle = calculateDeltaAngle(detection, frame.size());
-            
+
             results.push_back(result);
         }
-        
+
         auto end = chrono::steady_clock::now();
         m_lastProcessingTime = chrono::duration_cast<chrono::milliseconds>(end - start);
-        
+
         return global::RC_SUCCESS;
-    }
-    catch (const exception& e) {
+    } catch (const exception& e) {
         cerr << "ERROR: Detection failed: " << e.what() << endl;
         return global::RC_ERROR;
     }
@@ -156,13 +163,13 @@ global::RC_t HOGDetectionAlgorithm::detectLegacy(const Mat& frame, vector<IDetec
 
 global::RC_t HOGDetectionAlgorithm::configure(const IDetectionAlgorithm::DetectionConfig& config) {
     m_config = config;
-    
+
     // Save to configuration manager
     auto& configMgr = ConfigurationManager::getInstance();
     configMgr.setValue(ConfigCategory::DETECTION, "hitThreshold", ConfigValue(config.hitThreshold));
     configMgr.setValue(ConfigCategory::DETECTION, "scaleFactor", ConfigValue(config.scaleFactor));
     configMgr.setValue(ConfigCategory::DETECTION, "minNeighbors", ConfigValue(config.minNeighbors));
-    
+
     return global::RC_SUCCESS;
 }
 
@@ -171,25 +178,25 @@ global::RC_t HOGDetectionAlgorithm::setHOGConfig(const HOGConfig& hogConfig) {
     return initializeHOG();
 }
 
-global::RC_t HOGDetectionAlgorithm::applyNMS(const vector<Rect>& detections, 
-                                           const vector<float>& confidences,
-                                           vector<Rect>& filteredDetections,
-                                           vector<float>& filteredConfidences) {
+global::RC_t HOGDetectionAlgorithm::applyNMS(const vector<Rect>& detections,
+                                             const vector<float>& confidences,
+                                             vector<Rect>& filteredDetections,
+                                             vector<float>& filteredConfidences) {
     if (detections.size() != confidences.size()) {
         return global::RC_ERROR_BAD_PARAM;
     }
-    
+
     vector<int> indices;
     dnn::NMSBoxes(detections, confidences, m_config.hitThreshold, 0.3f, indices);
-    
+
     filteredDetections.clear();
     filteredConfidences.clear();
-    
+
     for (int idx : indices) {
         filteredDetections.push_back(detections[idx]);
         filteredConfidences.push_back(confidences[idx]);
     }
-    
+
     return global::RC_SUCCESS;
 }
 
@@ -197,22 +204,22 @@ float HOGDetectionAlgorithm::calculateAngle(const Rect& detection, const Size& f
     // Calculate center of detection
     float centerX = detection.x + detection.width / 2.0f;
     float frameCenterX = frameSize.width / 2.0f;
-    
+
     // Calculate angle relative to frame center
     float pixelOffset = centerX - frameCenterX;
     float pixelsPerDegree = frameSize.width / CAMERA_FOV_DEGREES;
     float angle = pixelOffset / pixelsPerDegree;
-    
+
     // Clamp to FOV range
     angle = max(-HALF_FOV, min(HALF_FOV, angle));
-    
+
     return angle;
 }
 
 float HOGDetectionAlgorithm::calculateDeltaAngle(const Rect& detection, const Size& frameSize) {
     float pixelsPerDegree = frameSize.width / CAMERA_FOV_DEGREES;
     float deltaAngle = detection.width / pixelsPerDegree;
-    
+
     return deltaAngle;
 }
 
@@ -220,15 +227,15 @@ bool HOGDetectionAlgorithm::applyStraightLineFilter(const Mat& frame, const Rect
     // Extract detection region
     Mat roi = frame(detection);
     Mat gray, edges;
-    
+
     // Convert to grayscale and apply Canny edge detection
     cvtColor(roi, gray, COLOR_BGR2GRAY);
     Canny(gray, edges, 50, 150);
-    
+
     // Detect lines using Hough transform
     vector<Vec4i> lines;
-    HoughLinesP(edges, lines, 1, CV_PI/180, 50, 30, 10);
-    
+    HoughLinesP(edges, lines, 1, CV_PI / 180, 50, 30, 10);
+
     // Filter based on number of straight lines
     return lines.size() <= MAX_STRAIGHT_LINES;
 }

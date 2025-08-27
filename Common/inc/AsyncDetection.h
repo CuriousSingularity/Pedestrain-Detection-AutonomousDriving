@@ -10,22 +10,24 @@
 #ifndef ASYNCDETECTION_H
 #define ASYNCDETECTION_H
 
-#include <coroutine>
-#include <future>
-#include <concepts>
-#include <chrono>
-#include <memory>
-#include <optional>
-#include <opencv2/opencv.hpp>
 #include "IDetectionAlgorithm.h"
 #include "global.h"
+
+#include <chrono>
+#include <concepts>
+#include <coroutine>
+#include <future>
+#include <memory>
+#include <optional>
+
+#include <opencv2/opencv.hpp>
 
 namespace pedestrian_detection::async {
 
 /**
  * @brief Task template for coroutine return types
  */
-template<typename T>
+template <typename T>
 struct Task {
     struct promise_type {
         T value{};
@@ -38,13 +40,9 @@ struct Task {
         std::suspend_never initial_suspend() { return {}; }
         std::suspend_never final_suspend() noexcept { return {}; }
 
-        void return_value(T val) {
-            value = std::move(val);
-        }
+        void return_value(T val) { value = std::move(val); }
 
-        void unhandled_exception() {
-            exception = std::current_exception();
-        }
+        void unhandled_exception() { exception = std::current_exception(); }
     };
 
     std::coroutine_handle<promise_type> coro;
@@ -80,15 +78,13 @@ struct Task {
         return std::move(coro.promise().value);
     }
 
-    bool is_ready() const {
-        return coro && coro.done();
-    }
+    bool is_ready() const { return coro && coro.done(); }
 };
 
 /**
  * @brief Generator for streaming detection results
  */
-template<typename T>
+template <typename T>
 struct Generator {
     struct promise_type {
         T current_value{};
@@ -105,9 +101,7 @@ struct Generator {
             return {};
         }
 
-        void unhandled_exception() {
-            throw;
-        }
+        void unhandled_exception() { throw; }
 
         void return_void() {}
     };
@@ -148,13 +142,9 @@ struct Generator {
             return *this;
         }
 
-        T operator*() const {
-            return coro.promise().current_value;
-        }
+        T operator*() const { return coro.promise().current_value; }
 
-        bool operator==(const iterator& other) const {
-            return coro == other.coro;
-        }
+        bool operator==(const iterator& other) const { return coro == other.coro; }
     };
 
     iterator begin() {
@@ -167,9 +157,7 @@ struct Generator {
         return iterator{coro};
     }
 
-    iterator end() {
-        return iterator{{}};
-    }
+    iterator end() { return iterator{{}}; }
 };
 
 /**
@@ -181,7 +169,7 @@ struct FrameAwaitable {
     mutable std::optional<std::vector<IDetectionAlgorithm::DetectionResult>> results;
 
     bool await_ready() const noexcept {
-        return false; // Always suspend to allow async processing
+        return false;  // Always suspend to allow async processing
     }
 
     void await_suspend(std::coroutine_handle<> handle) const {
@@ -212,9 +200,7 @@ struct TimerAwaitable {
 
     TimerAwaitable(std::chrono::milliseconds ms) : duration(ms) {}
 
-    bool await_ready() const noexcept {
-        return duration.count() <= 0;
-    }
+    bool await_ready() const noexcept { return duration.count() <= 0; }
 
     void await_suspend(std::coroutine_handle<> handle) const {
         std::thread([duration = this->duration, handle]() {
@@ -230,11 +216,11 @@ struct TimerAwaitable {
  * @brief Async detection service using coroutines
  */
 class AsyncDetectionService {
-private:
+  private:
     std::shared_ptr<IDetectionAlgorithm> m_algorithm;
     std::atomic<bool> m_running{false};
 
-public:
+  public:
     explicit AsyncDetectionService(std::shared_ptr<IDetectionAlgorithm> algorithm)
         : m_algorithm(std::move(algorithm)) {}
 
@@ -253,18 +239,18 @@ public:
      * @param interval Processing interval
      * @return Generator<std::vector<IDetectionAlgorithm::DetectionResult>> Stream of results
      */
-    Generator<std::vector<IDetectionAlgorithm::DetectionResult>> 
-    processFrameStream(std::function<cv::Mat()> frameSource, 
-                      std::chrono::milliseconds interval = std::chrono::milliseconds{33}) {
+    Generator<std::vector<IDetectionAlgorithm::DetectionResult>>
+    processFrameStream(std::function<cv::Mat()> frameSource,
+                       std::chrono::milliseconds interval = std::chrono::milliseconds{33}) {
         m_running = true;
-        
+
         while (m_running) {
             cv::Mat frame = frameSource();
             if (!frame.empty()) {
                 auto results = co_await FrameAwaitable{frame, m_algorithm};
                 co_yield results;
             }
-            
+
             co_await TimerAwaitable{interval};
         }
     }
@@ -274,7 +260,7 @@ public:
      * @param frames Vector of frames to process
      * @return Task<std::vector<std::vector<IDetectionAlgorithm::DetectionResult>>> Batch results
      */
-    Task<std::vector<std::vector<IDetectionAlgorithm::DetectionResult>>> 
+    Task<std::vector<std::vector<IDetectionAlgorithm::DetectionResult>>>
     processBatchAsync(std::vector<cv::Mat> frames) {
         std::vector<std::vector<IDetectionAlgorithm::DetectionResult>> results;
         results.reserve(frames.size());
@@ -291,47 +277,44 @@ public:
      * @brief Process frames with timeout
      * @param frame Input frame
      * @param timeout Maximum processing time
-     * @return Task<std::optional<std::vector<IDetectionAlgorithm::DetectionResult>>> Results or timeout
+     * @return Task<std::optional<std::vector<IDetectionAlgorithm::DetectionResult>>> Results or
+     * timeout
      */
-    Task<std::optional<std::vector<IDetectionAlgorithm::DetectionResult>>> 
+    Task<std::optional<std::vector<IDetectionAlgorithm::DetectionResult>>>
     processFrameWithTimeout(cv::Mat frame, std::chrono::milliseconds timeout) {
         auto start = std::chrono::steady_clock::now();
-        
+
         auto results = co_await FrameAwaitable{std::move(frame), m_algorithm};
-        
+
         auto elapsed = std::chrono::steady_clock::now() - start;
         if (elapsed > timeout) {
             co_return std::nullopt;
         }
-        
+
         co_return results;
     }
 
     /**
      * @brief Stop continuous processing
      */
-    void stop() {
-        m_running = false;
-    }
+    void stop() { m_running = false; }
 
     /**
      * @brief Check if service is running
      * @return bool True if running
      */
-    bool isRunning() const {
-        return m_running;
-    }
+    bool isRunning() const { return m_running; }
 };
 
 /**
  * @brief Factory function for creating async detection service
  */
-template<pedestrian_detection::concepts::DetectionAlgorithm AlgorithmType>
+template <pedestrian_detection::concepts::DetectionAlgorithm AlgorithmType>
 std::unique_ptr<AsyncDetectionService> createAsyncDetectionService() {
     auto algorithm = std::make_shared<AlgorithmType>();
     return std::make_unique<AsyncDetectionService>(algorithm);
 }
 
-} // namespace pedestrian_detection::async
+}  // namespace pedestrian_detection::async
 
 #endif /* ASYNCDETECTION_H */

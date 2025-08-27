@@ -3,7 +3,7 @@
  ****************************************************************************
  * Filename        : CUart.h
  * Author          : Bharath Ramachandraiah (stbhrama@stud.h-da.de)
- * Description     : Serial Communication such as uart, usart, etc. 
+ * Description     : Serial Communication such as uart, usart, etc.
  * 			Can be extended for SPI, I2C as a base class.
  *
  ****************************************************************************/
@@ -12,54 +12,50 @@
 #ifndef CUART_H
 #define CUART_H
 
-//System Include Files
+// System Include Files
 #include <termios.h>
 #include <unistd.h>
 
-//Own Include Files
+// Own Include Files
 #include "./OS/inc/CResource.h"
 
 class CUart : public CResource {
-private:
+  private:
+    /**
+     * @brief : Baudrate for the uart communication transmission channel
+     */
+    speed_t m_baudrate_tx;
 
-	/**
-	 * @brief : Baudrate for the uart communication transmission channel
-	 */
-	speed_t	m_baudrate_tx;
+    /**
+     * @brief : Baudrate for the uart communication reception channel
+     */
+    speed_t m_baudrate_rx;
 
-	/**
-	 * @brief : Baudrate for the uart communication reception channel
-	 */
-	speed_t	m_baudrate_rx;
+    /**
+     * @brief : Configure the uart communication channel
+     * 		- Baudrate
+     * 		- Parity Check
+     *
+     * @return RC_t : Status of the uart communication channel
+     */
+    global::RC_t configure();
 
-	/**
-	 * @brief : Configure the uart communication channel
-	 * 		- Baudrate
-	 * 		- Parity Check
-	 *
-	 * @return RC_t : Status of the uart communication channel 
-	 */
-	global::RC_t configure();
+  public:
+    typedef enum {
+        UART_CHANNEL_0 = 0,
+        UART_CHANNEL_1,
+        UART_CHANNEL_2,
+    } uart_channel_t;
 
-public:
+    /**
+     * @brief : Constructor
+     */
+    CUart(std::string devPath, int flag, mode_t mode);
 
-	typedef enum
-	{
-		UART_CHANNEL_0 = 0,
-		UART_CHANNEL_1,
-		UART_CHANNEL_2,
-	} uart_channel_t;
-
-	/**
-	 * @brief : Constructor
-	 */
-	CUart(std::string devPath, int flag, mode_t mode);
-
-	/**
-	 * @brief : Destructor
-	 */
-	virtual ~CUart();
-
+    /**
+     * @brief : Destructor
+     */
+    virtual ~CUart();
 };
 /********************
  **  CLASS END

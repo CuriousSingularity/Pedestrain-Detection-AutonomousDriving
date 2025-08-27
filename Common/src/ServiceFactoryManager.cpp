@@ -9,6 +9,7 @@
 
 #include "../inc/IServiceFactory.h"
 #include "global.h"
+
 #include <memory>
 
 // Minimal implementation for debugging
@@ -16,7 +17,7 @@
 
 // Simple test function to ensure object file generation
 namespace {
-    void testFunction() {
-        // This ensures the object file has some content
-    }
+void testFunction() {
+    // This ensures the object file has some content
 }
+}  // namespace

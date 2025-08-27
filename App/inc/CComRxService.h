@@ -12,45 +12,41 @@
 #ifndef CCOMRXSERVICE_H
 #define CCOMRXSERVICE_H
 
-//System Include Files
+// System Include Files
 
-//Own Include Files
-#include "./OS/inc/CThread.h"
-#include "./OS/inc/CSemaphore.h"
+// Own Include Files
 #include "./App/inc/CSerialProtocol.h"
+#include "./OS/inc/CSemaphore.h"
+#include "./OS/inc/CThread.h"
 
 class CComRxService : public CThread {
-private:
+  private:
+    /**
+     * @brief : Protocol parser object
+     */
+    CSerialProtocol m_Protocol;
 
-	/**
-	 * @brief : Protocol parser object
-	 */
-	CSerialProtocol		m_Protocol;
+    /**
+     * @brief : Main routine for the thread
+     *
+     * @return - to join the thread
+     */
+    void run();
 
-	/**
-	 * @brief : Main routine for the thread
-	 *
-	 * @return - to join the thread
-	 */
-	void run();
+  public:
+    /**
+     * @brief : Constructor
+     *
+     * @param threadIndex 	: Thread Index
+     * @param entry		: Entry function for the thread
+     * @param arg		: Arguments to the thread
+     */
+    CComRxService(int threadIndex);
 
-public:
-
-	/**
-	 * @brief : Constructor
-	 *
-	 * @param threadIndex 	: Thread Index
-	 * @param entry		: Entry function for the thread
-	 * @param arg		: Arguments to the thread
-	 */
-	CComRxService(int threadIndex);
-
-	/**
-	 * @brief : Destructor
-	 */
-	~CComRxService();
-
-
+    /**
+     * @brief : Destructor
+     */
+    ~CComRxService();
 };
 /********************
  **  CLASS END

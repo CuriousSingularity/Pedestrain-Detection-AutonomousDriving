@@ -11,87 +11,83 @@
 #ifndef CSERIALPROTOCOL_H
 #define CSERIALPROTOCOL_H
 
-//System Include Files
-#include <stdint.h>
+// System Include Files
 #include <vector>
 
-//Own Include Files
-#include "./global.h"
-#include "./HAL/inc/CUart.h"
+#include <stdint.h>
+
+// Own Include Files
 #include "./Common/inc/BuildConstants.h"
+#include "./HAL/inc/CUart.h"
+#include "./global.h"
 
 // 🚀 Using BuildConstants for protocol definitions
 using namespace pedestrian_detection::build;
 
 // Legacy compatibility macros (using new constants)
-#define SOP				ProtocolConstants::SOP
-#define EOP				ProtocolConstants::EOP
-#define DLC				ProtocolConstants::DLC
+#define SOP ProtocolConstants::SOP
+#define EOP ProtocolConstants::EOP
+#define DLC ProtocolConstants::DLC
 
 // size calculations using constants
-#define PAYLOAD_BLOCKS			10
-#define BLOCK_SIZE			(sizeof(CSerialProtocol::object_detection_block_t))
+#define PAYLOAD_BLOCKS 10
+#define BLOCK_SIZE (sizeof(CSerialProtocol::object_detection_block_t))
 
-#define SOP_SIZE			1
-#define EOP_SIZE			1
-#define DLC_SIZE			1
-#define PAYLOAD_SIZE			(PAYLOAD_BLOCKS * BLOCK_SIZE)
+#define SOP_SIZE 1
+#define EOP_SIZE 1
+#define DLC_SIZE 1
+#define PAYLOAD_SIZE (PAYLOAD_BLOCKS * BLOCK_SIZE)
 
 // Protocol structure indices (using constexpr values)
-#define SOP_INDEX			static_cast<int>(ProtocolConstants::POS_SOP)
-#define DLC_INDEX			static_cast<int>(ProtocolConstants::POS_DLC)
-#define PAYLOAD_INDEX			(DLC_INDEX + DLC_SIZE)
-#define EOP_INDEX			(PAYLOAD_INDEX + DLC)
+#define SOP_INDEX static_cast<int>(ProtocolConstants::POS_SOP)
+#define DLC_INDEX static_cast<int>(ProtocolConstants::POS_DLC)
+#define PAYLOAD_INDEX (DLC_INDEX + DLC_SIZE)
+#define EOP_INDEX (PAYLOAD_INDEX + DLC)
 
-#define PROTOCOL_BUF_MAX_SIZE		static_cast<int>(ProtocolConstants::PROTOCOL_SIZE)
+#define PROTOCOL_BUF_MAX_SIZE static_cast<int>(ProtocolConstants::PROTOCOL_SIZE)
 
 class CSerialProtocol {
-private:
+  private:
+  public:
+    /**
+     * @brief : structure to store the lidar information
+     */
+    typedef struct {
+        uint16_t angle;
+        uint16_t area_angle;
+        uint16_t distance;
+    } object_detection_lidar_t;
 
-public:
+    typedef struct {
+        int8_t theta;
+        int8_t delta_theta;
+        // uint16_t probability;
+        // uint8_t opinion;
+    } object_detection_block_t;
 
-	/**
-	 * @brief : structure to store the lidar information
-	 */
-	typedef struct
-	{
-		uint16_t 	angle;
-		uint16_t	area_angle;
-		uint16_t	distance;
-	} object_detection_lidar_t;
+    typedef struct {
+        std::vector<object_detection_block_t> blks;
+    } object_detection_frame_t;
 
-	typedef struct
-	{
-		int8_t theta;
-		int8_t delta_theta;
-		//uint16_t probability;
-		//uint8_t opinion;
-	} object_detection_block_t;
+    /**
+     * @brief : Constructor
+     */
+    CSerialProtocol();
 
-	typedef struct
-	{
-		std::vector<object_detection_block_t> blks;
-	} object_detection_frame_t;
+    /**
+     * @brief : Destructor
+     */
+    virtual ~CSerialProtocol();
 
-	/**
-	 * @brief : Constructor
-	 */
-	CSerialProtocol();
-
-	/**
-	 * @brief : Destructor
-	 */
-	virtual ~CSerialProtocol();
-
-	/**
-	 * @brief : Read the lidar detected objects
-	 *
-	 * @param detectedObjects : Objects from the lidar are filled into the vector
-	 *
-	 * @return : status
-	 */
-	global::RC_t readRequest(std::vector<object_detection_lidar_t> &detectedObjects, CUart *pComResource);
-
+    /**
+     * @brief : Read the lidar detected objects
+     *
+     * @param detectedObjects : Objects from the lidar are filled into the vector
+     *
+     * @return : status
+     */
+    global::RC_t readRequest(std::vector<object_detection_lidar_t>& detectedObjects,
+                             CUart* pComResource);
 };
 /********************
  **  CLASS END

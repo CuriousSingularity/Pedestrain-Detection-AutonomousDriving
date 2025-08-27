@@ -10,64 +10,61 @@
 #ifndef CMUTEX_H
 #define CMUTEX_H
 
-//System Include Files
+// System Include Files
 #include <mutex>
 
-//Own Include Files
+// Own Include Files
 #include "./global.h"
 
 class CMutex {
-private:
+  private:
+    /**
+     * @brief : Mutex object
+     */
+    std::mutex m_mutex;
 
-	/**
-	 * @brief : Mutex object 
-	 */
-	std::mutex m_mutex;
+    /**
+     * @brief : Status of the Mutex
+     */
+    global::service_state_t m_status;
 
-	/**
-	 * @brief : Status of the Mutex
-	 */
-	global::service_state_t m_status;
+  public:
+    /**
+     * @brief : Constructor
+     */
+    CMutex();
 
-public:
+    /**
+     * @brief : Delete copy constructor and assignment operator
+     */
+    CMutex(const CMutex&) = delete;
+    CMutex& operator=(const CMutex&) = delete;
 
-	/**
-	 * @brief : Constructor
-	 */
-	CMutex();
+    /**
+     * @brief : Destructor
+     */
+    virtual ~CMutex();
 
-	/**
-	 * @brief : Delete copy constructor and assignment operator
-	 */
-	CMutex(const CMutex&) = delete;
-	CMutex& operator=(const CMutex&) = delete;
+    /**
+     * @brief : acquire blocking mutex lock
+     *
+     * @return RC_t : status
+     */
+    global::RC_t lock();
 
-	/**
-	 * @brief : Destructor 
-	 */
-	virtual ~CMutex();
+    /**
+     * @brief : acquire non-blocking mutex lock
+     *
+     * @return RC_t : status
+     */
+    global::RC_t trylock();
 
-	/**
-	 * @brief : acquire blocking mutex lock
-	 *
-	 * @return RC_t : status
-	 */
-	global::RC_t lock();
-
-	/**
-	 * @brief : acquire non-blocking mutex lock
-	 *
-	 * @return RC_t : status
-	 */
-	global::RC_t trylock();
-
-	/**
-	 * @brief : release the mutex lock
-	 *
-	 * @return RC_t : status
-	 */
-	global::RC_t unlock();
-
+    /**
+     * @brief : release the mutex lock
+     *
+     * @return RC_t : status
+     */
+    global::RC_t unlock();
 };
 /********************
  **  CLASS END

@@ -11,34 +11,35 @@
 #define COMMANDQUEUE_H
 
 #include "../../Common/inc/ICommand.h"
-#include <queue>
-#include <mutex>
+
 #include <condition_variable>
 #include <memory>
+#include <mutex>
+#include <queue>
 
 /**
  * @brief Priority-based command queue implementation
  */
 class CommandQueue : public ICommandQueue {
-private:
+  private:
     struct CommandComparator {
-        bool operator()(const std::shared_ptr<ICommand>& lhs, 
-                       const std::shared_ptr<ICommand>& rhs) const {
+        bool operator()(const std::shared_ptr<ICommand>& lhs,
+                        const std::shared_ptr<ICommand>& rhs) const {
             // Higher priority values have higher precedence
             return lhs->getPriority() < rhs->getPriority();
         }
     };
 
-    std::priority_queue<std::shared_ptr<ICommand>, 
-                       std::vector<std::shared_ptr<ICommand>>, 
-                       CommandComparator> m_commandQueue;
-    
+    std::priority_queue<std::shared_ptr<ICommand>, std::vector<std::shared_ptr<ICommand>>,
+                        CommandComparator>
+        m_commandQueue;
+
     mutable std::mutex m_queueMutex;
     std::condition_variable m_queueCondition;
     bool m_shutdown;
     size_t m_maxSize;
 
-public:
+  public:
     /**
      * @brief Constructor
      * @param maxSize Maximum queue size (0 = unlimited)

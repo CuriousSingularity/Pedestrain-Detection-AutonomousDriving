@@ -11,6 +11,7 @@
 #define ICOMMAND_H
 
 #include "global.h"
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -30,18 +31,13 @@ enum class CommandType {
 /**
  * @brief Command priority levels
  */
-enum class CommandPriority {
-    LOW = 0,
-    NORMAL = 1,
-    HIGH = 2,
-    CRITICAL = 3
-};
+enum class CommandPriority { LOW = 0, NORMAL = 1, HIGH = 2, CRITICAL = 3 };
 
 /**
  * @brief Base command interface using Command pattern
  */
 class ICommand {
-public:
+  public:
     virtual ~ICommand() = default;
 
     /**
@@ -91,7 +87,7 @@ public:
  * @brief Command queue interface for managing command execution
  */
 class ICommandQueue {
-public:
+  public:
     virtual ~ICommandQueue() = default;
 
     /**

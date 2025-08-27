@@ -10,14 +10,15 @@
 #ifndef ERRORHANDLER_H
 #define ERRORHANDLER_H
 
-#include "global.h"
-#include "Logger.h"
 #include "IObserver.h"
-#include <string>
-#include <map>
+#include "Logger.h"
+#include "global.h"
+
 #include <functional>
+#include <map>
 #include <memory>
 #include <mutex>
+#include <string>
 
 /**
  * @brief Error categories for classification
@@ -36,13 +37,7 @@ enum class ErrorCategory {
 /**
  * @brief Error severity levels
  */
-enum class ErrorSeverity {
-    INFO,
-    WARNING,
-    ERROR,
-    CRITICAL,
-    FATAL
-};
+enum class ErrorSeverity { INFO, WARNING, ERROR, CRITICAL, FATAL };
 
 /**
  * @brief Error recovery actions
@@ -77,23 +72,23 @@ struct ErrorInfo {
  * @brief Error recovery strategy interface
  */
 class IErrorRecoveryStrategy {
-public:
+  public:
     virtual ~IErrorRecoveryStrategy() = default;
-    
+
     /**
      * @brief Attempt to recover from an error
      * @param errorInfo Error information
      * @return global::RC_t Recovery result
      */
     virtual global::RC_t recover(const ErrorInfo& errorInfo) = 0;
-    
+
     /**
      * @brief Check if strategy can handle this error
      * @param errorInfo Error information
      * @return bool True if strategy can handle error
      */
     virtual bool canHandle(const ErrorInfo& errorInfo) const = 0;
-    
+
     /**
      * @brief Get strategy name
      * @return std::string Strategy identifier
@@ -105,8 +100,9 @@ public:
  * @brief Centralized error handler using Observer pattern
  */
 class ErrorHandler : public IObserver {
-private:
-    std::map<ErrorCategory, std::vector<std::shared_ptr<IErrorRecoveryStrategy>>> m_recoveryStrategies;
+  private:
+    std::map<ErrorCategory, std::vector<std::shared_ptr<IErrorRecoveryStrategy>>>
+        m_recoveryStrategies;
     std::map<global::RC_t, ErrorInfo> m_errorDefinitions;
     mutable std::mutex m_errorMutex;
     std::vector<ErrorInfo> m_errorHistory;
@@ -115,7 +111,7 @@ private:
 
     ErrorHandler();
 
-public:
+  public:
     /**
      * @brief Get singleton instance
      * @return ErrorHandler& Reference to singleton instance
@@ -132,12 +128,10 @@ public:
      * @param additionalData Additional context data (optional)
      * @return global::RC_t Recovery result
      */
-    global::RC_t handleError(global::RC_t errorCode,
-                           const std::string& component,
-                           const std::string& description,
-                           const std::string& function = "",
-                           int line = 0,
-                           const std::map<std::string, std::string>& additionalData = {});
+    global::RC_t handleError(global::RC_t errorCode, const std::string& component,
+                             const std::string& description, const std::string& function = "",
+                             int line = 0,
+                             const std::map<std::string, std::string>& additionalData = {});
 
     /**
      * @brief Register error definition
@@ -148,11 +142,9 @@ public:
      * @param suggestedAction Suggested recovery action
      * @return global::RC_t Return code indicating success or failure
      */
-    global::RC_t registerError(global::RC_t errorCode,
-                             ErrorCategory category,
-                             ErrorSeverity severity,
-                             const std::string& defaultDescription,
-                             RecoveryAction suggestedAction = RecoveryAction::NONE);
+    global::RC_t registerError(global::RC_t errorCode, ErrorCategory category,
+                               ErrorSeverity severity, const std::string& defaultDescription,
+                               RecoveryAction suggestedAction = RecoveryAction::NONE);
 
     /**
      * @brief Add recovery strategy
@@ -160,8 +152,8 @@ public:
      * @param strategy Recovery strategy
      * @return global::RC_t Return code indicating success or failure
      */
-    global::RC_t addRecoveryStrategy(ErrorCategory category, 
-                                   std::shared_ptr<IErrorRecoveryStrategy> strategy);
+    global::RC_t addRecoveryStrategy(ErrorCategory category,
+                                     std::shared_ptr<IErrorRecoveryStrategy> strategy);
 
     /**
      * @brief Get error history
@@ -209,30 +201,28 @@ public:
     ErrorHandler(const ErrorHandler&) = delete;
     ErrorHandler& operator=(const ErrorHandler&) = delete;
 
-private:
-    ErrorInfo createErrorInfo(global::RC_t errorCode,
-                            const std::string& component,
-                            const std::string& description,
-                            const std::string& function,
-                            int line,
-                            const std::map<std::string, std::string>& additionalData);
-    
+  private:
+    ErrorInfo createErrorInfo(global::RC_t errorCode, const std::string& component,
+                              const std::string& description, const std::string& function, int line,
+                              const std::map<std::string, std::string>& additionalData);
+
     global::RC_t attemptRecovery(const ErrorInfo& errorInfo);
     void addToHistory(const ErrorInfo& errorInfo);
     uint64_t getCurrentTimestamp() const;
 };
 
 // Convenience macros for error handling
-#define HANDLE_ERROR(code, component, description) \
+#define HANDLE_ERROR(code, component, description)                                                 \
     ErrorHandler::getInstance().handleError(code, component, description, __FUNCTION__, __LINE__)
 
-#define HANDLE_ERROR_WITH_DATA(code, component, description, data) \
-    ErrorHandler::getInstance().handleError(code, component, description, __FUNCTION__, __LINE__, data)
+#define HANDLE_ERROR_WITH_DATA(code, component, description, data)                                 \
+    ErrorHandler::getInstance().handleError(code, component, description, __FUNCTION__, __LINE__,  \
+                                            data)
 
-#define REGISTER_ERROR(code, category, severity, description) \
+#define REGISTER_ERROR(code, category, severity, description)                                      \
     ErrorHandler::getInstance().registerError(code, category, severity, description)
 
-#define REGISTER_ERROR_WITH_ACTION(code, category, severity, description, action) \
+#define REGISTER_ERROR_WITH_ACTION(code, category, severity, description, action)                  \
     ErrorHandler::getInstance().registerError(code, category, severity, description, action)
 
 /**
@@ -243,11 +233,11 @@ private:
  * @brief Retry operation recovery strategy
  */
 class RetryRecoveryStrategy : public IErrorRecoveryStrategy {
-private:
+  private:
     int m_maxRetries;
     std::function<global::RC_t()> m_retryFunction;
 
-public:
+  public:
     RetryRecoveryStrategy(int maxRetries, std::function<global::RC_t()> retryFunc);
     global::RC_t recover(const ErrorInfo& errorInfo) override;
     bool canHandle(const ErrorInfo& errorInfo) const override;
@@ -258,7 +248,7 @@ public:
  * @brief Component restart recovery strategy
  */
 class ComponentRestartStrategy : public IErrorRecoveryStrategy {
-public:
+  public:
     global::RC_t recover(const ErrorInfo& errorInfo) override;
     bool canHandle(const ErrorInfo& errorInfo) const override;
     std::string getName() const override { return "ComponentRestart"; }

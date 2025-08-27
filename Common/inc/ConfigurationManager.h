@@ -11,32 +11,22 @@
 #define CONFIGURATIONMANAGER_H
 
 #include "global.h"
-#include <string>
-#include <vector>
+
 #include <map>
 #include <memory>
 #include <mutex>
+#include <string>
+#include <vector>
 
 /**
  * @brief Configuration categories
  */
-enum class ConfigCategory {
-    DETECTION,
-    CAMERA,
-    COMMUNICATION,
-    SYSTEM,
-    LOGGING
-};
+enum class ConfigCategory { DETECTION, CAMERA, COMMUNICATION, SYSTEM, LOGGING };
 
 /**
  * @brief Configuration value types
  */
-enum class ConfigValueType {
-    INTEGER,
-    FLOAT,
-    STRING,
-    BOOLEAN
-};
+enum class ConfigValueType { INTEGER, FLOAT, STRING, BOOLEAN };
 
 /**
  * @brief Configuration value container
@@ -48,18 +38,28 @@ struct ConfigValue {
     float floatValue;
     bool boolValue;
 
-    ConfigValue() : type(ConfigValueType::STRING), stringValue(""), intValue(0), floatValue(0.0f), boolValue(false) {}
-    explicit ConfigValue(const std::string& val) : type(ConfigValueType::STRING), stringValue(val), intValue(0), floatValue(0.0f), boolValue(false) {}
-    explicit ConfigValue(int val) : type(ConfigValueType::INTEGER), stringValue(""), intValue(val), floatValue(0.0f), boolValue(false) {}
-    explicit ConfigValue(float val) : type(ConfigValueType::FLOAT), stringValue(""), intValue(0), floatValue(val), boolValue(false) {}
-    explicit ConfigValue(bool val) : type(ConfigValueType::BOOLEAN), stringValue(""), intValue(0), floatValue(0.0f), boolValue(val) {}
+    ConfigValue()
+        : type(ConfigValueType::STRING), stringValue(""), intValue(0), floatValue(0.0f),
+          boolValue(false) {}
+    explicit ConfigValue(const std::string& val)
+        : type(ConfigValueType::STRING), stringValue(val), intValue(0), floatValue(0.0f),
+          boolValue(false) {}
+    explicit ConfigValue(int val)
+        : type(ConfigValueType::INTEGER), stringValue(""), intValue(val), floatValue(0.0f),
+          boolValue(false) {}
+    explicit ConfigValue(float val)
+        : type(ConfigValueType::FLOAT), stringValue(""), intValue(0), floatValue(val),
+          boolValue(false) {}
+    explicit ConfigValue(bool val)
+        : type(ConfigValueType::BOOLEAN), stringValue(""), intValue(0), floatValue(0.0f),
+          boolValue(val) {}
 };
 
 /**
  * @brief Singleton configuration manager using Singleton pattern
  */
 class ConfigurationManager {
-public:
+  public:
     /**
      * @brief Get singleton instance
      * @return ConfigurationManager& Reference to singleton instance
@@ -87,7 +87,8 @@ public:
      * @param value Configuration value
      * @return global::RC_t Return code indicating success or failure
      */
-    global::RC_t setValue(ConfigCategory category, const std::string& key, const ConfigValue& value);
+    global::RC_t setValue(ConfigCategory category, const std::string& key,
+                          const ConfigValue& value);
 
     /**
      * @brief Get configuration value
@@ -96,7 +97,8 @@ public:
      * @param defaultValue Default value if key not found
      * @return ConfigValue Configuration value or default
      */
-    ConfigValue getValue(ConfigCategory category, const std::string& key, const ConfigValue& defaultValue = ConfigValue()) const;
+    ConfigValue getValue(ConfigCategory category, const std::string& key,
+                         const ConfigValue& defaultValue = ConfigValue()) const;
 
     /**
      * @brief Check if configuration key exists
@@ -130,7 +132,7 @@ public:
     ConfigurationManager(const ConfigurationManager&) = delete;
     ConfigurationManager& operator=(const ConfigurationManager&) = delete;
 
-private:
+  private:
     ConfigurationManager() = default;
     ~ConfigurationManager() = default;
 

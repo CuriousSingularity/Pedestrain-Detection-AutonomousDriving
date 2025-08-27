@@ -10,14 +10,14 @@
 
 #if 0
 //System Include Files
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 //Own Include Files
-#include "CSystemResource.h"
-#include "CCom.h"
 #include "CCamera.h"
+#include "CCom.h"
+#include "CSystemResource.h"
 
 //Namespace
 using namespace std;

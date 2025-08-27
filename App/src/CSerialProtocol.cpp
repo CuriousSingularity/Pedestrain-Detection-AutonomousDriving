@@ -8,31 +8,29 @@
  ****************************************************************************/
 
 
-//System Include Files
+// System Include Files
 #include <string.h>
 
-//Own Include Files
+// Own Include Files
 #include "./App/inc/CSerialProtocol.h"
 
 using namespace std;
 using namespace global;
 
-//Method Implementations
+// Method Implementations
 
 /**
  * @brief : Constructor
  */
-CSerialProtocol::CSerialProtocol()
-{
-	// nothing
+CSerialProtocol::CSerialProtocol() {
+    // nothing
 }
 
 /**
  * @brief : Destructor
  */
-CSerialProtocol::~CSerialProtocol()
-{
-	// nothing
+CSerialProtocol::~CSerialProtocol() {
+    // nothing
 }
 
 
@@ -43,9 +41,9 @@ CSerialProtocol::~CSerialProtocol()
  *
  * @return : status
  */
-RC_t CSerialProtocol::readRequest(std::vector<object_detection_lidar_t> &detectedObjects, CUart *pComResource)
-{
-	RC_t		ret = RC_ERROR_NOT_MATCH;
+RC_t CSerialProtocol::readRequest(std::vector<object_detection_lidar_t>& detectedObjects,
+                                  CUart* pComResource) {
+    RC_t ret = RC_ERROR_NOT_MATCH;
 #if 0
 	uint8_t 	protocolBuf[PROTOCOL_BUF_MAX_SIZE];
 	uint16_t	nBytes = 0, blocks = 0;
@@ -89,5 +87,5 @@ RC_t CSerialProtocol::readRequest(std::vector<object_detection_lidar_t> &detecte
 	}
 
 #endif
-	return ret;
+    return ret;
 }
