@@ -22,8 +22,8 @@ class CMailBox : protected CResource {
     typedef struct {
         uint16_t sid;  // service identifier
         uint16_t lid;  // local identifier
-        void* pDynamicData;
-    } mail_box_data_t;
+        void* dynamicData;
+    } MailBoxData;
 
     /**
      * @brief : Constructor
@@ -41,9 +41,9 @@ class CMailBox : protected CResource {
      */
     virtual ~CMailBox();
 
-    global::RC_t send(int senderId, const mail_box_data_t& data);
+    global::RC_t send(int senderId, const MailBoxData& data);
 
-    global::RC_t receive(int& senderId, mail_box_data_t& data);
+    global::RC_t receive(int& senderId, MailBoxData& data);
 
     int getOwner();
 
@@ -53,14 +53,14 @@ class CMailBox : protected CResource {
     typedef struct {
         uint16_t src;          // source of data
         uint16_t dst;          // destination of data
-        mail_box_data_t data;  // mail box data
-    } mail_box_msg_t;
+        MailBoxData data;  // mail box data
+    } MailBoxMessage;
 
     global::RC_t configure();
 };
 
-#define MAIL_BOX_DATA_SIZE (sizeof(mail_box_data_t))
-#define MAIL_BOX_MSG_SIZE (sizeof(mail_box_msg_t))
+#define MAIL_BOX_DATA_SIZE (sizeof(MailBoxData))
+#define MAIL_BOX_MSG_SIZE (sizeof(MailBoxMessage))
 /********************
  **  CLASS END
  *********************/

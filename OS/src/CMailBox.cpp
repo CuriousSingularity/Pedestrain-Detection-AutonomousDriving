@@ -65,11 +65,11 @@ RC_t CMailBox::configure() {
 }
 
 
-RC_t CMailBox::send(int senderId, const mail_box_data_t& data) {
+RC_t CMailBox::send(int senderId, const MailBoxData& data) {
     if (this->m_status != service_READY)
         return RC_ERROR_INVALID_STATE;
 
-    mail_box_msg_t msg = {0};
+    MailBoxMessage msg = {0};
 
     msg.src = senderId;
     msg.dst = this->m_owner;
@@ -92,11 +92,11 @@ RC_t CMailBox::send(int senderId, const mail_box_data_t& data) {
 }
 
 
-RC_t CMailBox::receive(int& senderId, mail_box_data_t& data) {
+RC_t CMailBox::receive(int& senderId, MailBoxData& data) {
     if (this->m_status != service_READY)
         return RC_ERROR_INVALID_STATE;
 
-    mail_box_msg_t msg = {0};
+    MailBoxMessage msg = {0};
     ssize_t rBytes = 0;
 
     // blocking-call
