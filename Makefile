@@ -120,6 +120,7 @@ obj:*.cpp
 	$(CC) $(CFLAGS) $(PATH_ALL_INCLUDE) $(DFLAGS) TARGET_PLATFORM=$(PLATFORM) $(EFLAGS) $(PATH_BUILD_DIR)/CUart.o 			$(PATH_HAL_SOURCE)/CUart.cpp
 	# Common framework source
 	$(CC) $(CFLAGS) $(PATH_ALL_INCLUDE) $(DFLAGS) TARGET_PLATFORM=$(PLATFORM) $(EFLAGS) $(PATH_BUILD_DIR)/ConfigurationManager.o 	$(PATH_COMMON_SOURCE)/ConfigurationManager.cpp
+	$(CC) $(CFLAGS) $(PATH_ALL_INCLUDE) $(DFLAGS) TARGET_PLATFORM=$(PLATFORM) $(EFLAGS) $(PATH_BUILD_DIR)/Logger.o 			$(PATH_COMMON_SOURCE)/Logger.cpp
 	$(CC) $(CFLAGS) $(PATH_ALL_INCLUDE) $(DFLAGS) TARGET_PLATFORM=$(PLATFORM) $(EFLAGS) $(PATH_BUILD_DIR)/ObservableSubject.o 	$(PATH_COMMON_SOURCE)/ObservableSubject.cpp
 	$(CC) $(CFLAGS) $(PATH_ALL_INCLUDE) $(DFLAGS) TARGET_PLATFORM=$(PLATFORM) $(EFLAGS) $(PATH_BUILD_DIR)/ServiceFactoryManager.o 	$(PATH_COMMON_SOURCE)/ServiceFactoryManager.cpp
 	# Detection algorithms - C++20 modern implementation only
