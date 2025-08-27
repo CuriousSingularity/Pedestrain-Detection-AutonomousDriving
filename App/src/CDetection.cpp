@@ -28,7 +28,10 @@ using namespace global;
 using namespace cv;
 using namespace pedestrian_detection::build;
 
-// 🚀 Modern configuration using BuildConstants
+/**
+ * @brief Default HOG detection configuration parameters
+ * Uses BuildConstants for centralized parameter management
+ */
 static const CDetection::HogConfig hog_config_param{
     .hitThreshold = static_cast<int>(DetectionConstants::HOGConfig::DEFAULT_HIT_THRESHOLD),
     .winStride = DetectionConstants::HOGConfig::DEFAULT_WIN_STRIDE,
@@ -42,15 +45,13 @@ static const CDetection::HogConfig hog_config_param{
 
 // Method Implementations
 /**
- * @brief : Constructor
- *
- * @param threadIndex 	: Thread Index
- * @param sysResource	: Global resource pointer
- * @param entry		: Entry function for the thread
- * @param arg		: Arguments to the thread
+ * @brief Constructor
+ * Initializes detection thread with lambda-based execution
+ * 
+ * @param threadIndex Unique thread identifier for this detection service
  */
 CDetection::CDetection(int threadIndex) : CThread(threadIndex, [this]() { this->run(); }) {
-    // nothing
+    // Constructor initialization handled by initializer list
 }
 
 /**
@@ -78,26 +79,26 @@ void CDetection::run() {
     vector<Vec2f> lines;  // will hold the results of the detection
     vector<uint8_t> nmsFiltered;
 
-    // nms
+    // Non-Maximum Suppression results
     vector<Rect> nmsDetections;
 
-    // Variables for conditional compilation
-    uint8_t counter = 0;
-    double t_start = 0;
+    // Performance measurement variables (conditional compilation)
+    uint8_t counter = 0;        // Frame counter for performance logging
+    double t_start = 0;         // Timer start for algorithm measurement
 
     if constexpr (BuildConfig::ENABLE_DISPLAY_CONNECTED) {
         namedWindow("Detected Image", cv::WINDOW_AUTOSIZE);
     }
 
-    // select the algorithm from the configuration
+    // Configure HOG detector based on selected model
     switch (hog_config_param.detectionModel) {
     case CDetection::HOG_DETECTION_DAIMLER:
-        hog.winSize = Size(64, 128);
+        hog.winSize = Size(64, 128);  // Daimler model window size
         hog.setSVMDetector(HOGDescriptor::getDefaultPeopleDetector());
         break;
 
     case CDetection::HOG_DETECTION_DEFAULT:
-        hog.winSize = Size(48, 96);
+        hog.winSize = Size(48, 96);   // Default model window size
         hog.setSVMDetector(HOGDescriptor::getDaimlerPeopleDetector());
         break;
 
@@ -105,7 +106,7 @@ void CDetection::run() {
         break;
     }
 
-    int bigIndex = -1;
+    int largestDetectionIndex = -1;  // Index of largest valid detection
     extern CRingBuffer<cv::Mat, FRAMERATE> g_framesBuffer;
     extern CMailBox g__Mailboxes[THREAD_TOTAL_COUNT];
 
@@ -143,29 +144,35 @@ void CDetection::run() {
                 (float)hog_config_param.finalThreshold / 100 /* FinalThreshold: PENDING */
             );
 
+            // Apply Non-Maximum Suppression to remove overlapping detections
             nms(detections, nmsDetections, (float)hog_config_param.nmsThreshold / 100,
                 hog_config_param.nmsNeighbors);
+            // Initialize line detection filter results (0 = filtered out, 1 = passed)
             nmsFiltered.resize(nmsDetections.size(), 0);
 
+            // Apply line detection filtering to reduce false positives
             for (unsigned int i = 0; i < nmsDetections.size(); i++) {
                 lines.clear();
 
+                // Extract detection region and convert to grayscale
                 cvtColor(eachFrame(nmsDetections[i]), greyMat, COLOR_BGR2GRAY);
+                // Apply Canny edge detection
                 Canny(greyMat, cannyMat, 50, 200, 3);
-                HoughLines(cannyMat, lines, 1, CV_PI / 180, 150, 0,
-                           0);  // runs the actual detection
+                // Detect lines using Hough transform
+                HoughLines(cannyMat, lines, 1, CV_PI / 180, 150, 0, 0);
 
+                // Filter based on line count (too many lines = likely background)
                 if (lines.size() > 4) {
-                    nmsFiltered[i] = 0;
+                    nmsFiltered[i] = 0;  // Too many lines, likely false positive
                 } else {
-                    nmsFiltered[i] = 1;
+                    nmsFiltered[i] = 1;  // Valid detection candidate
                 }
             }
 
             p_resultCollection = new CSerialProtocol::object_detection_frame_t();
 
             if (p_resultCollection)
-                this->filterDetections(nmsDetections, p_resultCollection, bigIndex, nmsFiltered);
+                this->filterDetections(nmsDetections, p_resultCollection, largestDetectionIndex, nmsFiltered);
 
             if constexpr (BuildConfig::ENABLE_ALGO_TIME_MEASUREMENT) {
                 LOG_DEBUG("CDetection", "Time elapsed: " + std::to_string((getTickCount() - t_start) / getTickFrequency()));
@@ -185,14 +192,15 @@ void CDetection::run() {
                                     nmsDetections[i].y + nmsDetections[i].height),
                               Scalar(0, 0, 255), 5, LINE_8);
 
-                    if (bigIndex >= 0)
+                    // Highlight the largest valid detection in green
+                    if (largestDetectionIndex >= 0)
                         rectangle(eachFrame,
-                                  Point(nmsDetections[bigIndex].x, nmsDetections[bigIndex].y),
-                                  Point(nmsDetections[bigIndex].x + nmsDetections[bigIndex].width,
-                                        nmsDetections[bigIndex].y + nmsDetections[bigIndex].height),
+                                  Point(nmsDetections[largestDetectionIndex].x, nmsDetections[largestDetectionIndex].y),
+                                  Point(nmsDetections[largestDetectionIndex].x + nmsDetections[largestDetectionIndex].width,
+                                        nmsDetections[largestDetectionIndex].y + nmsDetections[largestDetectionIndex].height),
                                   Scalar(0, 255, 0), 5, LINE_8);
                 }
-                bigIndex = -1;
+                largestDetectionIndex = -1;  // Reset for next frame
 
                 //			rectangle(image, Point(0, 0), Point(20, 20), Scalar(0, 0, 0), -1);
                 //			putText(image, to_string((int) counter), Point(0,0), FONT_HERSHEY_PLAIN,
