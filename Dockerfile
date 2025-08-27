@@ -1,26 +1,28 @@
 # Multi-stage build for pedestrian detection application
-FROM ubuntu:20.04 as builder
+FROM ubuntu:22.04 as builder
 
 # Avoid interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install build dependencies and OpenCV
+# Install GCC 11 or newer for C++20 support and build dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
     cmake \
-    g++ \
+    gcc-11 \
+    g++-11 \
     make \
     pkg-config \
     libopencv-dev \
     libopencv-contrib-dev \
-    libopencv-core4.2 \
-    libopencv-imgproc4.2 \
-    libopencv-imgcodecs4.2 \
-    libopencv-highgui4.2 \
-    libopencv-calib3d4.2 \
-    libopencv-objdetect4.2 \
-    libopencv-flann4.2 \
-    libopencv-videoio4.2 \
+    libopencv-core-dev \
+    libopencv-imgproc-dev \
+    libopencv-imgcodecs-dev \
+    libopencv-highgui-dev \
+    libopencv-calib3d-dev \
+    libopencv-objdetect-dev \
+    libopencv-flann-dev \
+    libopencv-videoio-dev \
+    libopencv-dnn-dev \
     libgstreamer1.0-dev \
     libgstreamer-plugins-base1.0-dev \
     gstreamer1.0-plugins-base \
@@ -30,6 +32,10 @@ RUN apt-get update && apt-get install -y \
     gstreamer1.0-libav \
     gstreamer1.0-tools \
     && rm -rf /var/lib/apt/lists/*
+
+# Set GCC 11 as default compiler for C++20 support
+ENV CC=gcc-11
+ENV CXX=g++-11
 
 # Set working directory
 WORKDIR /app
@@ -43,25 +49,26 @@ RUN chmod +x generate_design.sh
 # Build the application for PC platform
 RUN make clean || true
 
-# Build with OpenCV include paths for Ubuntu 20.04
-RUN make PLATFORM=PC EXTRA_CFLAGS="-I/usr/include/opencv4"
+# Build with C++20 support and OpenCV include paths for Ubuntu 22.04
+RUN make PLATFORM=PC CC=gcc-11 CXX=g++-11 EXTRA_CFLAGS="-I/usr/include/opencv4"
 
 # Runtime stage
-FROM ubuntu:20.04 as runtime
+FROM ubuntu:22.04 as runtime
 
 # Avoid interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install runtime dependencies only
 RUN apt-get update && apt-get install -y \
-    libopencv-core4.2 \
-    libopencv-imgproc4.2 \
-    libopencv-imgcodecs4.2 \
-    libopencv-highgui4.2 \
-    libopencv-calib3d4.2 \
-    libopencv-objdetect4.2 \
-    libopencv-flann4.2 \
-    libopencv-videoio4.2 \
+    libopencv-core4.5d \
+    libopencv-imgproc4.5d \
+    libopencv-imgcodecs4.5d \
+    libopencv-highgui4.5d \
+    libopencv-calib3d4.5d \
+    libopencv-objdetect4.5d \
+    libopencv-flann4.5d \
+    libopencv-videoio4.5d \
+    libopencv-dnn4.5d \
     libgstreamer1.0-0 \
     gstreamer1.0-plugins-base \
     gstreamer1.0-plugins-good \
