@@ -24,7 +24,7 @@ class CComRxService : public CThread {
     /**
      * @brief : Protocol parser object
      */
-    CSerialProtocol m_Protocol;
+    CSerialProtocol m_protocol;
 
     /**
      * @brief : Main routine for the thread

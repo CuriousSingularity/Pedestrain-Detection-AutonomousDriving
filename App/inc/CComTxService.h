@@ -25,12 +25,12 @@ class CComTxService : public CThread {
     /**
      * @brief : UART channel 1
      */
-    CUart m_uart_1;
+    CUart m_primaryUart;
 
     /**
      * @brief : Protocol parser object
      */
-    CSerialProtocol m_Protocol;
+    CSerialProtocol m_protocol;
 
     /**
      * @brief : Main routine for the thread
@@ -39,9 +39,9 @@ class CComTxService : public CThread {
      */
     void run();
 
-    global::RC_t processRecvdMsg(CMailBox::mail_box_data_t& data);
+    global::RC_t processRecvdMsg(CMailBox::MailBoxData& data);
 
-    global::RC_t processDataForTx(CMailBox::mail_box_data_t& data);
+    global::RC_t processDataForTx(CMailBox::MailBoxData& data);
 
   public:
     /**

@@ -37,7 +37,7 @@ using namespace global;
  */
 CComTxService::CComTxService(int threadIndex)
     : CThread(threadIndex, [this]() { this->run(); }),
-      m_uart_1("/dev/ttyTHS1", O_RDWR | O_NOCTTY | O_SYNC, S_IRWXU) {
+      m_primaryUart("/dev/ttyTHS1", O_RDWR | O_NOCTTY | O_SYNC, S_IRWXU) {
     // nothing
 }
 
@@ -64,7 +64,7 @@ void CComTxService::run() {
     extern CMailBox g__Mailboxes[THREAD_TOTAL_COUNT];
 
     int msg_src_id = 0;
-    CMailBox::mail_box_data_t msg_recv = {0};
+    CMailBox::MailBoxData msg_recv = {0};
 
     while (1) {
         if (g__Mailboxes[THREAD_COM_TX_SERVICE].receive(msg_src_id, msg_recv) != RC_SUCCESS)
@@ -84,9 +84,9 @@ void CComTxService::run() {
 }
 
 
-RC_t CComTxService::processDataForTx(CMailBox::mail_box_data_t& data) {
+RC_t CComTxService::processDataForTx(CMailBox::MailBoxData& data) {
     CSerialProtocol::object_detection_frame_t* ptr =
-        static_cast<CSerialProtocol::object_detection_frame_t*>(data.pDynamicData);
+        static_cast<CSerialProtocol::object_detection_frame_t*>(data.dynamicData);
 
     if (!ptr) {
         LOG_ERROR("CComTxService", "Invalid Memory used for Tx");
@@ -117,7 +117,7 @@ RC_t CComTxService::processDataForTx(CMailBox::mail_box_data_t& data) {
 
     switch (data.lid) {
     case CUart::UART_CHANNEL_1:
-        ret = this->m_uart_1.write(__tx_buf, __tx_length, wBytes);
+        ret = this->m_primaryUart.write(__tx_buf, __tx_length, wBytes);
         break;
 
     default:
@@ -128,7 +128,7 @@ RC_t CComTxService::processDataForTx(CMailBox::mail_box_data_t& data) {
     return ret;
 }
 
-RC_t CComTxService::processRecvdMsg(CMailBox::mail_box_data_t& data) {
+RC_t CComTxService::processRecvdMsg(CMailBox::MailBoxData& data) {
     RC_t ret = RC_ERROR_INVALID;
 
     switch (data.sid) {
@@ -136,7 +136,7 @@ RC_t CComTxService::processRecvdMsg(CMailBox::mail_box_data_t& data) {
         ret = this->processDataForTx(data);
 
         // release the resource
-        delete ((CSerialProtocol::object_detection_frame_t*)data.pDynamicData);
+        delete ((CSerialProtocol::object_detection_frame_t*)data.dynamicData);
 
         break;
 
