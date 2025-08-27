@@ -15,6 +15,7 @@
 #include <string.h>
 
 // Own Include Files
+#include "./Common/inc/Logger.h"
 #include "./HAL/inc/CUart.h"
 
 // Namespaces
@@ -33,11 +34,10 @@ CUart::CUart(std::string devPath, int flags, mode_t mode) : CResource(devPath, f
 
     if (this->configure() != RC_SUCCESS) {
         this->m_status = service_UNAVAILABLE;
-        cout << "ERROR\t: Resource configuration failed for Device " << this->getDeviceNode()
-             << endl;
+        LOG_ERROR("CUart", "Resource configuration failed for Device " + this->getDeviceNode());
     }
 
-    cout << "INFO\t: Uart port " << this->getDeviceNode() << " constructed" << endl;
+    LOG_INFO("CUart", "Uart port " + this->getDeviceNode() + " constructed");
 }
 
 
@@ -45,7 +45,7 @@ CUart::CUart(std::string devPath, int flags, mode_t mode) : CResource(devPath, f
  * @brief : Destructor
  */
 CUart::~CUart() {
-    cout << "INFO\t: Uart port " << this->getDeviceNode() << " destructed" << endl;
+    LOG_INFO("CUart", "Uart port " + this->getDeviceNode() + " destructed");
 }
 
 
@@ -57,7 +57,7 @@ CUart::~CUart() {
  * @return RC_t : Status of the uart communication channel
  */
 RC_t CUart::configure() {
-    cout << "INFO\t: Uart port " << this->getDeviceNode() << " configuration" << endl;
+    LOG_INFO("CUart", "Uart port " + this->getDeviceNode() + " configuration");
 
     if (this->m_status != service_READY)
         return RC_ERROR_INVALID_STATE;
@@ -67,7 +67,7 @@ RC_t CUart::configure() {
     memset(&tty, 0, sizeof(tty));
 
     if (tcgetattr(this->m_fd_w, &tty) != 0) {
-        cout << "ERROR\t: " << errno << " from tcgetattr\n";
+        LOG_ERROR("CUart", "Error " + std::to_string(errno) + " from tcgetattr");
         return RC_ERROR_BAD_DATA;
     }
 
@@ -97,7 +97,7 @@ RC_t CUart::configure() {
     tty.c_cflag &= ~CRTSCTS;
 
     if (tcsetattr(this->m_fd_w, TCSANOW, &tty) != 0) {
-        cout << "ERROR\t: " << errno << " from tcsetattr\n";
+        LOG_ERROR("CUart", "Error " + std::to_string(errno) + " from tcsetattr");
         return RC_ERROR_BAD_PARAM;
     }
 

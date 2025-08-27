@@ -20,6 +20,7 @@
 // Own Include Files
 #include "./App/inc/CComTxService.h"
 #include "./App/inc/CSerialProtocol.h"
+#include "./Common/inc/Logger.h"
 
 // Namespace
 using namespace std;
@@ -56,11 +57,9 @@ CComTxService::~CComTxService() {
  */
 void CComTxService::run() {
     // The Threads runs here
-    cout << "INFO\t: Communication Tx Service " << this->getThreadIndex()
-         << " started with ID : " << pthread_self() << endl;
+    LOG_INFO("CComTxService", "Communication Tx Service " + std::to_string(this->getThreadIndex()) + " started with ID : " + std::to_string(pthread_self()));
 
-    cout << "INFO\t: Running Communication Tx Service " << this->getThreadIndex()
-         << " started with ID : " << pthread_self() << endl;
+    LOG_INFO("CComTxService", "Running Communication Tx Service " + std::to_string(this->getThreadIndex()) + " started with ID : " + std::to_string(pthread_self()));
     // Mailboxes
     extern CMailBox g__Mailboxes[THREAD_TOTAL_COUNT];
 
@@ -90,7 +89,7 @@ RC_t CComTxService::processDataForTx(CMailBox::mail_box_data_t& data) {
         static_cast<CSerialProtocol::object_detection_frame_t*>(data.pDynamicData);
 
     if (!ptr) {
-        cout << "ERROR\t: Invalid Memory used for Tx " << endl;
+        LOG_ERROR("CComTxService", "Invalid Memory used for Tx");
         return RC_ERROR_MEMORY;
     }
 
@@ -122,7 +121,7 @@ RC_t CComTxService::processDataForTx(CMailBox::mail_box_data_t& data) {
         break;
 
     default:
-        cout << "ERROR\t: Invalid UART Channel Tx Request " << endl;
+        LOG_ERROR("CComTxService", "Invalid UART Channel Tx Request");
         break;
     }
 

@@ -19,6 +19,7 @@
 // Own Include Files
 #include "./App/inc/CComRxService.h"
 #include "./App/inc/CSerialProtocol.h"
+#include "./Common/inc/Logger.h"
 #include "./OS/inc/CMailBox.h"
 
 // Namespace
@@ -54,11 +55,9 @@ CComRxService::~CComRxService() {
  */
 void CComRxService::run() {
     // The Threads runs here
-    cout << "INFO\t: Communication Rx Service " << this->getThreadIndex()
-         << " started with ID : " << pthread_self() << endl;
+    LOG_INFO("CComRxService", "Communication Rx Service " + std::to_string(this->getThreadIndex()) + " started with ID : " + std::to_string(pthread_self()));
 
-    cout << "INFO\t: Running Communication Rx Service " << this->getThreadIndex()
-         << " started with ID : " << pthread_self() << endl;
+    LOG_INFO("CComRxService", "Running Communication Rx Service " + std::to_string(this->getThreadIndex()) + " started with ID : " + std::to_string(pthread_self()));
 
     // Mailboxes
     extern CMailBox g__Mailboxes[THREAD_TOTAL_COUNT];

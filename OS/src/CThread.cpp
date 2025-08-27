@@ -13,6 +13,7 @@
 #include <iostream>
 
 // Own Include Files
+#include "./Common/inc/Logger.h"
 #include "./OS/inc/CThread.h"
 
 // Namespace
@@ -80,8 +81,7 @@ RC_t CThread::create() {
             m_created = true;
             return RC_SUCCESS;
         } catch (const std::exception& e) {
-            cout << "ERROR\t: Thread " << this->m_threadIndex << " creation failed: " << e.what()
-                 << endl;
+            LOG_ERROR("CThread", "Thread " + std::to_string(this->m_threadIndex) + " creation failed: " + e.what());
             return RC_ERROR;
         }
     } else {
@@ -102,7 +102,7 @@ RC_t CThread::join() {
         }
         return RC_ERROR_INVALID_STATE;
     } catch (const std::exception& e) {
-        cout << "ERROR\t: Thread " << this->m_threadIndex << " join failed: " << e.what() << endl;
+        LOG_ERROR("CThread", "Thread " + std::to_string(this->m_threadIndex) + " join failed: " + e.what());
         return RC_ERROR;
     }
 }
@@ -120,7 +120,7 @@ RC_t CThread::detach() {
         }
         return RC_ERROR_INVALID_STATE;
     } catch (const std::exception& e) {
-        cout << "ERROR\t: Thread " << this->m_threadIndex << " detach failed: " << e.what() << endl;
+        LOG_ERROR("CThread", "Thread " + std::to_string(this->m_threadIndex) + " detach failed: " + e.what());
         return RC_ERROR;
     }
 }

@@ -12,6 +12,7 @@
 #include <iostream>
 
 // Own Include Files
+#include "./Common/inc/Logger.h"
 #include "./OS/inc/CSemaphore.h"
 
 // Namespaces
@@ -32,7 +33,7 @@ CSemaphore::CSemaphore(std::string name, int mode, unsigned int value) {
     this->m_value = value;
     this->m_count = value;
 
-    cout << "INFO\t: Create semaphore " << this->m_name << endl;
+    LOG_INFO("CSemaphore", "Create semaphore " + this->m_name);
 }
 
 
@@ -40,7 +41,7 @@ CSemaphore::CSemaphore(std::string name, int mode, unsigned int value) {
  * @brief : Destructor
  */
 CSemaphore::~CSemaphore() {
-    cout << "INFO\t: Destroy semaphore " << this->m_name << endl;
+    LOG_INFO("CSemaphore", "Destroy semaphore " + this->m_name);
 }
 
 

@@ -18,6 +18,7 @@
 #include <unistd.h>
 
 // Own Include Files
+#include "./Common/inc/Logger.h"
 #include "./OS/inc/CResource.h"
 
 // Method Implementations
@@ -41,11 +42,10 @@ CResource::CResource(string devPath, int flag, mode_t mode) {
 
     if (this->open() != RC_SUCCESS) {
         this->m_status = service_UNAVAILABLE;
-        cout << "ERROR\t: Failed to open " << this->m_resNodePath << " with error code " << errno
-             << endl;
+        LOG_ERROR("CResource", "Failed to open " + this->m_resNodePath + " with error code " + std::to_string(errno));
     } else {
         this->m_status = service_READY;
-        cout << "INFO\t: Device " << this->m_resNodePath << " opened for operation" << endl;
+        LOG_INFO("CResource", "Device " + this->m_resNodePath + " opened for operation");
     }
 
     // the hardware has read and write discriptor to be same.
@@ -60,11 +60,10 @@ CResource::CResource(string devPath, int flag, mode_t mode) {
 CResource::~CResource() {
     if (this->close() != RC_SUCCESS) {
         this->m_status = service_UNDEFINED;
-        cout << "ERROR\t: Failed to close " << this->m_resNodePath << " with error code " << errno
-             << endl;
+        LOG_ERROR("CResource", "Failed to close " + this->m_resNodePath + " with error code " + std::to_string(errno));
     } else {
         this->m_status = service_UNDEFINED;
-        cout << "INFO\t: Device " << this->m_resNodePath << " closed fom operation" << endl;
+        LOG_INFO("CResource", "Device " + this->m_resNodePath + " closed from operation");
     }
 }
 
@@ -81,8 +80,7 @@ RC_t CResource::open() {
         return RC_ERROR_INVALID_STATE;
 
     if (this->m_mutex_w.lock() != RC_SUCCESS) {
-        cout << "ERROR\t: Resource lock failed for Device " << this->m_resNodePath << " during open"
-             << endl;
+        LOG_ERROR("CResource", "Resource lock failed for Device " + this->m_resNodePath + " during open");
         return RC_ERROR_BUSY;
     }
 
@@ -90,15 +88,14 @@ RC_t CResource::open() {
         this->m_fd_w = ::open(this->m_resNodePath.c_str(), this->m_flags, this->m_mode);
 
         if (this->m_fd_w == -1) {
-            cout << "ERROR\t: Resource open failed for Device " << this->m_resNodePath << endl;
+            LOG_ERROR("CResource", "Resource open failed for Device " + this->m_resNodePath);
 
             ret = RC_ERROR_OPEN;
         }
     }
 
     if (this->m_mutex_w.unlock() != RC_SUCCESS) {
-        cout << "ERROR\t: Resource unlock failed for Device " << this->m_resNodePath
-             << " during open" << endl;
+        LOG_ERROR("CResource", "Resource unlock failed for Device " + this->m_resNodePath + " during open");
     }
 
     return ret;
@@ -117,8 +114,7 @@ RC_t CResource::close() {
         return RC_ERROR_INVALID_STATE;
 
     if (this->m_mutex_w.lock() != RC_SUCCESS) {
-        cout << "ERROR\t: Resource lock failed for Device " << this->m_resNodePath
-             << " during close" << endl;
+        LOG_ERROR("CResource", "Resource lock failed for Device " + this->m_resNodePath + " during close");
         return RC_ERROR_BUSY;
     }
 
@@ -131,8 +127,7 @@ RC_t CResource::close() {
     this->m_fd_w = 0;
 
     if (this->m_mutex_w.unlock() != RC_SUCCESS) {
-        cout << "ERROR\t: Resource unlock failed for Device " << this->m_resNodePath
-             << " during close" << endl;
+        LOG_ERROR("CResource", "Resource unlock failed for Device " + this->m_resNodePath + " during close");
     }
 
     return ret;
@@ -156,13 +151,12 @@ RC_t CResource::read(void* buffer, const size_t nByte, ssize_t& rByte) {
 
     if (buffer) {
         if (this->m_mutex_r.lock() != RC_SUCCESS) {
-            cout << "ERROR\t: Resource lock failed for Device " << this->m_resNodePath
-                 << " during read" << endl;
+            LOG_ERROR("CResource", "Resource lock failed for Device " + this->m_resNodePath + " during read");
             return RC_ERROR_BUSY;
         }
 
         if ((rByte = ::read(this->m_fd_r, buffer, nByte)) == -1) {
-            cout << "ERROR\t: Read failed for Device " << this->m_resNodePath << endl;
+            LOG_ERROR("CResource", "Read failed for Device " + this->m_resNodePath);
 
             ret = RC_ERROR_READ_FAILS;
         } else {
@@ -170,8 +164,7 @@ RC_t CResource::read(void* buffer, const size_t nByte, ssize_t& rByte) {
         }
 
         if (this->m_mutex_r.unlock() != RC_SUCCESS) {
-            cout << "ERROR\t: Resource unlock failed for Device " << this->m_resNodePath
-                 << " during read" << endl;
+            LOG_ERROR("CResource", "Resource unlock failed for Device " + this->m_resNodePath + " during read");
         }
     } else {
         ret = RC_ERROR_NULL;
@@ -197,13 +190,12 @@ RC_t CResource::write(const void* buffer, const size_t nByte, ssize_t& rByte) {
 
     if (buffer) {
         if (this->m_mutex_w.lock() != RC_SUCCESS) {
-            cout << "ERROR\t: Resource lock failed for Device " << this->m_resNodePath
-                 << " during write" << endl;
+            LOG_ERROR("CResource", "Resource lock failed for Device " + this->m_resNodePath + " during write");
             return RC_ERROR_BUSY;
         }
 
         if ((rByte = ::write(this->m_fd_w, buffer, nByte)) == -1) {
-            cout << "ERROR\t: Write failed for Device " << this->m_resNodePath << endl;
+            LOG_ERROR("CResource", "Write failed for Device " + this->m_resNodePath);
 
             ret = RC_ERROR_WRITE_FAILS;
         } else {
@@ -211,8 +203,7 @@ RC_t CResource::write(const void* buffer, const size_t nByte, ssize_t& rByte) {
         }
 
         if (this->m_mutex_w.unlock() != RC_SUCCESS) {
-            cout << "ERROR\t: Resource unlock failed for Device " << this->m_resNodePath
-                 << " during write" << endl;
+            LOG_ERROR("CResource", "Resource unlock failed for Device " + this->m_resNodePath + " during write");
         }
     } else {
         ret = RC_ERROR_NULL;

@@ -23,6 +23,7 @@
 #include <unistd.h>
 
 // Own Include Files
+#include "./Common/inc/Logger.h"
 #include "./HAL/inc/CCamera.h"
 
 // Namespace
@@ -75,7 +76,7 @@ static std::string gstreamer_pipeline(const CCamera::configuation_t& config) {
  * @return RC_t : Status of the camera
  */
 global::RC_t CCamera::configure() {
-    cout << "INFO\t: Camera port " << this->getDeviceNode() << " configuration" << endl;
+    LOG_INFO("CCamera", "Camera port " + this->getDeviceNode() + " configuration");
 
     if (this->m_status != service_READY)
         return RC_ERROR_INVALID_STATE;
@@ -96,11 +97,10 @@ global::RC_t CCamera::configure() {
 CCamera::CCamera(string devPath, int flags, mode_t mode) : CResource(devPath, flags, mode) {
     if (this->configure() != RC_SUCCESS) {
         this->m_status = service_UNAVAILABLE;
-        cout << "ERROR\t: Resource configuration failed for Device " << this->getDeviceNode()
-             << endl;
+        LOG_ERROR("CCamera", "Resource configuration failed for Device " + this->getDeviceNode());
     }
 
-    cout << "INFO\t: Camera port " << this->getDeviceNode() << " constructed" << endl;
+    LOG_INFO("CCamera", "Camera port " + this->getDeviceNode() + " constructed");
 }
 
 
@@ -108,7 +108,7 @@ CCamera::CCamera(string devPath, int flags, mode_t mode) : CResource(devPath, fl
  * @brief : Destructor
  */
 CCamera::~CCamera() {
-    cout << "INFO\t: Camera port " << this->getDeviceNode() << " destructed" << endl;
+    LOG_INFO("CCamera", "Camera port " + this->getDeviceNode() + " destructed");
 
     if (this->m_status != service_READY)
         return;
@@ -127,14 +127,14 @@ CCamera::~CCamera() {
  */
 RC_t CCamera::getCapture(cv::Mat* const image) {
     if (this->m_status != service_READY) {
-        cout << "ERROR\t: Camera hardware not ready " << this->getDeviceNode() << endl;
+        LOG_ERROR("CCamera", "Camera hardware not ready " + this->getDeviceNode());
         return RC_ERROR_INVALID_STATE;
     }
 
     cv::Mat capturedImage;
 
     if (!this->m_cameraStream.read(capturedImage)) {
-        cout << "ERROR\t: Camera failed to read " << this->getDeviceNode() << endl;
+        LOG_ERROR("CCamera", "Camera failed to read " + this->getDeviceNode());
         return RC_ERROR_READ_FAILS;
     }
 

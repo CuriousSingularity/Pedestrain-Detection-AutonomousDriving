@@ -19,6 +19,7 @@
 
 // Own Include Files
 #include "./App/inc/CCameraService.h"
+#include "./Common/inc/Logger.h"
 #include "./Lib/inc/CRingBuffer.h"
 
 // Namespace
@@ -77,14 +78,12 @@ void CCameraService::wait_for_newFrame() {
  */
 void CCameraService::run() {
     // The Threads runs here
-    cout << "INFO\t: Camera Service " << this->getThreadIndex()
-         << " started with ID : " << pthread_self() << endl;
+    LOG_INFO("CCameraService", "Camera Service " + std::to_string(this->getThreadIndex()) + " started with ID : " + std::to_string(pthread_self()));
 
     cv::Mat image;
     ssize_t wBytes;
 
-    cout << "INFO\t: Running Camera Service " << this->getThreadIndex() << " : " << pthread_self()
-         << endl;
+    LOG_INFO("CCameraService", "Running Camera Service " + std::to_string(this->getThreadIndex()) + " : " + std::to_string(pthread_self()));
 
     while (1) {
         this->wait_for_newFrame();
@@ -95,7 +94,7 @@ void CCameraService::run() {
 
         // store the frame to ringbuffer for consumers
         if (g_framesBuffer.writeData(image, cloneMat) != RC_SUCCESS) {
-            cout << "ERROR\t: Ring Buffer Write error" << endl;
+            LOG_ERROR("CCameraService", "Ring Buffer Write error");
         }
     }
 }
