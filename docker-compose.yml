@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  pedestrian-detection:
+    build: .
+    container_name: pedestrian-detection-app
+    restart: unless-stopped
+    
+    # Device access for camera (uncomment if using real camera)
+    # devices:
+    #   - /dev/video0:/dev/video0
+    
+    # Privileged mode for hardware access (use with caution)
+    # privileged: true
+    
+    # Volume mounts for configuration or data persistence
+    volumes:
+      - ./config:/app/config:ro  # Read-only config mount
+      - ./logs:/app/logs         # Logs directory
+    
+    # Environment variables
+    environment:
+      - PLATFORM=PC
+      - TARGET_PLATFORM=3
+      - LOG_LEVEL=INFO
+    
+    # Network configuration
+    # ports:
+    #   - "8080:8080"  # Expose if web interface is added
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "exe_PC"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Optional: Add a monitoring service
+  # monitoring:
+  #   image: prom/prometheus:latest
+  #   ports:
+  #     - "9090:9090"
+  #   volumes:
+  #     - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml

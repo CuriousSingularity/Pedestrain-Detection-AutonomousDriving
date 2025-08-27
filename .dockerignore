@@ -1,0 +1,35 @@
+# Build artifacts
+build/
+exe_*
+*.o
+
+# Version control
+.git/
+.gitignore
+
+# Documentation and design files (keeping Design/ as it's used by the app)
+README.md
+Docs/
+*.md
+!CLAUDE.md
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.log
