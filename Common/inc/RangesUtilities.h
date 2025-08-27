@@ -18,6 +18,7 @@
 #include <span>
 #include <vector>
 #include <array>
+#include <iterator>
 #include <opencv2/opencv.hpp>
 #include "IDetectionAlgorithm.h"
 #include "Concepts.h"
@@ -28,53 +29,28 @@ namespace views = std::views;
 namespace rng = std::ranges;
 
 /**
- * @brief Custom view for filtering detection results by confidence
+ * @brief Utility functions for filtering detection results by confidence
  */
-struct ConfidenceFilterView : views::view_interface<ConfidenceFilterView> {
-    std::span<const IDetectionAlgorithm::DetectionResult> detections;
-    float minConfidence;
-
-    ConfidenceFilterView(std::span<const IDetectionAlgorithm::DetectionResult> dets, float minConf)
-        : detections(dets), minConfidence(minConf) {}
-
-    auto begin() const {
-        return detections 
-            | views::filter([minConf = minConfidence](const auto& det) {
-                return det.confidence >= minConf;
-            })
-            | rng::begin;
+namespace confidence_filter {
+    inline auto filter_by_confidence(std::span<const IDetectionAlgorithm::DetectionResult> detections, float minConfidence) {
+        std::vector<IDetectionAlgorithm::DetectionResult> filtered;
+        std::copy_if(detections.begin(), detections.end(), std::back_inserter(filtered),
+            [minConfidence](const auto& det) { return det.confidence >= minConfidence; });
+        return filtered;
     }
-
-    auto end() const {
-        return detections 
-            | views::filter([minConf = minConfidence](const auto& det) {
-                return det.confidence >= minConf;
-            })
-            | rng::end;
-    }
-};
+}
 
 /**
- * @brief Custom view for extracting bounding boxes from detections
+ * @brief Utility functions for extracting bounding boxes from detections
  */
-struct BoundingBoxView : views::view_interface<BoundingBoxView> {
-    std::span<const IDetectionAlgorithm::DetectionResult> detections;
-
-    explicit BoundingBoxView(std::span<const IDetectionAlgorithm::DetectionResult> dets)
-        : detections(dets) {}
-
-    auto begin() const {
-        return detections 
-            | views::transform([](const auto& det) { return det.boundingBox; })
-            | rng::begin;
+namespace bounding_box_utils {
+    inline auto extract_bounding_boxes(std::span<const IDetectionAlgorithm::DetectionResult> detections) {
+        std::vector<cv::Rect> boxes;
+        std::transform(detections.begin(), detections.end(), std::back_inserter(boxes),
+            [](const auto& det) { return det.boundingBox; });
+        return boxes;
     }
-
-    auto end() const {
-        return detections 
-            | views::transform([](const auto& det) { return det.boundingBox; })
-            | rng::end;
-    }
-};
+}
 
 /**
  * @brief Utility functions using C++20 ranges
@@ -200,22 +176,27 @@ public:
             return DetectionStats{};
         }
 
-        auto confidences = detections | views::transform(&IDetectionAlgorithm::DetectionResult::confidence);
-        auto angles = detections | views::transform(&IDetectionAlgorithm::DetectionResult::angle);
+        auto confidences = detections | views::transform([](const auto& det) { return det.confidence; });
+        auto angles = detections | views::transform([](const auto& det) { return det.angle; });
         auto sizes = detections | views::transform([](const auto& det) { 
             return cv::Size(det.boundingBox.width, det.boundingBox.height); 
         });
 
-        auto [minConf, maxConf] = rng::minmax_element(confidences);
-        auto [minAngle, maxAngle] = rng::minmax_element(angles);
+        // Convert ranges to vectors for proper algorithm support
+        std::vector<float> confVec(confidences.begin(), confidences.end());
+        std::vector<float> angleVec(angles.begin(), angles.end());
+        std::vector<cv::Size> sizeVec(sizes.begin(), sizes.end());
+
+        auto [minConf, maxConf] = rng::minmax_element(confVec);
+        auto [minAngle, maxAngle] = rng::minmax_element(angleVec);
         
-        float avgConfidence = std::reduce(confidences.begin(), confidences.end(), 0.0f) / detections.size();
+        float avgConfidence = std::reduce(confVec.begin(), confVec.end(), 0.0f) / detections.size();
         
-        // Calculate average size
-        int totalWidth = std::reduce(sizes.begin(), sizes.end(), 0,
-            [](int sum, const cv::Size& size) { return sum + size.width; });
-        int totalHeight = std::reduce(sizes.begin(), sizes.end(), 0,
-            [](int sum, const cv::Size& size) { return sum + size.height; });
+        // Calculate average size using transform_reduce for proper type handling
+        int totalWidth = std::transform_reduce(sizeVec.begin(), sizeVec.end(), 0, std::plus<>{},
+            [](const cv::Size& size) { return size.width; });
+        int totalHeight = std::transform_reduce(sizeVec.begin(), sizeVec.end(), 0, std::plus<>{},
+            [](const cv::Size& size) { return size.height; });
 
         return DetectionStats{
             .count = detections.size(),
@@ -251,15 +232,21 @@ public:
      */
     static auto slidingWindow(std::span<const std::vector<IDetectionAlgorithm::DetectionResult>> detectionHistory,
                              size_t windowSize) {
-        return detectionHistory 
-            | views::slide(windowSize)
-            | views::transform([](auto window) {
+        // Fallback implementation for GCC 11 - slide is C++23
+        std::vector<std::vector<IDetectionAlgorithm::DetectionResult>> windows;
+        
+        if (detectionHistory.size() >= windowSize) {
+            for (size_t i = 0; i <= detectionHistory.size() - windowSize; ++i) {
                 std::vector<IDetectionAlgorithm::DetectionResult> combined;
-                for (const auto& detSet : window) {
+                for (size_t j = i; j < i + windowSize; ++j) {
+                    const auto& detSet = detectionHistory[j];
                     combined.insert(combined.end(), detSet.begin(), detSet.end());
                 }
-                return combined;
-            });
+                windows.push_back(std::move(combined));
+            }
+        }
+        
+        return windows;
     }
 
     /**
@@ -280,7 +267,7 @@ public:
 /**
  * @brief Range adaptor for creating confidence filter view
  */
-constexpr auto confidence_filter = [](float threshold) {
+constexpr auto confidence_filter_adaptor = [](float threshold) {
     return views::filter([threshold](const auto& det) {
         return det.confidence >= threshold;
     });

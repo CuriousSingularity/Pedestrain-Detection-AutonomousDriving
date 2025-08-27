@@ -13,12 +13,32 @@
 #include <opencv2/opencv.hpp>
 #include <vector>
 #include <chrono>
+#include <span>
+#include <concepts>
+#include <sstream>
 #include "global.h"
-#include "Cpp20Compatibility.h"
+#include "Concepts.h"
 
-#if CONCEPTS_AVAILABLE
-    #include "Concepts.h"
-#endif
+// C++20 format fallback for GCC 11
+namespace std_format_fallback {
+    template<typename... Args>
+    std::string format(const std::string& fmt, Args&&... args) {
+        std::ostringstream oss;
+        size_t pos = 0;
+        auto format_impl = [&]<typename T>(const T& arg) {
+            size_t next_pos = fmt.find("{}", pos);
+            if (next_pos != std::string::npos) {
+                oss << fmt.substr(pos, next_pos - pos) << arg;
+                pos = next_pos + 2;
+            }
+        };
+        (format_impl(args), ...);
+        if (pos < fmt.length()) {
+            oss << fmt.substr(pos);
+        }
+        return oss.str();
+    }
+}
 
 /**
  * @brief Interface for detection algorithms using Strategy pattern
@@ -40,8 +60,8 @@ public:
         cv::Size maxSize{};
         
         // C++20 designated initializers support
-        constexpr DetectionConfig() = default;
-        constexpr DetectionConfig(float threshold, float scale, int neighbors) 
+        DetectionConfig() = default;
+        DetectionConfig(float threshold, float scale, int neighbors) 
             : hitThreshold{threshold}, scaleFactor{scale}, minNeighbors{neighbors} {}
     };
 
@@ -53,7 +73,7 @@ public:
      * @param results Output span of detection results
      * @return RC_t Return code indicating success or failure
      */
-    virtual global::RC_t detect(const cv::Mat& frame, pedestrian_detection::compat::span<DetectionResult> results) = 0;
+    virtual global::RC_t detect(const cv::Mat& frame, std::span<DetectionResult> results) = 0;
     
     /**
      * @brief Detect objects with vector output (legacy interface)
@@ -75,12 +95,7 @@ public:
      * @param config Configuration parameters
      * @return RC_t Return code indicating success or failure
      */
-#if CONCEPTS_AVAILABLE
-    virtual global::RC_t configure(const DetectionConfig& config) 
-        requires pedestrian_detection::concepts::ConfigurationValue<DetectionConfig> = 0;
-#else
     virtual global::RC_t configure(const DetectionConfig& config) = 0;
-#endif
 
     /**
      * @brief Get algorithm name using std::format
@@ -93,13 +108,8 @@ public:
      * @return std::string Formatted algorithm details
      */
     virtual std::string getInfo() const {
-#if FORMAT_AVAILABLE
-        return std::format("Algorithm: {}, Config: threshold={:.2f}, scale={:.2f}", 
+        return std_format_fallback::format("Algorithm: {}, Config: threshold={}, scale={}", 
                           getName(), getCurrentConfig().hitThreshold, getCurrentConfig().scaleFactor);
-#else
-        return pedestrian_detection::compat::format("Algorithm: {}, Config: threshold={:.2f}, scale={:.2f}", 
-                          getName(), getCurrentConfig().hitThreshold, getCurrentConfig().scaleFactor);
-#endif
     }
     
     /**

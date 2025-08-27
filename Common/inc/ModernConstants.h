@@ -19,9 +19,9 @@
 
 namespace pedestrian_detection::constants {
 
-// C++20 constinit for compile-time initialization
-constinit inline const float CAMERA_FOV_DEGREES = 62.0f;
-constinit inline const float HALF_FOV = CAMERA_FOV_DEGREES / 2.0f;
+// C++20 constinit for compile-time initialization  
+constexpr inline float CAMERA_FOV_DEGREES = 62.0f;
+constexpr inline float HALF_FOV = CAMERA_FOV_DEGREES / 2.0f;
 constinit inline const int MIN_DETECTION_AREA = 1000;
 constinit inline const int MAX_STRAIGHT_LINES = 6;
 constinit inline const size_t MAX_DETECTION_RESULTS = 50;
@@ -40,7 +40,8 @@ consteval float radiansToDegrees(float radians) noexcept {
     return radians * RAD_TO_DEG;
 }
 
-consteval cv::Size calculateOptimalSize(int width, int height, float scaleFactor) noexcept {
+// Cannot use consteval with cv::Size as it's not a literal type
+inline cv::Size calculateOptimalSize(int width, int height, float scaleFactor) noexcept {
     return cv::Size(static_cast<int>(width * scaleFactor), 
                    static_cast<int>(height * scaleFactor));
 }
@@ -72,8 +73,9 @@ struct AlgorithmConstants {
     static constexpr float DEFAULT_HIT_THRESHOLD = 0.5f;
     static constexpr float DEFAULT_SCALE_FACTOR = 1.1f;
     static constexpr int DEFAULT_MIN_NEIGHBORS = 3;
-    static constexpr cv::Size DEFAULT_MIN_SIZE{30, 30};
-    static constexpr cv::Size DEFAULT_MAX_SIZE{};
+    // OpenCV Size is not a literal type, so declare here and define after class
+    static const cv::Size DEFAULT_MIN_SIZE;
+    static const cv::Size DEFAULT_MAX_SIZE;
     
     // Constexpr validation functions
     static constexpr bool isValidThreshold(float threshold) noexcept {
@@ -88,6 +90,10 @@ struct AlgorithmConstants {
         return neighbors >= 0 && neighbors <= 10;
     }
 };
+
+// Define OpenCV Size constants outside the class
+inline const cv::Size AlgorithmConstants::DEFAULT_MIN_SIZE(30, 30);
+inline const cv::Size AlgorithmConstants::DEFAULT_MAX_SIZE(0, 0);
 
 // Constexpr protocol constants
 struct ProtocolConstants {
@@ -178,16 +184,16 @@ struct ErrorCodeMapping {
 };
 
 constexpr std::array<ErrorCodeMapping, 10> ERROR_MAPPINGS = {{
-    ErrorCodeMapping{global::RC_SUCCESS, "Success", true},
-    ErrorCodeMapping{global::RC_ERROR, "General error", true},
-    ErrorCodeMapping{global::RC_ERROR_NULL, "Null pointer", false},
-    ErrorCodeMapping{global::RC_ERROR_MEMORY, "Memory error", false},
-    ErrorCodeMapping{global::RC_ERROR_RANGE, "Range error", true},
-    ErrorCodeMapping{global::RC_ERROR_TIMEOUT, "Timeout", true},
-    ErrorCodeMapping{global::RC_ERROR_INVALID, "Invalid operation", true},
-    ErrorCodeMapping{global::RC_ERROR_BUSY, "Resource busy", true},
-    ErrorCodeMapping{global::RC_ERROR_BUFFER_FULL, "Buffer full", true},
-    ErrorCodeMapping{global::RC_ERROR_BUFFER_EMTPY, "Buffer empty", true}
+    {global::RC_SUCCESS, "Success", true},
+    {global::RC_ERROR, "General error", true},
+    {global::RC_ERROR_NULL, "Null pointer", false},
+    {global::RC_ERROR_MEMORY, "Memory error", false},
+    {global::RC_ERROR_RANGE, "Range error", true},
+    {global::RC_ERROR_TIME_OUT, "Timeout", true},
+    {global::RC_ERROR_INVALID, "Invalid operation", true},
+    {global::RC_ERROR_BUSY, "Resource busy", true},
+    {global::RC_ERROR_BUFFER_FULL, "Buffer full", true},
+    {global::RC_ERROR_BUFFER_EMTPY, "Buffer empty", true}
 }};
 
 // Constexpr lookup function
