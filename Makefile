@@ -48,23 +48,17 @@ ENABLE_MODERN_CPP20 ?= 1
 ENABLE_COROUTINES ?= 1
 ENABLE_CONCEPTS ?= 1
 
-# Check GCC version and set appropriate C++ standard
+# Enforce C++20 standard - no fallbacks
 GCC_VERSION := $(shell $(CXX) -dumpversion)
 GCC_VERSION_MAJOR := $(shell echo $(GCC_VERSION) | cut -d. -f1)
 
-# Use C++20 if GCC >= 11, otherwise fall back to C++17
+# Require GCC 11+ for C++20 support
 ifeq ($(shell expr $(GCC_VERSION_MAJOR) \>= 11), 1)
     STD_FLAG = -std=c++20
     COROUTINE_FLAG = -fcoroutines
-    MODULE_FLAG = 
-else ifeq ($(shell expr $(GCC_VERSION_MAJOR) \>= 8), 1)
-    STD_FLAG = -std=c++17
-    COROUTINE_FLAG = 
-    MODULE_FLAG = 
+    MODULE_FLAG = -fmodules-ts
 else
-    STD_FLAG = -std=c++14
-    COROUTINE_FLAG = 
-    MODULE_FLAG = 
+    $(error Error: This project requires GCC 11+ for C++20 support. Current version: $(GCC_VERSION))
 endif
 
 # 🔧 Build Flag Generation
@@ -98,7 +92,7 @@ EFLAGS=-o
 DFLAGS=-D
 IFLAGS=-I
 
-PATH_OPENCV_INCLUDE=$(IFLAGS)/usr/include/opencv2/ $(IFLAGS)/usr/include/opencv/
+PATH_OPENCV_INCLUDE=$(IFLAGS)/usr/include/opencv4/ $(IFLAGS)/usr/include/opencv2/ $(IFLAGS)/usr/include/opencv/
 PATH_ALL_INCLUDE=$(IFLAGS)$(PATH_APP_INCLUDE) $(IFLAGS)$(PATH_OS_INCLUDE) $(IFLAGS)$(PATH_HAL_INCLUDE) $(IFLAGS)$(PATH_COMMON_INCLUDE) $(IFLAGS)$(PATH_DETECTION_INCLUDE) $(IFLAGS)$(PATH_COMMUNICATION_INCLUDE) $(IFLAGS)$(PATH_PROJECT) $(PATH_OPENCV_INCLUDE) $(EXTRA_CFLAGS)
 
 exe:obj
@@ -128,13 +122,8 @@ obj:*.cpp
 	$(CC) $(CFLAGS) $(PATH_ALL_INCLUDE) $(DFLAGS) TARGET_PLATFORM=$(PLATFORM) $(EFLAGS) $(PATH_BUILD_DIR)/ConfigurationManager.o 	$(PATH_COMMON_SOURCE)/ConfigurationManager.cpp
 	$(CC) $(CFLAGS) $(PATH_ALL_INCLUDE) $(DFLAGS) TARGET_PLATFORM=$(PLATFORM) $(EFLAGS) $(PATH_BUILD_DIR)/ObservableSubject.o 	$(PATH_COMMON_SOURCE)/ObservableSubject.cpp
 	$(CC) $(CFLAGS) $(PATH_ALL_INCLUDE) $(DFLAGS) TARGET_PLATFORM=$(PLATFORM) $(EFLAGS) $(PATH_BUILD_DIR)/ServiceFactoryManager.o 	$(PATH_COMMON_SOURCE)/ServiceFactoryManager.cpp
-	# Detection algorithms - temporarily commented out for debugging
-	# Always compile legacy algorithm for compatibility
-	#$(CC) $(CFLAGS) $(PATH_ALL_INCLUDE) $(DFLAGS) TARGET_PLATFORM=$(PLATFORM) $(EFLAGS) $(PATH_BUILD_DIR)/LegacyHOGAlgorithm.o 	$(PATH_DETECTION_SOURCE)/LegacyHOGAlgorithm.cpp
-	# Compile modern algorithm only if C++20 is available
-#ifeq ($(shell expr $(GCC_VERSION_MAJOR) \>= 11), 1)
-	#$(CC) $(CFLAGS) $(PATH_ALL_INCLUDE) $(DFLAGS) TARGET_PLATFORM=$(PLATFORM) $(EFLAGS) $(PATH_BUILD_DIR)/HOGDetectionAlgorithm.o 	$(PATH_DETECTION_SOURCE)/HOGDetectionAlgorithm.cpp
-#endif
+	# Detection algorithms - C++20 modern implementation only
+	$(CC) $(CFLAGS) $(PATH_ALL_INCLUDE) $(DFLAGS) TARGET_PLATFORM=$(PLATFORM) $(EFLAGS) $(PATH_BUILD_DIR)/HOGDetectionAlgorithm.o 	$(PATH_DETECTION_SOURCE)/HOGDetectionAlgorithm.cpp
 
 clean:
 	rm $(PATH_BUILD_DIR)/*.o -r -v
