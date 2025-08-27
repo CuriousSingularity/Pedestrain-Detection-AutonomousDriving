@@ -90,6 +90,12 @@ public:
 	CResource(std::string devPath = "", int flag = 0, mode_t mode = 0);
 
 	/**
+	 * @brief : Delete copy constructor and assignment operator
+	 */
+	CResource(const CResource&) = delete;
+	CResource& operator=(const CResource&) = delete;
+
+	/**
 	 * @brief : Destructor
 	 */
 	~CResource();

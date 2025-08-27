@@ -14,7 +14,9 @@
 
 //System Include Files
 #include <string>
-#include <semaphore.h>
+#include <mutex>
+#include <condition_variable>
+#include <chrono>
 
 //Own Include Files
 #include "./global.h"
@@ -38,23 +40,19 @@ private:
 	unsigned int m_value;
 
 	/**
-	 * @brief : semaphore
+	 * @brief : mutex for condition variable
 	 */
-	sem_t m_sem;
+	std::mutex m_mutex;
 
 	/**
-	 * @brief : Initialises the semaphore
-	 *
-	 * @return RC_t - status of initialisation
+	 * @brief : condition variable
 	 */
-	global::RC_t init();
+	std::condition_variable m_cv;
 
 	/**
-	 * @brief : Destroys the semaphore
-	 *
-	 * @return RC_t - status of destruction
+	 * @brief : current count
 	 */
-	global::RC_t destroy();
+	unsigned int m_count;
 
 public:
 
@@ -66,6 +64,12 @@ public:
 	 * @param value		: inital value of the semaphore
 	 */
 	CSemaphore(std::string name, int mode, unsigned int value = 1);
+
+	/**
+	 * @brief : Delete copy constructor and assignment operator
+	 */
+	CSemaphore(const CSemaphore&) = delete;
+	CSemaphore& operator=(const CSemaphore&) = delete;
 
 	/**
 	 * @brief : Destructor
@@ -89,11 +93,11 @@ public:
 	/**
 	 * @brief : Timed-Blocking wait until event
 	 *
-	 * @param abs_timeout	: absolute timeperiod 
+	 * @param timeout_ms	: timeout in milliseconds 
 	 *
 	 * @return RC_t - status
 	 */
-	global::RC_t timedwait(const struct timespec &abs_timeout);
+	global::RC_t timedwait(unsigned int timeout_ms);
 
 	/**
 	 * @brief : Set event to wake up the blocked threads

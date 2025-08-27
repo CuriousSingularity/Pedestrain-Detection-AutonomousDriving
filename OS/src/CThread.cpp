@@ -24,18 +24,13 @@ using namespace global;
  * @brief : Constructor
  *
  * @param threadIndex		: Index for a thread
- * @param pSysRes		: Reference to the system resource which can be used by the threads
  * @param entry			: Entry Function for the thread
  */
-CThread::CThread(int32_t threadIndex, start_routine_t entry, void *arg)
+CThread::CThread(int32_t threadIndex, start_routine_t entry)
 {
-	// if this is NULL, then the thread is create with default configuration
-	// TODO: May explore the attributes to utilize CPU and optimizate for a better 
-	// performance. Refer man pages in linux for more information :D
-	this->m_threadId		= 0;
 	this->m_thread_entry		= entry;
-	this->m_pArg			= arg;
 	this->m_threadIndex		= threadIndex;
+	this->m_created			= false;
 }
 
 
@@ -44,13 +39,10 @@ CThread::CThread(int32_t threadIndex, start_routine_t entry, void *arg)
  */
 CThread::~CThread()
 {
-	if (pthread_attr_destroy(&this->m_attr) != 0)
+	if (m_created && m_thread.joinable())
 	{
-		cout << "ERROR\t: Thread " << this->m_threadIndex << " setup failed due to bad attribute" << endl;
+		m_thread.join();
 	}
-
-	// pthread_exit - Thread exit can be done here, but we are not going to terminate our application, hence
-	// not implemented here. If needed, this is the place to implement.
 }
 
 
@@ -70,52 +62,87 @@ int32_t CThread::getThreadIndex()
  *
  * @return - Thread ID
  */
-pthread_t CThread::getThreadID()
+std::thread::id CThread::getThreadID()
 {
-	return this->m_threadId;
+	return this->m_thread.get_id();
 }
 
 
 /**
  * @brief : Function which creates a thread based on the entry function provided
  *
- * @param pAttr			: Thread attributes
- *
  * @return 			: status of setup
  */
-RC_t CThread::create(pthread_attr_t *pAttr)
+RC_t CThread::create()
 {
 	// check if the thread is already created
-	if (this->m_threadId == 0)
+	if (!this->m_created)
 	{
-		if (this->m_thread_entry == 0)
+		if (!this->m_thread_entry)
 		{
 			return RC_ERROR_NULL;
 		}
 
-		if (pAttr)
+		try
 		{
-			memcpy(&this->m_attr, pAttr, sizeof(pthread_attr_t));
+			m_thread = std::thread(m_thread_entry);
+			m_created = true;
+			return RC_SUCCESS;
 		}
-
-		if (pthread_attr_init(&this->m_attr) != 0)
+		catch (const std::exception& e)
 		{
-			cout << "ERROR\t: Thread " << this->m_threadIndex << " setup failed due to bad attribute" << endl;
-			return RC_ERROR_BAD_PARAM;
-		}
-
-		// Thread parameter arguments is made NULL since it is redandent
-		// TODO: If parameter is needed for each threads independently, explore this API options
-		if (pthread_create(&this->m_threadId, &this->m_attr, this->m_thread_entry, this->m_pArg) != 0)
-		{
-			cout << "ERROR\t: Thread " << this->m_threadIndex << " creation failed with errno " << errno << endl;
+			cout << "ERROR\t: Thread " << this->m_threadIndex << " creation failed: " << e.what() << endl;
 			return RC_ERROR;
 		}
-
-		return RC_SUCCESS;
 	}
 	else
 	{
 		return RC_ERROR_BUSY;
+	}
+}
+
+/**
+ * @brief : Join the thread
+ *
+ * @return 			: status of join
+ */
+RC_t CThread::join()
+{
+	try
+	{
+		if (m_created && m_thread.joinable())
+		{
+			m_thread.join();
+			return RC_SUCCESS;
+		}
+		return RC_ERROR_INVALID_STATE;
+	}
+	catch (const std::exception& e)
+	{
+		cout << "ERROR\t: Thread " << this->m_threadIndex << " join failed: " << e.what() << endl;
+		return RC_ERROR;
+	}
+}
+
+/**
+ * @brief : Detach the thread
+ *
+ * @return 			: status of detach
+ */
+RC_t CThread::detach()
+{
+	try
+	{
+		if (m_created && m_thread.joinable())
+		{
+			m_thread.detach();
+			return RC_SUCCESS;
+		}
+		return RC_ERROR_INVALID_STATE;
+	}
+	catch (const std::exception& e)
+	{
+		cout << "ERROR\t: Thread " << this->m_threadIndex << " detach failed: " << e.what() << endl;
+		return RC_ERROR;
 	}
 }

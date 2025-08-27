@@ -50,24 +50,14 @@ public:
 	 * @brief : Constructor
 	 *
 	 * @param threadIndex 	: Thread Index
-	 * @param entry		: Entry function for the thread
-	 * @param arg		: Arguments to the thread
 	 */
-	CComTxService(int threadIndex, CThread::start_routine_t entry = NULL, void *arg = NULL);
+	CComTxService(int threadIndex);
 
 	/**
 	 * @brief : Destructor
 	 */
 	~CComTxService();
 
-	/**
-	 * @brief : Friend function used to create the thread 
-	 *
-	 * @param arg : arguments to the thread
-	 *
-	 * @return 
-	 */
-	friend void *friend_com_tx_service(void *arg);
 
 };
 /********************

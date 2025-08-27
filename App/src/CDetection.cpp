@@ -52,7 +52,7 @@ static const CDetection::hog_config_t hog_config_param {
  * @param entry		: Entry function for the thread
  * @param arg		: Arguments to the thread
  */
-CDetection::CDetection(int threadIndex, CThread::start_routine_t entry, void *arg) : CThread(threadIndex, entry, arg)
+CDetection::CDetection(int threadIndex) : CThread(threadIndex, [this]() { this->run(); })
 {
 	//nothing
 }
@@ -241,24 +241,3 @@ void CDetection::filter_algorithm(vector<Rect> &nmsDetections, CSerialProtocol::
 }
 
 
-/**
- * @brief : Friend function used to create the thread 
- *
- * @param arg : arguments to the thread
- *
- * @return 
- */
-void *friend_detection(void *arg)
-{
-	if (arg)
-		cout << "INFO\t: Thread " << __func__ << endl;
-
-	CDetection *ptr = static_cast<CDetection *>(arg);
-
-	if (ptr)
-	{
-		ptr->run();
-	}
-
-	return NULL;
-}

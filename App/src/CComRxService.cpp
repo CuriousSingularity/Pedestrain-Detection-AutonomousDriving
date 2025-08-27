@@ -33,8 +33,8 @@ using namespace global;
  * @param entry		: Entry function for the thread
  * @param arg		: Arguments to the thread
  */
-CComRxService::CComRxService(int threadIndex, CThread::start_routine_t entry, void *arg) : 
-		CThread(threadIndex, entry, arg)
+CComRxService::CComRxService(int threadIndex) : 
+		CThread(threadIndex, [this]() { this->run(); })
 {
 	// nothing
 }
@@ -76,23 +76,3 @@ void CComRxService::run()
 
 
 
-/**
- * @brief : Friend function used to create the thread 
- *
- * @param arg : arguments to the thread
- *
- * @return 
- */
-void *friend_com_rx_service(void *arg)
-{
-	cout << "INFO\t: Thread " << __func__ << endl;
-
-	CComRxService *ptr = static_cast<CComRxService *>(arg);
-
-	if (ptr)
-	{
-		ptr->run();
-	}
-
-	return NULL;
-}

@@ -55,25 +55,14 @@ public:
 	 * @brief : Constructor
 	 *
 	 * @param threadIndex 	: Thread Index
-	 * @param sysResource	: Global resource pointer
-	 * @param entry		: Entry function for the thread
-	 * @param arg		: Arguments to the thread
 	 */
-	CDetection(int threadIndex, CThread::start_routine_t entry = NULL, void *arg = NULL);
+	CDetection(int threadIndex);
 
 	/**
 	 * @brief : Destructor
 	 */
 	~CDetection();
 
-	/**
-	 * @brief : Friend function used to create the thread 
-	 *
-	 * @param arg : arguments to the thread
-	 *
-	 * @return 
-	 */
-	friend void *friend_detection(void *arg);
 
 };
 /********************

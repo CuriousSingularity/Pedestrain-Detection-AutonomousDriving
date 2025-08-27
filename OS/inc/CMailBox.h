@@ -33,6 +33,12 @@ public:
 	CMailBox(int owner);
 
 	/**
+	 * @brief : Delete copy constructor and assignment operator
+	 */
+	CMailBox(const CMailBox&) = delete;
+	CMailBox& operator=(const CMailBox&) = delete;
+
+	/**
 	 * @brief : Destructor 
 	 */
 	virtual ~CMailBox();

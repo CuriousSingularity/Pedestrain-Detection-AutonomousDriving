@@ -33,8 +33,8 @@ using namespace global;
  * @param entry		: Entry function for the thread
  * @param arg		: Arguments to the thread
  */
-CComTxService::CComTxService(int threadIndex, CThread::start_routine_t entry, void *arg) : 
-		CThread(threadIndex, entry, arg), 
+CComTxService::CComTxService(int threadIndex) : 
+		CThread(threadIndex, [this]() { this->run(); }), 
 		m_uart_1("/dev/ttyTHS1"	, O_RDWR | O_NOCTTY | O_SYNC, S_IRWXU)
 {
 	// nothing
@@ -155,23 +155,3 @@ RC_t CComTxService::processRecvdMsg(CMailBox::mail_box_data_t &data)
 }
 
 
-/**
- * @brief : Friend function used to create the thread 
- *
- * @param arg : arguments to the thread
- *
- * @return 
- */
-void *friend_com_tx_service(void *arg)
-{
-	cout << "INFO\t: Thread " << __func__ << endl;
-
-	CComTxService *ptr = static_cast<CComTxService *>(arg);
-
-	if (ptr)
-	{
-		ptr->run();
-	}
-
-	return NULL;
-}

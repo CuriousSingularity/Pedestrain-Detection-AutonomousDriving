@@ -43,21 +43,13 @@ public:
 	 * @param entry		: Entry function for the thread
 	 * @param arg		: Arguments to the thread
 	 */
-	CComRxService(int threadIndex, CThread::start_routine_t entry = NULL, void *arg = NULL);
+	CComRxService(int threadIndex);
 
 	/**
 	 * @brief : Destructor
 	 */
 	~CComRxService();
 
-	/**
-	 * @brief : Friend function used to create the thread 
-	 *
-	 * @param arg : arguments to the thread
-	 *
-	 * @return 
-	 */
-	friend void *friend_com_rx_service(void *arg);
 
 };
 /********************

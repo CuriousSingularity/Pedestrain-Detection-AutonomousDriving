@@ -40,12 +40,9 @@ void CCameraService::cloneMat(cv::Mat &lhs, const cv::Mat &rhs)
  * @brief : Constructor
  *
  * @param threadIndex 	: Thread Index
- * @param sysResource	: Global resource pointer
- * @param entry		: Entry function for the thread
- * @param arg		: Arguments to the thread
  */
-CCameraService::CCameraService(int threadIndex, CThread::start_routine_t entry, void *arg) : 
-		CThread(threadIndex, entry, arg),
+CCameraService::CCameraService(int threadIndex) : 
+		CThread(threadIndex, [this]() { this->run(); }),
 		m_camera_0("/dev/video0"	, O_RDWR | O_NOCTTY | O_SYNC, S_IRWXU)
 {
 	// nothing
@@ -110,23 +107,3 @@ void CCameraService::run()
 
 
 
-/**
- * @brief : Friend function used to create the thread 
- *
- * @param arg : arguments to the thread
- *
- * @return 
- */
-void *friend_camera_service(void *arg)
-{
-	cout << "INFO\t: Thread " << __func__ << endl;
-
-	CCameraService *ptr = static_cast<CCameraService *>(arg);
-
-	if (ptr)
-	{
-		ptr->run();
-	}
-
-	return NULL;
-}

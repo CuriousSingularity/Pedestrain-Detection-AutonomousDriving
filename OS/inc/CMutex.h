@@ -11,7 +11,7 @@
 #define CMUTEX_H
 
 //System Include Files
-#include <pthread.h>
+#include <mutex>
 
 //Own Include Files
 #include "./global.h"
@@ -20,39 +20,27 @@ class CMutex {
 private:
 
 	/**
-	 * @brief : Mutex key 
+	 * @brief : Mutex object 
 	 */
-	pthread_mutex_t m_key;
-
-	/**
-	 * @brief : Mutex attributes
-	 */
-	pthread_mutexattr_t m_attr;
+	std::mutex m_mutex;
 
 	/**
 	 * @brief : Status of the Mutex
 	 */
 	global::service_state_t m_status;
 
-	/**
-	 * @brief : Mutex initialisation
-	 *
-	 * @return RC_t : status
-	 */
-	global::RC_t init();
-
-	/**
-	 * @brief : Mutex destroy
-	 *
-	 * @return RC_t : status
-	 */
-	global::RC_t destroy();
 public:
 
 	/**
 	 * @brief : Constructor
 	 */
 	CMutex();
+
+	/**
+	 * @brief : Delete copy constructor and assignment operator
+	 */
+	CMutex(const CMutex&) = delete;
+	CMutex& operator=(const CMutex&) = delete;
 
 	/**
 	 * @brief : Destructor 

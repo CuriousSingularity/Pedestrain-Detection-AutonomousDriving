@@ -12,7 +12,8 @@
 #define CTHREAD_H
 
 //System Include Files
-#include <pthread.h>
+#include <thread>
+#include <functional>
 
 //Own Include Files
 #include "./global.h"
@@ -23,21 +24,25 @@ public:
 	/**
 	 * @brief : Typedef for the start routine of a thread 
 	 *
-	 * @param : void * arguments - POSIX specific
+	 * @param : void * arguments - C++ standard
 	 *
-	 * @return : void * - thread join
+	 * @return : void
 	 */
-	typedef void*(*start_routine_t)(void *);
+	typedef std::function<void()> start_routine_t;
 
 	/**
 	 * @brief : Constructor
 	 *
 	 * @param threadIndex		: Index for a thread
-	 * @param pAttr			: Attributes
-	 * @param pSysRes		: Reference to the system resource which can be used by the threads
 	 * @param entry			: Entry Function for the thread
 	 */
-	CThread(int32_t threadIndex, CThread::start_routine_t entry = NULL, void *arg = NULL);
+	CThread(int32_t threadIndex, CThread::start_routine_t entry = nullptr);
+
+	/**
+	 * @brief : Delete copy constructor and assignment operator
+	 */
+	CThread(const CThread&) = delete;
+	CThread& operator=(const CThread&) = delete;
 
 	/**
 	 * @brief : Destructor
@@ -56,7 +61,7 @@ public:
 	 *
 	 * @return - Thread ID
 	 */
-	pthread_t getThreadID();
+	std::thread::id getThreadID();
 
 	/**
 	 * @brief : Pure virtual entry function for each thread
@@ -70,23 +75,30 @@ public:
 	/**
 	 * @brief : Function which creates a thread based on the entry function provided
 	 *
-	 * @param pAttr			: Thread attributes
-	 *
 	 * @return 			: status of setup
 	 */
-	global::RC_t create(pthread_attr_t *pAttr);
+	global::RC_t create();
+
+	/**
+	 * @brief : Join the thread
+	 *
+	 * @return 			: status of join
+	 */
+	global::RC_t join();
+
+	/**
+	 * @brief : Detach the thread
+	 *
+	 * @return 			: status of detach
+	 */
+	global::RC_t detach();
 
 private:
 
 	/**
-	 * @brief : Thread ID - unique for a thread in a process
+	 * @brief : Thread object
 	 */
-	pthread_t m_threadId;
-
-	/**
-	 * @brief : Thread attributes such as priority, detachable, stack, etc
-	 */
-	pthread_attr_t m_attr;
+	std::thread m_thread;
 
 	/**
 	 * @brief : Thread index to monitor the threads
@@ -94,14 +106,14 @@ private:
 	int32_t m_threadIndex;
 
 	/**
-	 * @brief : Arguments for the thread
-	 */
-	void *m_pArg;
-
-	/**
 	 * @brief : entry function for a thread
 	 */
 	start_routine_t m_thread_entry;
+
+	/**
+	 * @brief : flag to track if thread is created
+	 */
+	bool m_created;
 
 };
 /********************

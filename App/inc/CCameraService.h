@@ -46,10 +46,8 @@ public:
 	 * @brief : Constructor
 	 *
 	 * @param threadIndex 	: Thread Index
-	 * @param entry		: Entry function for the thread
-	 * @param arg		: Arguments to the thread
 	 */
-	CCameraService(int threadIndex, CThread::start_routine_t entry = NULL, void *arg = NULL);
+	CCameraService(int threadIndex);
 
 	/**
 	 * @brief : Destructor
@@ -57,14 +55,6 @@ public:
 	~CCameraService();
 
 	static void cloneMat(cv::Mat &lhs, const cv::Mat &rhs);
-	/**
-	 * @brief : Friend function used to create the thread 
-	 *
-	 * @param arg : arguments to the thread
-	 *
-	 * @return 
-	 */
-	friend void *friend_camera_service(void *arg);
 
 };
 /********************
