@@ -8,87 +8,71 @@
  ****************************************************************************/
 
 
-//System Include Files
+// System Include Files
 #include <iostream>
-#include <pthread.h>
+#include <thread>
 
-//Own Include Files
-#include "./OS/inc/CMailBox.h"
+// Own Include Files
 #include "./App/inc/CApplication.h"
+#include "./Common/inc/Logger.h"
+#include "./OS/inc/CMailBox.h"
 
-//Namespace
+// Namespace
 using namespace std;
 using namespace global;
 
-extern void *friend_com_tx_service(void *);
-extern void *friend_com_rx_service(void *);
-extern void *friend_camera_service(void *);
-extern void *friend_detection(void *);
 
-//global Variable 
-//Mailboxes for all the threads
-CMailBox g__Mailboxes[THREAD_TOTAL_COUNT] = 
-{
-	CMailBox(THREAD_BACKGROUND),
-	CMailBox(THREAD_COM_TX_SERVICE),
-	CMailBox(THREAD_COM_RX_SERVICE),
-	CMailBox(THREAD_CAMERA_SERVICE),
-	CMailBox(THREAD_DETECTION_SERVICE),
+// global Variable
+// Mailboxes for all the threads
+CMailBox g__Mailboxes[THREAD_TOTAL_COUNT] = {
+    {THREAD_BACKGROUND},     {THREAD_COM_TX_SERVICE},    {THREAD_COM_RX_SERVICE},
+    {THREAD_CAMERA_SERVICE}, {THREAD_DETECTION_SERVICE},
 };
 
-//Method Implementations
+// Method Implementations
 /**
  * @brief : Constructor
  */
-CApplication::CApplication() :	
-	m_thread_com_tx_service	(THREAD_COM_TX_SERVICE, 	friend_com_tx_service, 	&this->m_thread_com_tx_service),
-	m_thread_com_rx_service	(THREAD_COM_RX_SERVICE, 	friend_com_rx_service, 	&this->m_thread_com_rx_service),
-	m_thread_camera_service	(THREAD_CAMERA_SERVICE, 	friend_camera_service, 	&this->m_thread_camera_service),
-	m_thread_detection	(THREAD_DETECTION_SERVICE, 	friend_detection, 	&this->m_thread_detection)
-{
-	//nothing
+CApplication::CApplication()
+    : m_thread_com_tx_service(THREAD_COM_TX_SERVICE),
+      m_thread_com_rx_service(THREAD_COM_RX_SERVICE),
+      m_thread_camera_service(THREAD_CAMERA_SERVICE), m_thread_detection(THREAD_DETECTION_SERVICE) {
+    // nothing
 }
 
 
 /**
  * @brief : Destructor
  */
-CApplication::~CApplication()
-{
-	//nothing
+CApplication::~CApplication() {
+    // nothing
 }
 
 
 /**
  * @brief : Run function for the Pedestrain Detection Aapplication
  */
-void CApplication::run()
-{
-	// Create the Threads
-	if (this->m_thread_com_tx_service.create(0) != RC_SUCCESS)
-	{
-		cout << "ERROR\t: Failed to set up the Communication Tx Service Thread " << this->m_thread_com_tx_service.getThreadIndex() << endl;
-	}
+void CApplication::run() {
+    // Create the Threads
+    if (this->m_thread_com_tx_service.create() != RC_SUCCESS) {
+        LOG_ERROR("CApplication", "Failed to set up the Communication Tx Service Thread " + std::to_string(this->m_thread_com_tx_service.getThreadIndex()));
+    }
 
-	if (this->m_thread_com_rx_service.create(0) != RC_SUCCESS)
-	{
-		cout << "ERROR\t: Failed to set up the Communication Rx Service Thread " << this->m_thread_com_rx_service.getThreadIndex() << endl;
-	}
+    if (this->m_thread_com_rx_service.create() != RC_SUCCESS) {
+        LOG_ERROR("CApplication", "Failed to set up the Communication Rx Service Thread " + std::to_string(this->m_thread_com_rx_service.getThreadIndex()));
+    }
 
-	if (this->m_thread_camera_service.create(0) != RC_SUCCESS)
-	{
-		cout << "ERROR\t: Failed to set up the Camera Service Thread " << this->m_thread_camera_service.getThreadIndex() << endl;
-	}
+    if (this->m_thread_camera_service.create() != RC_SUCCESS) {
+        LOG_ERROR("CApplication", "Failed to set up the Camera Service Thread " + std::to_string(this->m_thread_camera_service.getThreadIndex()));
+    }
 
-	if (this->m_thread_detection.create(0) != RC_SUCCESS)
-	{
-		cout << "ERROR\t: Failed to set up the Detection Thread " << this->m_thread_detection.getThreadIndex() << endl;
-	}
+    if (this->m_thread_detection.create() != RC_SUCCESS) {
+        LOG_ERROR("CApplication", "Failed to set up the Detection Thread " + std::to_string(this->m_thread_detection.getThreadIndex()));
+    }
 
-	cout << "INFO\t: Running Background Thread 0 started with ID : " << pthread_self() << endl;
-	while (1)
-	{
-		// background thread
-		sleep(1);
-	}
+    LOG_INFO("CApplication", "Running Background Thread 0 started with ID : " + std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id())));
+    while (1) {
+        // background thread
+        sleep(1);
+    }
 }

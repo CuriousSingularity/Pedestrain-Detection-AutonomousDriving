@@ -9,22 +9,24 @@
  ****************************************************************************/
 
 
-//System Include Files
+// System Include Files
 #include <iostream>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 
-//Own Include Files
-#include "./OS/inc/CMailBox.h"
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
+// Own Include Files
 #include "./App/inc/CComRxService.h"
 #include "./App/inc/CSerialProtocol.h"
+#include "./Common/inc/Logger.h"
+#include "./OS/inc/CMailBox.h"
 
-//Namespace
+// Namespace
 using namespace std;
 using namespace global;
 
-//Method Implementations
+// Method Implementations
 /**
  * @brief : Constructor
  *
@@ -33,19 +35,16 @@ using namespace global;
  * @param entry		: Entry function for the thread
  * @param arg		: Arguments to the thread
  */
-CComRxService::CComRxService(int threadIndex, CThread::start_routine_t entry, void *arg) : 
-		CThread(threadIndex, entry, arg)
-{
-	// nothing
+CComRxService::CComRxService(int threadIndex) : CThread(threadIndex, [this]() { this->run(); }) {
+    // nothing
 }
 
 
 /**
  * @brief : Destructor
  */
-CComRxService::~CComRxService()
-{
-	// nothing
+CComRxService::~CComRxService() {
+    // nothing
 }
 
 
@@ -54,45 +53,20 @@ CComRxService::~CComRxService()
  *
  * @return - to join the thread
  */
-void CComRxService::run()
-{
-	// The Threads runs here
-	cout << "INFO\t: Communication Rx Service " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
+void CComRxService::run() {
+    // The Threads runs here
+    LOG_INFO("CComRxService", "Communication Rx Service " + std::to_string(this->getThreadIndex()) + " started with ID : " + std::to_string(pthread_self()));
 
-	cout << "INFO\t: Running Communication Rx Service " << this->getThreadIndex() << " started with ID : " << pthread_self() << endl;
+    LOG_INFO("CComRxService", "Running Communication Rx Service " + std::to_string(this->getThreadIndex()) + " started with ID : " + std::to_string(pthread_self()));
 
-	// Mailboxes
-	extern CMailBox g__Mailboxes[THREAD_TOTAL_COUNT];
-	int msg_src_id = 0;
+    // Mailboxes
+    extern CMailBox g__Mailboxes[THREAD_TOTAL_COUNT];
+    int msg_src_id = 0;
 
-	CMailBox::mail_box_data_t msg_recv = {0};
+    CMailBox::MailBoxData msg_recv = {0};
 
-	while (1)
-	{
-		if (g__Mailboxes[THREAD_COM_RX_SERVICE].receive(msg_src_id, msg_recv) != RC_SUCCESS)
-			continue;
-	}
-}
-
-
-
-/**
- * @brief : Friend function used to create the thread 
- *
- * @param arg : arguments to the thread
- *
- * @return 
- */
-void *friend_com_rx_service(void *arg)
-{
-	cout << "INFO\t: Thread " << __func__ << endl;
-
-	CComRxService *ptr = static_cast<CComRxService *>(arg);
-
-	if (ptr)
-	{
-		ptr->run();
-	}
-
-	return NULL;
+    while (1) {
+        if (g__Mailboxes[THREAD_COM_RX_SERVICE].receive(msg_src_id, msg_recv) != RC_SUCCESS)
+            continue;
+    }
 }

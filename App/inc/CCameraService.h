@@ -3,8 +3,8 @@
  ****************************************************************************
  * Filename        : CCameraService.h
  * Author          : Bharath Ramachandraiah (stbhrama@stud.h-da.de)
- * Description     : Serial Data Processing thread - packet reception and processing
- * 			it with Service-ID, Local-ID; predefined protocol.
+ * Description     : Camera service thread for continuous frame capture and buffering
+ * 			Manages camera hardware and provides frames to detection algorithms
  *
  ****************************************************************************/
 
@@ -12,60 +12,64 @@
 #ifndef CCAMERASERVICE_H
 #define CCAMERASERVICE_H
 
-//System Include Files
+// System Include Files
 
-//Own Include Files
-#include "./OS/inc/CThread.h"
-#include "./OS/inc/CSemaphore.h"
+// Own Include Files
 #include "./HAL/inc/CCamera.h"
+#include "./OS/inc/CSemaphore.h"
+#include "./OS/inc/CThread.h"
 
 class CCameraService : public CThread {
-private:
+  private:
+    /**
+     * @brief Primary camera device instance
+     * Main camera hardware interface for frame capture
+     */
+    CCamera m_primaryCamera;
 
-	/**
-	 * @brief : Camera channel 0
-	 */
-	CCamera		m_camera_0;
+    /**
+     * @brief Main thread execution routine
+     * Continuously captures frames from camera and stores in ring buffer
+     * Runs at configured framerate until thread termination
+     */
+    void run();
 
-	/**
-	 * @brief : Main routine for the thread
-	 *
-	 * @return - to join the thread
-	 */
-	void run();
+    static int signal_type;        ///< Signal type for camera timing
 
-	static int signal_type;
+    /**
+     * @brief Handle camera timing signals
+     * Static signal handler for camera frame timing control
+     * @param sig Signal number received
+     */
+    static void handleCameraSignal(int sig);
 
-	static void __camera_cyclic__signal_handler(int sig);
+    /**
+     * @brief Wait for next frame timing
+     * Implements frame rate control by waiting for next capture cycle
+     */
+    void waitForNewFrame();
 
-	void wait_for_newFrame();
+  public:
+    /**
+     * @brief Constructor
+     * Initializes camera service with specified thread index
+     * @param threadIndex Unique identifier for this thread instance
+     */
+    CCameraService(int threadIndex);
 
-public:
+    /**
+     * @brief Destructor
+     * Cleans up camera service resources
+     */
+    ~CCameraService();
 
-	/**
-	 * @brief : Constructor
-	 *
-	 * @param threadIndex 	: Thread Index
-	 * @param entry		: Entry function for the thread
-	 * @param arg		: Arguments to the thread
-	 */
-	CCameraService(int threadIndex, CThread::start_routine_t entry = NULL, void *arg = NULL);
-
-	/**
-	 * @brief : Destructor
-	 */
-	~CCameraService();
-
-	static void cloneMat(cv::Mat &lhs, const cv::Mat &rhs);
-	/**
-	 * @brief : Friend function used to create the thread 
-	 *
-	 * @param arg : arguments to the thread
-	 *
-	 * @return 
-	 */
-	friend void *friend_camera_service(void *arg);
-
+    /**
+     * @brief Clone OpenCV matrix data
+     * Static utility function to safely copy cv::Mat objects
+     * @param destination Target matrix to receive copied data
+     * @param source Source matrix to copy from
+     */
+    static void cloneMat(cv::Mat& destination, const cv::Mat& source);
 };
 /********************
  **  CLASS END

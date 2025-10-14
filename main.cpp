@@ -1,5 +1,5 @@
 /*
- * Copyright (c) [15-Apr-2019] 
+ * Copyright (c) [15-Apr-2019]
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -7,10 +7,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -18,49 +18,57 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- * 
+ *
  *      Authors:	Bharath Ramachandraiah (stbhrama@stud.h-da.de)
  *					Nicolas Leon Ojeda (nicolas.leon@stud.h-da.de)
  *
- * Modifying a section of the code does not make you the author of the code. The 
+ * Modifying a section of the code does not make you the author of the code. The
  * credit must always go to the original authors who did an intensive research to
- * realise the solution. 
+ * realise the solution.
  *
  */
 
 // Header Files
 #include <iostream>
+
 #include <sys/types.h>
 #include <unistd.h>
 
 // User-defined Header Files
-#include "./global.h"
 #include "./App/inc/CApplication.h"
+#include "./Common/inc/Logger.h"
+#include "./global.h"
 
-#define VERSION		("1.0")
+#define VERSION ("1.0")
 
 using namespace std;
 
-int main(int argc, char **argv)
-{
+int main(int argc, char** argv) {
+    // Initialize logger with console output
+    Logger& logger = Logger::getInstance();
+    logger.addDestination(std::make_unique<ConsoleLogDestination>(true));
+    logger.addDestination(std::make_unique<FileLogDestination>("pedestrian_detection.log"));
+    logger.setMinLevel(LogLevel::INFO);
 
 #if (TARGET_PLATFORM == NVIDIA)
-	cout << "NVidia Platform" << endl;
+    LOG_INFO("Main", "NVidia Platform");
 #elif (TARGET_PLATFORM == RSP)
-	cout << "Raspberry Pi Platform" << endl;
+    LOG_INFO("Main", "Raspberry Pi Platform");
 #elif (TARGET_PLATFORM == PC)
-	cout << "PC platform" << endl;
+    LOG_INFO("Main", "PC platform");
 #else
-	cout << "Invalid Platform" << endl;
-	while(1);
+    LOG_CRITICAL("Main", "Invalid Platform");
+    while (1)
+        ;
 #endif
-	cout << VERSION << "v : Program Started with PPID : " << getppid() << "; PID : " << getpid() << endl;
+    LOG_INFO("Main", std::string(VERSION) + "v : Program Started with PPID : " + std::to_string(getppid()) + "; PID : " + std::to_string(getpid()));
 
-	CApplication	pedestrian;
+    CApplication pedestrian;
 
-	pedestrian.run();
+    pedestrian.run();
 
-	while(1);
+    while (1)
+        ;
 
-	return 0;
+    return 0;
 }

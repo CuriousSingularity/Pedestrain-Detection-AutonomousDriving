@@ -7,78 +7,33 @@
  *
  ****************************************************************************/
 
-//System Include Files
+// System Include Files
 #include <iostream>
+
 #include <errno.h>
 
-//Own Include Files
+// Own Include Files
 #include "CMutex.h"
 
-//Namespace
+// Namespace
 using namespace global;
 using namespace std;
 
-//Method Implementations
+// Method Implementations
 
 /**
  * @brief : Constructor
  */
-CMutex::CMutex()
-{
-	this->m_status 	= service_UNAVAILABLE;
-	this->m_key 	= PTHREAD_MUTEX_INITIALIZER;
-
-	if (this->init() != RC_SUCCESS)
-	{
-		cout << "ERROR\t: Mutex initialisation failed with error code " << errno << endl;
-	}
-	else
-	{
-		this->m_status = service_READY;
-	}
+CMutex::CMutex() {
+    this->m_status = service_READY;
 }
 
 
 /**
- * @brief : Destructor 
+ * @brief : Destructor
  */
-CMutex::~CMutex()
-{
-	if (this->destroy() != RC_SUCCESS)
-	{
-		cout << "ERROR\t: Mutex destroy failed with error code " << errno << endl;
-	}
-	else
-	{
-		this->m_status = service_UNDEFINED;
-	}
-}
-
-
-/**
- * @brief : Mutex initialisation
- *
- * @return RC_t : status
- */
-RC_t CMutex::init()
-{
-	if (pthread_mutex_init(&this->m_key, NULL) == 0)
-		return RC_SUCCESS;
-	else
-		return RC_ERROR_OPEN;
-}
-
-/**
- * @brief : Mutex destroy
- *
- * @return RC_t : status
- */
-RC_t CMutex::destroy()
-{
-	if (pthread_mutex_destroy(&this->m_key) == 0)
-		return RC_SUCCESS;
-	else
-		return RC_ERROR_CLOSE;
+CMutex::~CMutex() {
+    this->m_status = service_UNDEFINED;
 }
 
 
@@ -87,15 +42,16 @@ RC_t CMutex::destroy()
  *
  * @return RC_t : status
  */
-RC_t CMutex::lock()
-{
-	if (this->m_status != service_READY)
-		return RC_ERROR_INVALID_STATE;
+RC_t CMutex::lock() {
+    if (this->m_status != service_READY)
+        return RC_ERROR_INVALID_STATE;
 
-	if (pthread_mutex_lock(&this->m_key) == 0)
-		return RC_SUCCESS;
-	else
-		return RC_ERROR_CLOSE;
+    try {
+        m_mutex.lock();
+        return RC_SUCCESS;
+    } catch (const std::exception& e) {
+        return RC_ERROR_CLOSE;
+    }
 }
 
 /**
@@ -103,15 +59,14 @@ RC_t CMutex::lock()
  *
  * @return RC_t : status
  */
-RC_t CMutex::trylock()
-{
-	if (this->m_status != service_READY)
-		return RC_ERROR_INVALID_STATE;
+RC_t CMutex::trylock() {
+    if (this->m_status != service_READY)
+        return RC_ERROR_INVALID_STATE;
 
-	if (pthread_mutex_trylock(&this->m_key) == 0)
-		return RC_SUCCESS;
-	else
-		return RC_ERROR_CLOSE;
+    if (m_mutex.try_lock())
+        return RC_SUCCESS;
+    else
+        return RC_ERROR_CLOSE;
 }
 
 
@@ -120,14 +75,14 @@ RC_t CMutex::trylock()
  *
  * @return RC_t : status
  */
-RC_t CMutex::unlock()
-{
-	if (this->m_status != service_READY)
-		return RC_ERROR_INVALID_STATE;
+RC_t CMutex::unlock() {
+    if (this->m_status != service_READY)
+        return RC_ERROR_INVALID_STATE;
 
-	if (pthread_mutex_unlock(&this->m_key) == 0)
-		return RC_SUCCESS;
-	else
-		return RC_ERROR_CLOSE;
+    try {
+        m_mutex.unlock();
+        return RC_SUCCESS;
+    } catch (const std::exception& e) {
+        return RC_ERROR_CLOSE;
+    }
 }
-

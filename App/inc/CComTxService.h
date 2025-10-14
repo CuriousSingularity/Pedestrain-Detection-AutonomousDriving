@@ -3,8 +3,8 @@
  ****************************************************************************
  * Filename        : CComTxService.h
  * Author          : Bharath Ramachandraiah (stbhrama@stud.h-da.de)
- * Description     : Serial Data Processing thread - packet reception and processing
- * 			it with Service-ID, Local-ID; predefined protocol.
+ * Description     : Communication transmission service for outbound data packets
+ * 			Handles mailbox message reception and UART transmission with protocol formatting
  *
  ****************************************************************************/
 
@@ -12,63 +12,64 @@
 #ifndef CCOMTXSERVICE_H
 #define CCOMTXSERVICE_H
 
-//System Include Files
+// System Include Files
 
-//Own Include Files
-#include "./OS/inc/CThread.h"
+// Own Include Files
+#include "./App/inc/CSerialProtocol.h"
 #include "./OS/inc/CMailBox.h"
 #include "./OS/inc/CSemaphore.h"
-#include "./App/inc/CSerialProtocol.h"
+#include "./OS/inc/CThread.h"
 
 class CComTxService : public CThread {
-private:
+  private:
+    /**
+     * @brief Primary UART communication interface
+     * Hardware abstraction for serial communication
+     */
+    CUart m_primaryUart;
 
-	/**
-	 * @brief : UART channel 1
-	 */
-	CUart		m_uart_1;
+    /**
+     * @brief Serial protocol handler
+     * Manages packet formatting and protocol encoding/decoding
+     */
+    CSerialProtocol m_protocol;
 
-	/**
-	 * @brief : Protocol parser object
-	 */
-	CSerialProtocol		m_Protocol;
+    /**
+     * @brief Main transmission thread routine
+     * Waits for mailbox messages and transmits formatted data via UART
+     * Runs continuously until thread termination
+     */
+    void run();
 
-	/**
-	 * @brief : Main routine for the thread
-	 *
-	 * @return - to join the thread
-	 */
-	void run();
+    /**
+     * @brief Process received mailbox message
+     * Routes message based on service ID and prepares for transmission
+     * @param data Mailbox message data to process
+     * @return RC_t Processing status code
+     */
+    global::RC_t processRecvdMsg(CMailBox::MailBoxData& data);
 
-	global::RC_t processRecvdMsg(CMailBox::mail_box_data_t &data);
+    /**
+     * @brief Process data for transmission
+     * Formats detection data and transmits via UART
+     * @param data Mailbox data containing detection results
+     * @return RC_t Transmission status code
+     */
+    global::RC_t processDataForTx(CMailBox::MailBoxData& data);
 
-	global::RC_t processDataForTx(CMailBox::mail_box_data_t &data);
+  public:
+    /**
+     * @brief Constructor
+     * Initializes communication transmission service
+     * @param threadIndex Unique thread identifier
+     */
+    CComTxService(int threadIndex);
 
-public:
-
-	/**
-	 * @brief : Constructor
-	 *
-	 * @param threadIndex 	: Thread Index
-	 * @param entry		: Entry function for the thread
-	 * @param arg		: Arguments to the thread
-	 */
-	CComTxService(int threadIndex, CThread::start_routine_t entry = NULL, void *arg = NULL);
-
-	/**
-	 * @brief : Destructor
-	 */
-	~CComTxService();
-
-	/**
-	 * @brief : Friend function used to create the thread 
-	 *
-	 * @param arg : arguments to the thread
-	 *
-	 * @return 
-	 */
-	friend void *friend_com_tx_service(void *arg);
-
+    /**
+     * @brief Destructor
+     * Cleans up communication service resources
+     */
+    ~CComTxService();
 };
 /********************
  **  CLASS END

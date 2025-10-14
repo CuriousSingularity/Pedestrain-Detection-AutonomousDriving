@@ -11,53 +11,51 @@
 #ifndef CAPPLICATION_H
 #define CAPPLICATION_H
 
-//System Include Files
+// System Include Files
 
-//Own Include Files
-#include "./App/inc/CDetection.h"
-#include "./App/inc/CComTxService.h"
-#include "./App/inc/CComRxService.h"
+// Own Include Files
 #include "./App/inc/CCameraService.h"
+#include "./App/inc/CComRxService.h"
+#include "./App/inc/CComTxService.h"
+#include "./App/inc/CDetection.h"
 
 class CApplication {
-private:
+  private:
+    /**
+     * @brief : Communication Tx Service thread
+     */
+    CComTxService m_thread_com_tx_service;
 
-	/**
-	 * @brief : Communication Tx Service thread
-	 */
-	CComTxService m_thread_com_tx_service;
+    /**
+     * @brief : Communication Rx Service thread
+     */
+    CComRxService m_thread_com_rx_service;
 
-	/**
-	 * @brief : Communication Rx Service thread
-	 */
-	CComRxService m_thread_com_rx_service;
+    /**
+     * @brief : Camera Service thread
+     */
+    CCameraService m_thread_camera_service;
 
-	/**
-	 * @brief : Camera Service thread
-	 */
-	CCameraService m_thread_camera_service;
+    /**
+     * @brief : Detection Algorithm thread
+     */
+    CDetection m_thread_detection;
 
-	/**
-	 * @brief : Detection Algorithm thread
-	 */
-	CDetection m_thread_detection;
+  public:
+    /**
+     * @brief : Constructor
+     */
+    CApplication();
 
-public:
+    /**
+     * @brief : Destructor
+     */
+    ~CApplication();
 
-	/**
-	 * @brief : Constructor
-	 */
-	CApplication();
-
-	/**
-	 * @brief : Destructor
-	 */
-	~CApplication();
-
-	/**
-	 * @brief : Run function for the Pedestrain Detection Aapplication
-	 */
-	void run();
+    /**
+     * @brief : Run function for the Pedestrain Detection Aapplication
+     */
+    void run();
 };
 /********************
  **  CLASS END

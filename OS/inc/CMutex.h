@@ -10,76 +10,61 @@
 #ifndef CMUTEX_H
 #define CMUTEX_H
 
-//System Include Files
-#include <pthread.h>
+// System Include Files
+#include <mutex>
 
-//Own Include Files
+// Own Include Files
 #include "./global.h"
 
 class CMutex {
-private:
+  private:
+    /**
+     * @brief : Mutex object
+     */
+    std::mutex m_mutex;
 
-	/**
-	 * @brief : Mutex key 
-	 */
-	pthread_mutex_t m_key;
+    /**
+     * @brief : Status of the Mutex
+     */
+    global::service_state_t m_status;
 
-	/**
-	 * @brief : Mutex attributes
-	 */
-	pthread_mutexattr_t m_attr;
+  public:
+    /**
+     * @brief : Constructor
+     */
+    CMutex();
 
-	/**
-	 * @brief : Status of the Mutex
-	 */
-	global::service_state_t m_status;
+    /**
+     * @brief : Delete copy constructor and assignment operator
+     */
+    CMutex(const CMutex&) = delete;
+    CMutex& operator=(const CMutex&) = delete;
 
-	/**
-	 * @brief : Mutex initialisation
-	 *
-	 * @return RC_t : status
-	 */
-	global::RC_t init();
+    /**
+     * @brief : Destructor
+     */
+    virtual ~CMutex();
 
-	/**
-	 * @brief : Mutex destroy
-	 *
-	 * @return RC_t : status
-	 */
-	global::RC_t destroy();
-public:
+    /**
+     * @brief : acquire blocking mutex lock
+     *
+     * @return RC_t : status
+     */
+    global::RC_t lock();
 
-	/**
-	 * @brief : Constructor
-	 */
-	CMutex();
+    /**
+     * @brief : acquire non-blocking mutex lock
+     *
+     * @return RC_t : status
+     */
+    global::RC_t trylock();
 
-	/**
-	 * @brief : Destructor 
-	 */
-	virtual ~CMutex();
-
-	/**
-	 * @brief : acquire blocking mutex lock
-	 *
-	 * @return RC_t : status
-	 */
-	global::RC_t lock();
-
-	/**
-	 * @brief : acquire non-blocking mutex lock
-	 *
-	 * @return RC_t : status
-	 */
-	global::RC_t trylock();
-
-	/**
-	 * @brief : release the mutex lock
-	 *
-	 * @return RC_t : status
-	 */
-	global::RC_t unlock();
-
+    /**
+     * @brief : release the mutex lock
+     *
+     * @return RC_t : status
+     */
+    global::RC_t unlock();
 };
 /********************
  **  CLASS END

@@ -12,123 +12,126 @@
 #ifndef CRESOURCE_H
 #define CRESOURCE_H
 
-//System Include Files
+// System Include Files
 #include <string>
 
-//Own Include Files
-#include "./OS/inc/CSemaphore.h"
+// Own Include Files
 #include "./OS/inc/CMutex.h"
+#include "./OS/inc/CSemaphore.h"
 
 class CResource {
-private:
+  private:
+    /**
+     * @brief : Resource / device node path
+     */
+    std::string m_resNodePath;
 
-	/**
-	 * @brief : Resource / device node path 
-	 */
-	std::string m_resNodePath;
+    /**
+     * @brief : Device access modes
+     */
+    int m_flags;
 
-	/**
-	 * @brief : Device access modes 
-	 */
-	int m_flags;
+    /**
+     * @brief : Device permission modes
+     */
+    mode_t m_mode;
 
-	/**
-	 * @brief : Device permission modes
-	 */
-	mode_t m_mode;
+    /**
+     * @brief : Open the device for reading or writing
+     *
+     * @return RC_t : status of open
+     */
+    global::RC_t open();
 
-	/**
-	 * @brief : Open the device for reading or writing
-	 *
-	 * @return RC_t : status of open
-	 */
-	global::RC_t open();
+    /**
+     * @brief : Close the device
+     *
+     * @return RC_t : status of close
+     */
+    global::RC_t close();
 
-	/**
-	 * @brief : Close the device
-	 *
-	 * @return RC_t : status of close
-	 */
-	global::RC_t close();
+  protected:
+    /**
+     * @brief : Mutex to read protect the resource
+     */
+    CMutex m_mutex_r;
 
-protected:
+    /**
+     * @brief : Mutex to write protect the resource
+     */
+    CMutex m_mutex_w;
 
-	/**
-	 * @brief : Mutex to read protect the resource
-	 */
-	CMutex m_mutex_r;
+    /**
+     * @brief : File Descriptor of the resource
+     */
+    int m_fd_w;
 
-	/**
-	 * @brief : Mutex to write protect the resource
-	 */
-	CMutex m_mutex_w;
+    /**
+     * @brief : File Descriptor of the resource
+     */
+    int m_fd_r;
 
-	/**
-	 * @brief : File Descriptor of the resource
-	 */
-	int m_fd_w;
+    /**
+     * @brief : Status of the Resource
+     */
+    global::service_state_t m_status;
 
-	/**
-	 * @brief : File Descriptor of the resource 
-	 */
-	int m_fd_r;
+  public:
+    /**
+     * @brief : Constructor
+     *
+     * @param devPath 	: device node path
+     * @param oflag		: access mode flags
+     * @param mode		: permissio mode
+     */
+    CResource(std::string devPath = "", int flag = 0, mode_t mode = 0);
 
-	/**
-	 * @brief : Status of the Resource
-	 */
-	global::service_state_t m_status;
+    /**
+     * @brief : Delete copy constructor and assignment operator
+     */
+    CResource(const CResource&) = delete;
+    CResource& operator=(const CResource&) = delete;
 
-public:
+    /**
+     * @brief : Destructor
+     */
+    ~CResource();
 
-	/**
-	 * @brief : Constructor
-	 *
-	 * @param devPath 	: device node path
-	 * @param oflag		: access mode flags
-	 * @param mode		: permissio mode
-	 */
-	CResource(std::string devPath = "", int flag = 0, mode_t mode = 0);
+    /**
+     * @brief : Get the device node path
+     *
+     * @return string
+     */
+    std::string getDeviceNode();
 
-	/**
-	 * @brief : Destructor
-	 */
-	~CResource();
+    /**
+     * @brief : Read from the device
+     *
+     * @param buffer	: buffer to read the data from
+     * @param nByte		: number of bytes to be read
+     * @param rByte		: number of bytes actually read
+     *
+     * @return RC_t - status of read
+     */
+    virtual global::RC_t read(void* buffer, const size_t nByte, ssize_t& rByte);
 
-	/**
-	 * @brief : Get the device node path
-	 *
-	 * @return string
-	 */
-	std::string getDeviceNode();
+    /**
+     * @brief : Write to the device
+     *
+     * @param buffer	: buffer to write the data to
+     * @param nByte		: number of bytes to be written
+     * @param rByte		: number of bytes actually written
+     *
+     * @return RC_t - status of read
+     */
+    virtual global::RC_t write(const void* buffer, const size_t nByte, ssize_t& wByte);
 
-	/**
-	 * @brief : Read from the device 
-	 *
-	 * @param buffer	: buffer to read the data from
-	 * @param nByte		: number of bytes to be read
-	 * @param rByte		: number of bytes actually read
-	 *
-	 * @return RC_t - status of read
-	 */
-	virtual global::RC_t read(void *buffer, const size_t nByte, ssize_t &rByte);
-
-	/**
-	 * @brief : Write to the device 
-	 *
-	 * @param buffer	: buffer to write the data to
-	 * @param nByte		: number of bytes to be written
-	 * @param rByte		: number of bytes actually written
-	 *
-	 * @return RC_t - status of read
-	 */
-	virtual global::RC_t write(const void *buffer, const size_t nByte, ssize_t &wByte);
-
-	/**
-	 * @brief : Device configuration - A pure virtual function
-	 *
-	 * @return RC_t - status of the device configuration
-	 */
-	virtual global::RC_t configure() = 0;
+    /**
+     * @brief : Device configuration - A pure virtual function
+     *
+     * @return RC_t - status of the device configuration
+     */
+    virtual global::RC_t configure() = 0;
 };
 /********************
  **  CLASS END
